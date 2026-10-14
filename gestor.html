@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PEGAS BARBEARIA - Painel do Gestor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,800;0,900;1,400&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pegas: {
+              black: '#0a0a0a',
+              card: '#141414',
+              border: '#262626',
+              accent: '#ffffff',
+              gray: '#8e8e93',
+              lightGray: '#1c1c1e'
+            }
+          },
+          fontFamily: {
+            sans: ['Montserrat', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #050505;
+      color: #f5f5f5;
+    }
+    .scrollbar-none::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-none {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-white selection:text-black">
+
+  <!-- TELA 1: SELEÇÃO DE PERFIL DO BARBEIRO (ESTILO NETFLIX) -->
+  <div id="screen-profiles" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-6 space-y-8">
+    
+    <!-- LOGO OFICIAL DA BARBEARIA -->
+    <div class="flex flex-col items-center space-y-3">
+      <div class="w-20 h-20 border-2 border-white/20 rounded-full flex items-center justify-center bg-black shadow-2xl p-2">
+        <svg class="w-14 h-14 text-white" viewBox="0 0 100 100" fill="currentColor">
+          <path d="M 30,15 C 65,15 80,30 80,48 C 80,68 62,75 35,75 C 32,75 25,74 20,72 L 20,85 C 20,88 17,90 14,90 C 11,90 8,88 8,85 L 8,20 C 8,17 11,15 14,15 Z M 30,28 L 22,28 L 22,62 C 26,63 31,64 36,64 C 53,64 66,58 66,45 C 66,33 54,28 30,28 Z" />
+          <path d="M 46,32 L 52,32 L 48,58 L 42,58 Z" fill="#ffffff"/>
+        </svg>
+      </div>
+      <div class="text-center">
+        <h1 class="text-2xl font-black tracking-[0.2em] text-white">PEGAS</h1>
+        <p class="text-[9px] tracking-[0.3em] text-gray-400 uppercase font-semibold">BARBEARIA • PAINEL</p>
+      </div>
+    </div>
+
+    <div class="text-center space-y-2">
+      <h2 class="text-xl sm:text-2xl font-extrabold text-white">Quem está acessando?</h2>
+      <p class="text-xs text-gray-400">Selecione seu perfil para acessar a agenda</p>
+    </div>
+
+    <!-- CARDS DOS BARBEIROS -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 max-w-lg w-full" id="container-perfis-barbeiros">
+      <!-- Renderizado dinamicamente via JS -->
+    </div>
+  </div>
+
+  <!-- TELA 2: DASHBOARD DO GESTOR -->
+  <div id="screen-dashboard" class="hidden flex-col min-h-screen">
+    
+    <!-- HEADER DA BARBEARIA -->
+    <header class="bg-pegas-card border-b border-pegas-border sticky top-0 z-30">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 border border-white/20 rounded-full flex items-center justify-center bg-black">
+            <svg class="w-5 h-5 text-white" viewBox="0 0 100 100" fill="currentColor">
+              <path d="M 30,15 C 65,15 80,30 80,48 C 80,68 62,75 35,75 C 32,75 25,74 20,72 L 20,85 C 20,88 17,90 14,90 C 11,90 8,88 8,85 L 8,20 C 8,17 11,15 14,15 Z M 30,28 L 22,28 L 22,62 C 26,63 31,64 36,64 C 53,64 66,58 66,45 C 66,33 54,28 30,28 Z" />
+              <path d="M 46,32 L 52,32 L 48,58 L 42,58 Z" fill="#ffffff"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-base font-black tracking-widest text-white leading-none">PEGAS</h1>
+            <p class="text-[8px] tracking-[0.25em] text-gray-400 uppercase font-semibold">GESTÃO DE HORÁRIOS</p>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <div class="flex items-center space-x-2 bg-black border border-pegas-border px-3 py-1.5 rounded-xl">
+            <img id="header-user-foto" src="" class="w-6 h-6 rounded-full object-cover border border-white/30">
+            <span id="header-user-nome" class="text-xs font-bold text-white">---</span>
+          </div>
+
+          <button onclick="trocarPerfil()" class="text-xs text-gray-400 hover:text-white p-2" title="Trocar de Perfil">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+      <!-- CARDS DE MÉTRICAS -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
+          <div>
+            <p class="text-[10px] text-gray-400 uppercase font-semibold">Atendimentos Hoje</p>
+            <p id="stat-total" class="text-xl font-black text-white mt-1">0</p>
+          </div>
+          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white">
+            <i class="fa-solid fa-calendar-check text-sm"></i>
+          </div>
+        </div>
+
+        <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
+          <div>
+            <p class="text-[10px] text-gray-400 uppercase font-semibold">Faturamento Previsto</p>
+            <p id="stat-faturamento" class="text-xl font-black text-white mt-1">R$ 0,00</p>
+          </div>
+          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-emerald-400">
+            <i class="fa-solid fa-wallet text-sm"></i>
+          </div>
+        </div>
+
+        <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
+          <div>
+            <p class="text-[10px] text-gray-400 uppercase font-semibold">Confirmados</p>
+            <p id="stat-confirmados" class="text-xl font-black text-white mt-1">0</p>
+          </div>
+          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-blue-400">
+            <i class="fa-solid fa-circle-check text-sm"></i>
+          </div>
+        </div>
+
+        <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
+          <div>
+            <p class="text-[10px] text-gray-400 uppercase font-semibold">Pendentes</p>
+            <p id="stat-pendentes" class="text-xl font-black text-white mt-1">0</p>
+          </div>
+          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-amber-400">
+            <i class="fa-solid fa-clock text-sm"></i>
+          </div>
+        </div>
+      </section>
+
+      <!-- BARRA DE CONFIGURAÇÃO DE JORNADA (TMC, INÍCIO, JORNADA) -->
+      <section class="bg-pegas-card border border-pegas-border p-4 rounded-xl space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center space-x-2">
+            <i class="fa-solid fa-sliders text-gray-400"></i>
+            <span>Minhas Configurações de Atendimento</span>
+          </h3>
+          <span class="text-[10px] text-gray-500">Afeta os horários gerados para os clientes</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+          <div>
+            <label class="text-[10px] text-gray-400 font-semibold block uppercase">Tempo Médio de Corte (TMC)</label>
+            <select id="select-tmc" onchange="salvarConfigJornada()" class="mt-1 w-full bg-black border border-pegas-border text-white text-xs rounded-lg p-2.5 focus:outline-none focus:border-white">
+              <option value="30">30 minutos</option>
+              <option value="40">40 minutos</option>
+              <option value="45">45 minutos</option>
+              <option value="60">60 minutos (1 hora)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-[10px] text-gray-400 font-semibold block uppercase">Início da Jornada</label>
+            <select id="select-inicio" onchange="salvarConfigJornada()" class="mt-1 w-full bg-black border border-pegas-border text-white text-xs rounded-lg p-2.5 focus:outline-none focus:border-white">
+              <option value="7">07:00 da manhã</option>
+              <option value="8">08:00 da manhã</option>
+              <option value="9">09:00 da manhã</option>
+              <option value="10">10:00 da manhã</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-[10px] text-gray-400 font-semibold block uppercase">Duração da Jornada</label>
+            <select id="select-jornada" onchange="salvarConfigJornada()" class="mt-1 w-full bg-black border border-pegas-border text-white text-xs rounded-lg p-2.5 focus:outline-none focus:border-white">
+              <option value="8">8 horas por dia</option>
+              <option value="10">10 horas por dia</option>
+              <option value="12">12 horas por dia</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- CALENDÁRIO COM VISUALIZAÇÃO DE AGENDAMENTOS E BOTÃO DE HORA EXTRA -->
+      <section class="bg-pegas-card border border-pegas-border p-4 rounded-xl space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Visão Geral do Calendário</h3>
+            <p class="text-xs text-gray-400">Selecione uma data para filtrar ou adicionar hora extra</p>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <input type="date" id="input-filtro-data" onchange="atualizarDataFiltro()" class="bg-black border border-pegas-border text-white text-xs rounded-lg p-2 focus:outline-none focus:border-white">
+            <button onclick="abrirModalHoraExtra()" class="bg-white text-black font-extrabold text-xs px-3 py-2 rounded-lg hover:bg-gray-200 transition flex items-center space-x-1">
+              <i class="fa-solid fa-plus text-xs"></i>
+              <span>Hora Extra</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- LISTA DE AGENDAMENTOS EM TEMPO REAL -->
+      <section class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Lista de Agendamentos em Tempo Real</h3>
+          <span class="text-[10px] text-emerald-400 font-bold flex items-center space-x-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Conectado ao Firebase</span>
+          </span>
+        </div>
+
+        <div id="lista-agendamentos" class="space-y-3">
+          <!-- Renderizado dinamicamente do Firebase -->
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL DE ADICIONAR HORA EXTRA -->
+  <div id="modal-hora-extra" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-pegas-card border border-pegas-border w-full max-w-sm rounded-2xl p-6 space-y-5">
+      <div class="flex justify-between items-center border-b border-pegas-border pb-3">
+        <h3 class="font-bold text-white text-sm">Adicionar Hora Extra</h3>
+        <button onclick="fecharModalHoraExtra()" class="text-gray-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs text-gray-400 font-semibold block mb-1">Quantidade de Horas Extras</label>
+          <select id="extra-qtd" class="w-full bg-black border border-pegas-border text-white text-xs rounded-xl p-3 focus:outline-none focus:border-white">
+            <option value="1">1 Hora</option>
+            <option value="2">2 Horas</option>
+            <option value="3">3 Horas</option>
+            <option value="4">4 Horas</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="text-xs text-gray-400 font-semibold block mb-1">Momento do Encaixe</label>
+          <select id="extra-posicao" class="w-full bg-black border border-pegas-border text-white text-xs rounded-xl p-3 focus:outline-none focus:border-white">
+            <option value="antes">Antes do Expediente (Ex: começar mais cedo)</option>
+            <option value="depois">Depois do Expediente (Ex: esticar até mais tarde)</option>
+          </select>
+        </div>
+      </div>
+
+      <button onclick="salvarHoraExtraFirebase()" class="w-full py-3 bg-white text-black font-extrabold text-xs rounded-xl hover:bg-gray-200">
+        Salvar Hora Extra no Banco
+      </button>
+    </div>
+  </div>
+
+  <!-- FIREBASE SDK (COMPATIBILIDADE) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <script>
+    // -------------------------------------------------------------
+    // 1. CONFIGURAÇÃO DO FIREBASE (SUBSTITUA PELAS SUAS CHAVES)
+    // -------------------------------------------------------------
+const firebaseConfig = {
+  apiKey: "AIzaSyDoEw0fz9a8NvNrMq0jx_tNNQQeny74_4c",
+  authDomain: "pegas-barbearia-d664a.firebaseapp.com",
+  databaseURL: "https://pegas-barbearia-d664a-default-rtdb.firebaseio.com",
+  projectId: "pegas-barbearia-d664a",
+  storageBucket: "pegas-barbearia-d664a.firebasestorage.app",
+  messagingSenderId: "736639531485",
+  appId: "1:736639531485:web:0daaab6391682845859e34",
+  measurementId: "G-R7GGDC95QY"
+};
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // BARBEIROS CADASTRADOS NO SISTEMA
+    const barbeiros = [
+      { id: "lucas", nome: "Lucas Pegas", tmc: 30, inicio: 8, jornada: 10, foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200" },
+      { id: "felipe", nome: "Felipe Santos", tmc: 30, inicio: 9, jornada: 10, foto: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200" },
+      { id: "mateus", nome: "Mateus Oliveira", tmc: 45, inicio: 10, jornada: 8, foto: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200" }
+    ];
+
+    let barbeiroLogado = null;
+    let agendamentosLista = [];
+    let dataFiltro = new Date().toISOString().split('T')[0];
+
+    document.getElementById('input-filtro-data').value = dataFiltro;
+
+    // RENDERIZAR TELA DE PERFIL ESTILO NETFLIX
+    function renderizarPerfis() {
+      const container = document.getElementById('container-perfis-barbeiros');
+      container.innerHTML = '';
+
+      barbeiros.forEach(b => {
+        container.innerHTML += `
+          <button onclick="logarBarbeiro('${b.id}')" class="bg-pegas-card border border-pegas-border hover:border-white p-4 rounded-2xl flex flex-col items-center space-y-3 transition duration-200 hover:scale-105">
+            <img src="${b.foto}" alt="${b.nome}" class="w-20 h-20 rounded-full object-cover border-2 border-white/20">
+            <span class="text-xs font-bold text-white text-center">${b.nome}</span>
+          </button>
+        `;
+      });
+    }
+
+    function logarBarbeiro(id) {
+      barbeiroLogado = barbeiros.find(b => b.id === id);
+      
+      document.getElementById('header-user-foto').src = barbeiroLogado.foto;
+      document.getElementById('header-user-nome').innerText = barbeiroLogado.nome;
+
+      document.getElementById('select-tmc').value = barbeiroLogado.tmc;
+      document.getElementById('select-inicio').value = barbeiroLogado.inicio;
+      document.getElementById('select-jornada').value = barbeiroLogado.jornada;
+
+      document.getElementById('screen-profiles').classList.add('hidden');
+      document.getElementById('screen-dashboard').classList.remove('hidden');
+      document.getElementById('screen-dashboard').classList.add('flex');
+
+      iniciarEscutaFirebase();
+    }
+
+    function trocarPerfil() {
+      document.getElementById('screen-dashboard').classList.add('hidden');
+      document.getElementById('screen-profiles').classList.remove('hidden');
+    }
+
+    // ESCUTAR BANCO DE DADOS EM TEMPO REAL
+    function iniciarEscutaFirebase() {
+      database.ref('agendamentos').on('value', (snapshot) => {
+        const dados = snapshot.val();
+        agendamentosLista = [];
+
+        for (let id in dados) {
+          agendamentosLista.push({ id: id, ...dados[id] });
+        }
+
+        // Ordenar do mais recente para o mais antigo
+        agendamentosLista.sort((a, b) => new Date(b.criadoEm || 0) - new Date(a.criadoEm || 0));
+
+        renderizarAgendamentos();
+      });
+    }
+
+    function renderizarAgendamentos() {
+      const container = document.getElementById('lista-agendamentos');
+      container.innerHTML = '';
+
+      const filtrados = agendamentosLista.filter(a => a.data === dataFiltro && a.barbeiro === barbeiroLogado.nome);
+
+      atualizarMetricas(filtrados);
+
+      if (filtrados.length === 0) {
+        container.innerHTML = `
+          <div class="bg-pegas-card border border-pegas-border p-8 text-center rounded-xl text-gray-500">
+            <i class="fa-solid fa-calendar-xmark text-3xl mb-2"></i>
+            <p class="text-xs">Nenhum agendamento encontrado para esta data.</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtrados.forEach(item => {
+        let statusBadge = '';
+        if (item.status === 'Confirmado') {
+          statusBadge = `<span class="px-2 py-0.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[9px] font-bold rounded-full">Confirmado</span>`;
+        } else if (item.status === 'Pendente') {
+          statusBadge = `<span class="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[9px] font-bold rounded-full">Pendente</span>`;
+        } else if (item.status === 'Concluído') {
+          statusBadge = `<span class="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold rounded-full">Concluído</span>`;
+        } else {
+          statusBadge = `<span class="px-2 py-0.5 bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] font-bold rounded-full">Cancelado</span>`;
+        }
+
+        container.innerHTML += `
+          <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-start space-x-3">
+              <div class="text-center border-r border-pegas-border pr-3">
+                <span class="text-base font-black text-white block">${item.hora}</span>
+                <span class="text-[9px] text-gray-500 font-bold uppercase">Horário</span>
+              </div>
+              <div class="space-y-0.5">
+                <div class="flex items-center space-x-2">
+                  <h4 class="font-bold text-white text-sm">${item.cliente}</h4>
+                  ${statusBadge}
+                </div>
+                <p class="text-xs text-gray-400">${item.serviço} • <strong class="text-white">R$ ${item.valor},00</strong></p>
+                <p class="text-[10px] text-gray-500"><i class="fa-brands fa-whatsapp text-emerald-500 mr-1"></i>${item.telefone}</p>
+              </div>
+            </div>
+
+            <div class="flex items-center space-x-2 border-t sm:border-t-0 border-pegas-border pt-2 sm:pt-0">
+              <a href="https://wa.me/55${item.telefone.replace(/\D/g,'')}" target="_blank" class="px-3 py-1.5 bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 rounded-lg text-xs font-semibold hover:bg-emerald-600/30 transition flex items-center space-x-1">
+                <i class="fa-brands fa-whatsapp"></i>
+                <span>WhatsApp</span>
+              </a>
+
+              <button onclick="alterarStatusFirebase('${item.id}', 'Concluído')" class="p-2 bg-white/5 hover:bg-emerald-500/20 text-gray-300 hover:text-emerald-400 rounded-lg transition" title="Concluir">
+                <i class="fa-solid fa-check text-xs"></i>
+              </button>
+              <button onclick="alterarStatusFirebase('${item.id}', 'Cancelado')" class="p-2 bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 rounded-lg transition" title="Cancelar">
+                <i class="fa-solid fa-xmark text-xs"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function alterarStatusFirebase(id, novoStatus) {
+      database.ref(`agendamentos/${id}`).update({
+        status: novoStatus
+      });
+    }
+
+    function atualizarMetricas(lista) {
+      const total = lista.length;
+      const faturamento = lista.reduce((acc, cur) => cur.status !== 'Cancelado' ? acc + cur.valor : acc, 0);
+      const confirmados = lista.filter(a => a.status === 'Confirmado' || a.status === 'Concluído').length;
+      const pendentes = lista.filter(a => a.status === 'Pendente').length;
+
+      document.getElementById('stat-total').innerText = total;
+      document.getElementById('stat-faturamento').innerText = `R$ ${faturamento},00`;
+      document.getElementById('stat-confirmados').innerText = confirmados;
+      document.getElementById('stat-pendentes').innerText = pendentes;
+    }
+
+    function atualizarDataFiltro() {
+      dataFiltro = document.getElementById('input-filtro-data').value;
+      renderizarAgendamentos();
+    }
+
+    function salvarConfigJornada() {
+      barbeiroLogado.tmc = parseInt(document.getElementById('select-tmc').value);
+      barbeiroLogado.inicio = parseInt(document.getElementById('select-inicio').value);
+      barbeiroLogado.jornada = parseInt(document.getElementById('select-jornada').value);
+
+      database.ref(`configuracoes/${barbeiroLogado.id}`).set({
+        tmc: barbeiroLogado.tmc,
+        inicio: barbeiroLogado.inicio,
+        jornada: barbeiroLogado.jornada
+      });
+
+      alert("Configurações atualizadas no Firebase com sucesso!");
+    }
+
+    function abrirModalHoraExtra() {
+      document.getElementById('modal-hora-extra').classList.remove('hidden');
+      document.getElementById('modal-hora-extra').classList.add('flex');
+    }
+
+    function fecharModalHoraExtra() {
+      document.getElementById('modal-hora-extra').classList.add('hidden');
+    }
+
+    function salvarHoraExtraFirebase() {
+      const qtd = document.getElementById('extra-qtd').value;
+      const posicao = document.getElementById('extra-posicao').value;
+
+      database.ref(`horasExtras/${barbeiroLogado.id}/${dataFiltro}`).push({
+        horas: parseInt(qtd),
+        posicao: posicao,
+        criadoEm: new Date().toISOString()
+      }).then(() => {
+        alert("Hora extra registrada! Os horários já foram liberados para os clientes.");
+        fecharModalHoraExtra();
+      });
+    }
+
+    // INICIALIZAR
+    renderizarPerfis();
+  </script>
+</body>
+</html>

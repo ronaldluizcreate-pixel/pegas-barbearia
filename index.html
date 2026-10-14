@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PEGAS BARBEARIA - Agendamento</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,800;0,900;1,400&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pegas: {
+              black: '#0a0a0a',
+              card: '#141414',
+              border: '#262626',
+              accent: '#ffffff',
+              gray: '#8e8e93',
+              lightGray: '#1c1c1e'
+            }
+          },
+          fontFamily: {
+            sans: ['Montserrat', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #050505;
+      color: #f5f5f5;
+    }
+    .modal-slide-up {
+      animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .scrollbar-none::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-none {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-white selection:text-black">
+
+  <!-- TELA INICIAL / HOME -->
+  <div id="screen-home" class="relative min-h-screen flex flex-col justify-between p-6 sm:p-10 max-w-md md:max-w-4xl mx-auto w-full">
+    
+    <!-- CABEÇALHO / LOGO -->
+    <header class="flex flex-col items-center pt-8 space-y-4">
+      <div class="w-24 h-24 sm:w-32 sm:h-32 border-2 border-white/20 rounded-full flex items-center justify-center bg-black/80 shadow-2xl p-2">
+        <svg class="w-16 h-16 sm:w-20 sm:h-20 text-white" viewBox="0 0 100 100" fill="currentColor">
+          <path d="M 30,15 C 65,15 80,30 80,48 C 80,68 62,75 35,75 C 32,75 25,74 20,72 L 20,85 C 20,88 17,90 14,90 C 11,90 8,88 8,85 L 8,20 C 8,17 11,15 14,15 Z M 30,28 L 22,28 L 22,62 C 26,63 31,64 36,64 C 53,64 66,58 66,45 C 66,33 54,28 30,28 Z" />
+          <path d="M 46,32 L 52,32 L 48,58 L 42,58 Z" fill="#ffffff"/>
+        </svg>
+      </div>
+
+      <div class="text-center">
+        <h1 class="text-3xl sm:text-4xl font-black tracking-[0.2em] text-white leading-none">PEGAS</h1>
+        <p class="text-xs sm:text-sm tracking-[0.35em] text-gray-400 uppercase font-semibold mt-1">BARBEARIA</p>
+      </div>
+    </header>
+
+    <!-- ÁREA CENTRAL (MENSAGEM DE BOAS-VINDAS) -->
+    <div class="my-auto text-center py-10 space-y-3">
+      <span class="text-[10px] sm:text-xs font-bold uppercase tracking-[0.3em] px-3 py-1 border border-white/20 rounded-full text-gray-300">Agendamento Online</span>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Estilo e Tradição</h2>
+      <p class="text-xs sm:text-sm text-gray-400 max-w-xs mx-auto">Agende seu horário com os melhores profissionais da cidade em poucos segundos.</p>
+    </div>
+
+    <!-- PARTE INFERIOR: BOTÃO NOVO AGENDAMENTO COM DEGRADÊ -->
+    <div class="sticky bottom-0 left-0 right-0 pt-12 pb-6 bg-gradient-to-t from-black via-black/90 to-transparent">
+      <button onclick="abrirTelaServicos()" class="w-full bg-white text-black hover:bg-gray-200 active:scale-[0.98] transition-all duration-200 font-extrabold text-sm sm:text-base tracking-wider uppercase py-4 rounded-xl shadow-xl flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-calendar-plus text-base"></i>
+        <span>Novo Agendamento</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- TELA 2: LISTA DE SERVIÇOS (SLIDE UP) -->
+  <div id="screen-servicos" class="fixed inset-0 bg-black z-40 hidden flex-col justify-between overflow-y-auto">
+    <div class="max-w-md md:max-w-2xl mx-auto w-full p-6 pb-24 flex-1">
+      
+      <!-- HEADER FIXO DA TELA -->
+      <div class="flex items-center justify-between pb-6 border-b border-pegas-border sticky top-0 bg-black/95 backdrop-blur z-10 pt-2">
+        <button onclick="fecharTelaServicos()" class="text-gray-400 hover:text-white p-2">
+          <i class="fa-solid fa-arrow-left text-lg"></i>
+        </button>
+        <h2 class="text-sm font-bold uppercase tracking-widest text-white">Selecione o Serviço</h2>
+        <div class="w-6"></div>
+      </div>
+
+      <!-- LISTA DE SERVIÇOS -->
+      <div class="mt-6 space-y-4" id="container-servicos">
+        <!-- Renderizado dinamicamente pelo JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SELEÇÃO DE PROFISSIONAL -->
+  <div id="modal-profissionais" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-pegas-card border border-pegas-border w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 modal-slide-up space-y-5">
+      <div class="flex items-center justify-between border-b border-pegas-border pb-3">
+        <h3 class="font-bold text-white uppercase text-xs tracking-wider">Escolha o Barbeiro</h3>
+        <button onclick="fecharModalProfissionais()" class="text-gray-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3" id="container-profissionais">
+        <!-- Renderizado dinamicamente pelo JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- TELA 3: RESUMO DO PROFISSIONAL E AGENDAMENTO -->
+  <div id="screen-profissional" class="fixed inset-0 bg-black z-50 hidden flex-col justify-between overflow-y-auto">
+    <div class="max-w-md md:max-w-2xl mx-auto w-full p-6 pb-24">
+      
+      <div class="flex items-center justify-between pb-4">
+        <button onclick="fecharTelaProfissional()" class="text-gray-400 hover:text-white">
+          <i class="fa-solid fa-arrow-left text-lg"></i>
+        </button>
+        <span class="text-xs font-bold uppercase tracking-widest text-gray-400">Horários Disponíveis</span>
+        <div class="w-6"></div>
+      </div>
+
+      <!-- CARD DO PROFISSIONAL SELECIONADO -->
+      <div id="perfil-barbeiro-detalhes" class="bg-pegas-card border border-pegas-border p-6 rounded-2xl text-center space-y-3 mt-2">
+        <!-- Preenchido via JS -->
+      </div>
+
+      <!-- SELETOR DE DATA -->
+      <div class="mt-6 space-y-2">
+        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Data do Atendimento</label>
+        <input type="date" id="input-data-agendamento" onchange="carregarHorariosDisponiveis()" class="w-full bg-pegas-card border border-pegas-border text-white text-sm rounded-xl p-3 focus:outline-none focus:border-white">
+      </div>
+
+      <!-- SELEÇÃO DE HORÁRIOS -->
+      <div class="mt-6 space-y-3">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400">Horários Livres Hoje</h4>
+        <div id="container-horarios" class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+          <!-- Renderizado dinamicamente via JS -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRMAÇÃO DE AGENDAMENTO -->
+  <div id="modal-confirmacao" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-pegas-card border border-pegas-border w-full max-w-sm rounded-2xl p-6 space-y-5 text-center">
+      <div class="w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-check"></i>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-bold text-white">Confirmar Agendamento</h3>
+        <p class="text-xs text-gray-400 mt-1">Confira os dados antes de finalizar</p>
+      </div>
+
+      <div class="bg-black/50 border border-pegas-border p-4 rounded-xl text-left text-xs space-y-2">
+        <p class="text-gray-400">Serviço: <strong id="resumo-servico" class="text-white block text-sm mt-0.5">---</strong></p>
+        <p class="text-gray-400">Profissional: <strong id="resumo-barbeiro" class="text-white block mt-0.5">---</strong></p>
+        <p class="text-gray-400">Data e Horário: <strong id="resumo-horario" class="text-white block mt-0.5">---</strong></p>
+        <p class="text-gray-400">Valor Total: <strong id="resumo-valor" class="text-white block text-sm mt-0.5">R$ 0,00</strong></p>
+      </div>
+
+      <!-- CAMPOS DO CLIENTE -->
+      <div class="space-y-2 text-left">
+        <input type="text" id="cliente-nome" placeholder="Seu Nome Completo" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+        <input type="tel" id="cliente-telefone" placeholder="Seu WhatsApp / Telefone" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+      </div>
+
+      <div class="flex space-x-2 pt-2">
+        <button onclick="fecharModalConfirmacao()" class="w-1/2 py-3 bg-black border border-pegas-border text-gray-400 font-bold rounded-xl text-xs hover:text-white">Cancelar</button>
+        <button onclick="salvarAgendamentoNoFirebase()" class="w-1/2 py-3 bg-white text-black font-extrabold rounded-xl text-xs hover:bg-gray-200">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIREBASE SDK (COMPATIBILIDADE) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <script>
+    // -------------------------------------------------------------
+    // 1. CONFIGURAÇÃO DO FIREBASE (SUBSTITUA PELAS SUAS CHAVES)
+    // -------------------------------------------------------------
+const firebaseConfig = {
+  apiKey: "AIzaSyDoEw0fz9a8NvNrMq0jx_tNNQQeny74_4c",
+  authDomain: "pegas-barbearia-d664a.firebaseapp.com",
+  databaseURL: "https://pegas-barbearia-d664a-default-rtdb.firebaseio.com",
+  projectId: "pegas-barbearia-d664a",
+  storageBucket: "pegas-barbearia-d664a.firebasestorage.app",
+  messagingSenderId: "736639531485",
+  appId: "1:736639531485:web:0daaab6391682845859e34",
+  measurementId: "G-R7GGDC95QY"
+};
+    // Inicializa o Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // DADOS LOCAIS DE SERVIÇOS E BARBEIROS
+    const servicos = [
+      { id: 1, nome: "Corte Barba & Cabelo (Combo)", preco: 90, duracao: 60, img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200" },
+      { id: 2, nome: "Corte Degradê / Fade", preco: 55, duracao: 45, img: "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&q=80&w=200" },
+      { id: 3, nome: "Barba Completa", preco: 45, duracao: 30, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=200" },
+      { id: 4, nome: "Platinado / Nevou", preco: 150, duracao: 120, img: "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&q=80&w=200" }
+    ];
+
+    const barbeiros = [
+      { id: "lucas", nome: "Lucas Pegas", desc: "Especialista em Degradê & Barba Clássica", tmc: 30, inicio: 8, jornada: 10, foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200" },
+      { id: "felipe", nome: "Felipe Santos", desc: "Mestre em Cortes Modernos e Nevou", tmc: 30, inicio: 9, jornada: 10, foto: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200" },
+      { id: "mateus", nome: "Mateus Oliveira", desc: "Visagismo Masculino e Sobrancelha", tmc: 45, inicio: 10, jornada: 8, foto: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200" }
+    ];
+
+    let servicoSelecionado = null;
+    let barbeiroSelecionado = null;
+    let horaSelecionada = null;
+
+    // DEFINIR DATA ATUAL NO INPUT
+    document.getElementById('input-data-agendamento').value = new Date().toISOString().split('T')[0];
+
+    // RENDERIZAR SERVIÇOS
+    function renderizarServicos() {
+      const container = document.getElementById('container-servicos');
+      container.innerHTML = '';
+      servicos.forEach(s => {
+        container.innerHTML += `
+          <div class="bg-pegas-card border border-pegas-border p-3 rounded-2xl flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <img src="${s.img}" alt="${s.nome}" class="w-16 h-16 rounded-xl object-cover border border-pegas-border">
+              <div>
+                <h3 class="font-bold text-white text-sm">${s.nome}</h3>
+                <p class="text-xs text-gray-400 mt-0.5">Duração: ~${s.duracao} min</p>
+                <p class="text-sm font-black text-white mt-1">R$ ${s.preco},00</p>
+              </div>
+            </div>
+            <button onclick="selecionarServico(${s.id})" class="bg-white text-black text-xs font-black px-3 py-2 rounded-xl hover:bg-gray-200">
+              Agendar
+            </button>
+          </div>
+        `;
+      });
+    }
+
+    function abrirTelaServicos() {
+      renderizarServicos();
+      document.getElementById('screen-servicos').classList.remove('hidden');
+      document.getElementById('screen-servicos').classList.add('flex');
+    }
+
+    function fecharTelaServicos() {
+      document.getElementById('screen-servicos').classList.add('hidden');
+    }
+
+    function selecionarServico(id) {
+      servicoSelecionado = servicos.find(s => s.id === id);
+      abrirModalProfissionais();
+    }
+
+    function abrirModalProfissionais() {
+      const container = document.getElementById('container-profissionais');
+      container.innerHTML = '';
+      barbeiros.forEach(b => {
+        container.innerHTML += `
+          <button onclick="selecionarProfissional('${b.id}')" class="w-full bg-black border border-pegas-border p-3 rounded-xl flex items-center justify-between hover:border-white transition">
+            <div class="flex items-center space-x-3">
+              <img src="${b.foto}" alt="${b.nome}" class="w-10 h-10 rounded-full object-cover">
+              <span class="text-sm font-bold text-white">${b.nome}</span>
+            </div>
+            <i class="fa-solid fa-chevron-right text-xs text-gray-500"></i>
+          </button>
+        `;
+      });
+      document.getElementById('modal-profissionais').classList.remove('hidden');
+      document.getElementById('modal-profissionais').classList.add('flex');
+    }
+
+    function fecharModalProfissionais() {
+      document.getElementById('modal-profissionais').classList.add('hidden');
+    }
+
+    function selecionarProfissional(id) {
+      barbeiroSelecionado = barbeiros.find(b => b.id === id);
+      fecharModalProfissionais();
+      abrirTelaProfissional();
+    }
+
+    function abrirTelaProfissional() {
+      document.getElementById('perfil-barbeiro-detalhes').innerHTML = `
+        <img src="${barbeiroSelecionado.foto}" class="w-20 h-20 rounded-full mx-auto object-cover border-2 border-white/20">
+        <h3 class="text-base font-bold text-white">${barbeiroSelecionado.nome}</h3>
+        <p class="text-xs text-gray-400 italic font-medium">"${barbeiroSelecionado.desc}"</p>
+      `;
+
+      carregarHorariosDisponiveis();
+
+      document.getElementById('screen-profissional').classList.remove('hidden');
+      document.getElementById('screen-profissional').classList.add('flex');
+    }
+
+    function fecharTelaProfissional() {
+      document.getElementById('screen-profissional').classList.add('hidden');
+    }
+
+    // CARREGAR HORÁRIOS BASEADOS NO TMC E ATENDIMENTOS NO FIREBASE
+    function carregarHorariosDisponiveis() {
+      const container = document.getElementById('container-horarios');
+      container.innerHTML = '<p class="text-xs text-gray-500 col-span-3">Buscando horários...</p>';
+
+      const dataSelecionada = document.getElementById('input-data-agendamento').value;
+
+      // Consulta os agendamentos existentes no Firebase para bloquear ocupados
+      database.ref('agendamentos').orderByChild('data').equalTo(dataSelecionada).once('value', (snapshot) => {
+        const agendamentosOcupados = [];
+        snapshot.forEach(child => {
+          const val = child.val();
+          if (val.barbeiro === barbeiroSelecionado.nome && val.status !== 'Cancelado') {
+            agendamentosOcupados.push(val.hora);
+          }
+        });
+
+        // Gera a grade de horários baseada no início e TMC
+        container.innerHTML = '';
+        let horaAtual = barbeiroSelecionado.inicio;
+        const totalHoras = barbeiroSelecionado.jornada;
+        const tmc = barbeiroSelecionado.tmc;
+
+        let minutoAtual = 0;
+        let limiteMinutos = totalHoras * 60;
+
+        for (let min = 0; min < limiteMinutos; min += tmc) {
+          let h = Math.floor(horaAtual + (min / 60));
+          let m = min % 60;
+          let strHora = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+
+          let ocupado = agendamentosOcupados.includes(strHora);
+
+          if (ocupado) {
+            container.innerHTML += `
+              <button disabled class="bg-pegas-card border border-pegas-border text-gray-600 opacity-40 text-xs py-2 rounded-xl font-bold cursor-not-allowed">
+                ${strHora}
+              </button>
+            `;
+          } else {
+            container.innerHTML += `
+              <button onclick="confirmarHorario('${strHora}')" class="bg-pegas-card border border-pegas-border hover:border-white text-white text-xs py-2 rounded-xl font-bold transition">
+                ${strHora}
+              </button>
+            `;
+          }
+        }
+      });
+    }
+
+    function confirmarHorario(hora) {
+      horaSelecionada = hora;
+      const dataSelecionada = document.getElementById('input-data-agendamento').value;
+
+      document.getElementById('resumo-servico').innerText = servicoSelecionado.nome;
+      document.getElementById('resumo-barbeiro').innerText = barbeiroSelecionado.nome;
+      document.getElementById('resumo-horario').innerText = `${dataSelecionada} às ${horaSelecionada}`;
+      document.getElementById('resumo-valor').innerText = `R$ ${servicoSelecionado.preco},00`;
+
+      document.getElementById('modal-confirmacao').classList.remove('hidden');
+      document.getElementById('modal-confirmacao').classList.add('flex');
+    }
+
+    function fecharModalConfirmacao() {
+      document.getElementById('modal-confirmacao').classList.add('hidden');
+    }
+
+    // SALVAR NO FIREBASE EM TEMPO REAL
+    function salvarAgendamentoNoFirebase() {
+      const nome = document.getElementById('cliente-nome').value.trim();
+      const telefone = document.getElementById('cliente-telefone').value.trim();
+      const dataSelecionada = document.getElementById('input-data-agendamento').value;
+
+      if (!nome || !telefone) {
+        alert("Por favor, preencha seu nome e telefone/WhatsApp.");
+        return;
+      }
+
+      const novoAgendamento = {
+        cliente: nome,
+        telefone: telefone,
+        serviço: servicoSelecionado.nome,
+        valor: servicoSelecionado.preco,
+        barbeiro: barbeiroSelecionado.nome,
+        data: dataSelecionada,
+        hora: horaSelecionada,
+        status: "Pendente",
+        criadoEm: new Date().toISOString()
+      };
+
+      // Salva no nó 'agendamentos' do Firebase
+      database.ref('agendamentos').push(novoAgendamento).then(() => {
+        alert("🎉 Agendamento realizado com sucesso!");
+        location.reload();
+      }).catch(err => {
+        alert("Erro ao agendar: " + err.message);
+      });
+    }
+  </script>
+</body>
+</html>
