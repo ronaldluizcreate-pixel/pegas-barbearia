@@ -102,7 +102,7 @@
 
       <!-- LISTA DE SERVIÇOS -->
       <div class="mt-6 space-y-4" id="container-servicos">
-        <!-- Renderizado dinamicamente pelo JS -->
+        <!-- Renderizado dinamicamente do Firebase -->
       </div>
     </div>
   </div>
@@ -189,7 +189,7 @@
     </div>
   </div>
 
-  <!-- FIREBASE SDK (COMPATIBILIDADE) -->
+  <!-- FIREBASE SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
@@ -207,17 +207,11 @@ const firebaseConfig = {
   appId: "1:736639531485:web:0daaab6391682845859e34",
   measurementId: "G-R7GGDC95QY"
 };
-    // Inicializa o Firebase
+
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // DADOS LOCAIS DE SERVIÇOS E BARBEIROS
-    const servicos = [
-      { id: 1, nome: "Corte Barba & Cabelo (Combo)", preco: 90, duracao: 60, img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200" },
-      { id: 2, nome: "Corte Degradê / Fade", preco: 55, duracao: 45, img: "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&q=80&w=200" },
-      { id: 3, nome: "Barba Completa", preco: 45, duracao: 30, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=200" },
-      { id: 4, nome: "Platinado / Nevou", preco: 150, duracao: 120, img: "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&q=80&w=200" }
-    ];
+    let servicosLista = [];
 
     const barbeiros = [
       { id: "lucas", nome: "Lucas Pegas", desc: "Especialista em Degradê & Barba Clássica", tmc: 30, inicio: 8, jornada: 10, foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200" },
@@ -229,14 +223,45 @@ const firebaseConfig = {
     let barbeiroSelecionado = null;
     let horaSelecionada = null;
 
-    // DEFINIR DATA ATUAL NO INPUT
     document.getElementById('input-data-agendamento').value = new Date().toISOString().split('T')[0];
 
-    // RENDERIZAR SERVIÇOS
+    // CARREGAR E ESCUTAR SERVIÇOS DO FIREBASE EM TEMPO REAL
+    function escutarServicosFirebase() {
+      database.ref('servicos').on('value', (snapshot) => {
+        const dados = snapshot.val();
+        servicosLista = [];
+
+        if (!dados) {
+          // Se o banco estiver vazio, popula os 4 serviços iniciais
+          const servicosIniciais = [
+            { nome: "Corte Barba & Cabelo (Combo)", preco: 90, duracao: 60, img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200" },
+            { nome: "Corte Degradê / Fade", preco: 55, duracao: 45, img: "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&q=80&w=200" },
+            { nome: "Barba Completa", preco: 45, duracao: 30, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=200" },
+            { nome: "Platinado / Nevou", preco: 150, duracao: 120, img: "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&q=80&w=200" }
+          ];
+
+          servicosIniciais.forEach(s => database.ref('servicos').push(s));
+          return;
+        }
+
+        for (let id in dados) {
+          servicosLista.push({ id: id, ...dados[id] });
+        }
+
+        renderizarServicos();
+      });
+    }
+
     function renderizarServicos() {
       const container = document.getElementById('container-servicos');
       container.innerHTML = '';
-      servicos.forEach(s => {
+
+      if (servicosLista.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-500 text-center py-6">Nenhum serviço disponível no momento.</p>`;
+        return;
+      }
+
+      servicosLista.forEach(s => {
         container.innerHTML += `
           <div class="bg-pegas-card border border-pegas-border p-3 rounded-2xl flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -247,7 +272,7 @@ const firebaseConfig = {
                 <p class="text-sm font-black text-white mt-1">R$ ${s.preco},00</p>
               </div>
             </div>
-            <button onclick="selecionarServico(${s.id})" class="bg-white text-black text-xs font-black px-3 py-2 rounded-xl hover:bg-gray-200">
+            <button onclick="selecionarServico('${s.id}')" class="bg-white text-black text-xs font-black px-3 py-2 rounded-xl hover:bg-gray-200">
               Agendar
             </button>
           </div>
@@ -256,7 +281,6 @@ const firebaseConfig = {
     }
 
     function abrirTelaServicos() {
-      renderizarServicos();
       document.getElementById('screen-servicos').classList.remove('hidden');
       document.getElementById('screen-servicos').classList.add('flex');
     }
@@ -266,7 +290,7 @@ const firebaseConfig = {
     }
 
     function selecionarServico(id) {
-      servicoSelecionado = servicos.find(s => s.id === id);
+      servicoSelecionado = servicosLista.find(s => s.id === id);
       abrirModalProfissionais();
     }
 
@@ -315,14 +339,12 @@ const firebaseConfig = {
       document.getElementById('screen-profissional').classList.add('hidden');
     }
 
-    // CARREGAR HORÁRIOS BASEADOS NO TMC E ATENDIMENTOS NO FIREBASE
     function carregarHorariosDisponiveis() {
       const container = document.getElementById('container-horarios');
       container.innerHTML = '<p class="text-xs text-gray-500 col-span-3">Buscando horários...</p>';
 
       const dataSelecionada = document.getElementById('input-data-agendamento').value;
 
-      // Consulta os agendamentos existentes no Firebase para bloquear ocupados
       database.ref('agendamentos').orderByChild('data').equalTo(dataSelecionada).once('value', (snapshot) => {
         const agendamentosOcupados = [];
         snapshot.forEach(child => {
@@ -332,13 +354,11 @@ const firebaseConfig = {
           }
         });
 
-        // Gera a grade de horários baseada no início e TMC
         container.innerHTML = '';
         let horaAtual = barbeiroSelecionado.inicio;
         const totalHoras = barbeiroSelecionado.jornada;
         const tmc = barbeiroSelecionado.tmc;
 
-        let minutoAtual = 0;
         let limiteMinutos = totalHoras * 60;
 
         for (let min = 0; min < limiteMinutos; min += tmc) {
@@ -382,7 +402,6 @@ const firebaseConfig = {
       document.getElementById('modal-confirmacao').classList.add('hidden');
     }
 
-    // SALVAR NO FIREBASE EM TEMPO REAL
     function salvarAgendamentoNoFirebase() {
       const nome = document.getElementById('cliente-nome').value.trim();
       const telefone = document.getElementById('cliente-telefone').value.trim();
@@ -405,7 +424,6 @@ const firebaseConfig = {
         criadoEm: new Date().toISOString()
       };
 
-      // Salva no nó 'agendamentos' do Firebase
       database.ref('agendamentos').push(novoAgendamento).then(() => {
         alert("🎉 Agendamento realizado com sucesso!");
         location.reload();
@@ -413,6 +431,9 @@ const firebaseConfig = {
         alert("Erro ao agendar: " + err.message);
       });
     }
+
+    // INICIALIZAR ESCUTA DE SERVIÇOS
+    escutarServicosFirebase();
   </script>
 </body>
 </html>
