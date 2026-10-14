@@ -42,12 +42,27 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+    /* Animações de Transição */
+    .fade-in {
+      animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .fade-out {
+      animation: fadeOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0; transform: scale(0.97); }
+    }
   </style>
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-white selection:text-black">
 
-  <!-- TELA 1: SELEÇÃO DE PERFIL DO BARBEIRO (ESTILO NETFLIX) -->
-  <div id="screen-profiles" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-6 space-y-8">
+  <!-- TELA 1: SELEÇÃO DE PERFIL DO BARBEIRO (ESTILO NETFLIX COM TRANSIÇÃO) -->
+  <div id="screen-profiles" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-6 space-y-8 fade-in">
     
     <!-- LOGO OFICIAL DA BARBEARIA -->
     <div class="flex flex-col items-center space-y-3">
@@ -94,7 +109,13 @@
           </div>
         </div>
 
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2 sm:space-x-4">
+          <!-- BOTÃO GESTÃO DE SERVIÇOS -->
+          <button onclick="abrirModalServicos()" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5">
+            <i class="fa-solid fa-scissors text-xs"></i>
+            <span class="hidden sm:inline">Gerenciar Serviços</span>
+          </button>
+
           <div class="flex items-center space-x-2 bg-black border border-pegas-border px-3 py-1.5 rounded-xl">
             <img id="header-user-foto" src="" class="w-6 h-6 rounded-full object-cover border border-white/30">
             <span id="header-user-nome" class="text-xs font-bold text-white">---</span>
@@ -115,7 +136,7 @@
       <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
           <div>
-            <p class="text-[10px] text-gray-400 uppercase font-semibold">Atendimentos Hoje</p>
+            <p class="text-[10px] text-gray-400 uppercase font-semibold">Atendimentos (Período)</p>
             <p id="stat-total" class="text-xl font-black text-white mt-1">0</p>
           </div>
           <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white">
@@ -135,7 +156,7 @@
 
         <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
           <div>
-            <p class="text-[10px] text-gray-400 uppercase font-semibold">Confirmados</p>
+            <p class="text-[10px] text-gray-400 uppercase font-semibold">Confirmados / Ativos</p>
             <p id="stat-confirmados" class="text-xl font-black text-white mt-1">0</p>
           </div>
           <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-blue-400">
@@ -154,82 +175,134 @@
         </div>
       </section>
 
-      <!-- BARRA DE CONFIGURAÇÃO DE JORNADA (TMC, INÍCIO, JORNADA) -->
-      <section class="bg-pegas-card border border-pegas-border p-4 rounded-xl space-y-3">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center space-x-2">
-            <i class="fa-solid fa-sliders text-gray-400"></i>
-            <span>Minhas Configurações de Atendimento</span>
-          </h3>
-          <span class="text-[10px] text-gray-500">Afeta os horários gerados para os clientes</span>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+      <!-- SEÇÃO DO CALENDÁRIO FIXO SEMPRE DISPONÍVEL -->
+      <section class="bg-pegas-card border border-pegas-border p-4 sm:p-5 rounded-xl space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-pegas-border pb-3">
           <div>
-            <label class="text-[10px] text-gray-400 font-semibold block uppercase">Tempo Médio de Corte (TMC)</label>
-            <select id="select-tmc" onchange="salvarConfigJornada()" class="mt-1 w-full bg-black border border-pegas-border text-white text-xs rounded-lg p-2.5 focus:outline-none focus:border-white">
-              <option value="30">30 minutos</option>
-              <option value="40">40 minutos</option>
-              <option value="45">45 minutos</option>
-              <option value="60">60 minutos (1 hora)</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="text-[10px] text-gray-400 font-semibold block uppercase">Início da Jornada</label>
-            <select id="select-inicio" onchange="salvarConfigJornada()" class="mt-1 w-full bg-black border border-pegas-border text-white text-xs rounded-lg p-2.5 focus:outline-none focus:border-white">
-              <option value="7">07:00 da manhã</option>
-              <option value="8">08:00 da manhã</option>
-              <option value="9">09:00 da manhã</option>
-              <option value="10">10:00 da manhã</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="text-[10px] text-gray-400 font-semibold block uppercase">Duração da Jornada</label>
-            <select id="select-jornada" onchange="salvarConfigJornada()" class="mt-1 w-full bg-black border border-pegas-border text-white text-xs rounded-lg p-2.5 focus:outline-none focus:border-white">
-              <option value="8">8 horas por dia</option>
-              <option value="10">10 horas por dia</option>
-              <option value="12">12 horas por dia</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      <!-- CALENDÁRIO COM VISUALIZAÇÃO DE AGENDAMENTOS E BOTÃO DE HORA EXTRA -->
-      <section class="bg-pegas-card border border-pegas-border p-4 rounded-xl space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Visão Geral do Calendário</h3>
-            <p class="text-xs text-gray-400">Selecione uma data para filtrar ou adicionar hora extra</p>
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2">
+              <i class="fa-solid fa-calendar-days text-gray-400"></i>
+              <span>Calendário de Agendamentos</span>
+            </h3>
+            <p class="text-xs text-gray-400 mt-0.5">Visão mensal permanente de disponibilidade e agenda</p>
           </div>
 
           <div class="flex items-center space-x-2">
-            <input type="date" id="input-filtro-data" onchange="atualizarDataFiltro()" class="bg-black border border-pegas-border text-white text-xs rounded-lg p-2 focus:outline-none focus:border-white">
             <button onclick="abrirModalHoraExtra()" class="bg-white text-black font-extrabold text-xs px-3 py-2 rounded-lg hover:bg-gray-200 transition flex items-center space-x-1">
               <i class="fa-solid fa-plus text-xs"></i>
-              <span>Hora Extra</span>
+              <span>Lançar Hora Extra</span>
             </button>
+          </div>
+        </div>
+
+        <!-- COMPONENTE DE GRADE DE CALENDÁRIO -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-xs font-bold text-white mb-2">
+            <span id="cal-mes-ano">Outubro 2026</span>
+            <div class="flex space-x-1">
+              <button onclick="navegarMes(-1)" class="px-2 py-1 bg-black border border-pegas-border rounded hover:border-white text-gray-400 hover:text-white"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+              <button onclick="navegarMes(1)" class="px-2 py-1 bg-black border border-pegas-border rounded hover:border-white text-gray-400 hover:text-white"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-gray-500 uppercase">
+            <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+          </div>
+
+          <div id="grid-calendario" class="grid grid-cols-7 gap-1 text-center text-xs">
+            <!-- Renderizado dinamicamente via JS -->
           </div>
         </div>
       </section>
 
-      <!-- LISTA DE AGENDAMENTOS EM TEMPO REAL -->
+      <!-- BARRA DE FILTRO POR PERÍODO (PADRÃO 7 DIAS) -->
+      <section class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h3 class="text-xs font-bold text-white uppercase tracking-wider">Filtrar Período de Exibição</h3>
+          <p class="text-[11px] text-gray-400">Padrão configurado para os últimos 7 dias</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="flex items-center space-x-2">
+            <label class="text-[10px] text-gray-400 font-bold uppercase">De:</label>
+            <input type="date" id="filtro-data-inicio" onchange="aplicarFiltroData()" class="bg-black border border-pegas-border text-white text-xs rounded-lg p-2 focus:outline-none focus:border-white">
+          </div>
+          <div class="flex items-center space-x-2">
+            <label class="text-[10px] text-gray-400 font-bold uppercase">Até:</label>
+            <input type="date" id="filtro-data-fim" onchange="aplicarFiltroData()" class="bg-black border border-pegas-border text-white text-xs rounded-lg p-2 focus:outline-none focus:border-white">
+          </div>
+          <button onclick="setUltimosSeteDias()" class="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/20 text-white text-xs rounded-lg font-semibold transition">
+            Últimos 7 dias
+          </button>
+        </div>
+      </section>
+
+      <!-- LISTA 1: AGENDAMENTOS ATIVOS (PENDENTES & CONFIRMADOS) -->
       <section class="space-y-3">
         <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Lista de Agendamentos em Tempo Real</h3>
+          <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center space-x-2">
+            <i class="fa-solid fa-list-check text-amber-400"></i>
+            <span>Agendamentos Ativos no Período</span>
+          </h3>
           <span class="text-[10px] text-emerald-400 font-bold flex items-center space-x-1">
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Conectado ao Firebase</span>
+            <span>Atualizado em Tempo Real</span>
           </span>
         </div>
 
-        <div id="lista-agendamentos" class="space-y-3">
-          <!-- Renderizado dinamicamente do Firebase -->
+        <div id="lista-agendamentos-ativos" class="space-y-3">
+          <!-- Renderizado dinamicamente -->
+        </div>
+      </section>
+
+      <!-- LISTA 2: AGENDAMENTOS CONCLUÍDOS -->
+      <section class="space-y-3 pt-6 border-t border-pegas-border">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center space-x-2">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>Histórico de Agendamentos Concluídos</span>
+          </h3>
+        </div>
+
+        <div id="lista-agendamentos-concluidos" class="space-y-3">
+          <!-- Renderizado dinamicamente -->
         </div>
       </section>
 
     </main>
+  </div>
+
+  <!-- MODAL: GESTÃO DE SERVIÇOS DA BARBEARIA -->
+  <div id="modal-servicos" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-pegas-card border border-pegas-border w-full max-w-lg rounded-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-pegas-border pb-3">
+        <h3 class="font-bold text-white text-sm uppercase tracking-wider">Configurar Serviços da Barbearia</h3>
+        <button onclick="fecharModalServicos()" class="text-gray-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- FORMULÁRIO PARA NOVO SERVIÇO -->
+      <div class="bg-black border border-pegas-border p-4 rounded-xl space-y-3">
+        <h4 class="text-xs font-bold text-white uppercase">Adicionar Novo Serviço</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <input type="text" id="novo-servico-nome" placeholder="Nome do Serviço (ex: Barba)" class="bg-pegas-card border border-pegas-border text-xs text-white p-2.5 rounded-lg focus:outline-none focus:border-white">
+          <input type="number" id="novo-servico-preco" placeholder="Preço (R$)" class="bg-pegas-card border border-pegas-border text-xs text-white p-2.5 rounded-lg focus:outline-none focus:border-white">
+          <input type="number" id="novo-servico-duracao" placeholder="Duração (minutos)" class="bg-pegas-card border border-pegas-border text-xs text-white p-2.5 rounded-lg focus:outline-none focus:border-white">
+          <input type="url" id="novo-servico-img" placeholder="URL da Imagem (opcional)" class="bg-pegas-card border border-pegas-border text-xs text-white p-2.5 rounded-lg focus:outline-none focus:border-white">
+        </div>
+        <button onclick="salvarNovoServicoFirebase()" class="w-full bg-white text-black font-extrabold text-xs py-2.5 rounded-lg hover:bg-gray-200 transition">
+          Cadastrar Serviço
+        </button>
+      </div>
+
+      <!-- LISTA DE SERVIÇOS CADASTRADOS -->
+      <div class="space-y-2">
+        <h4 class="text-xs font-bold text-gray-400 uppercase">Serviços Ativos</h4>
+        <div id="container-servicos-gestao" class="space-y-2">
+          <!-- Renderizado via JS -->
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL DE ADICIONAR HORA EXTRA -->
@@ -244,6 +317,11 @@
 
       <div class="space-y-3">
         <div>
+          <label class="text-xs text-gray-400 font-semibold block mb-1">Data da Hora Extra</label>
+          <input type="date" id="extra-data" class="w-full bg-black border border-pegas-border text-white text-xs rounded-xl p-3 focus:outline-none focus:border-white">
+        </div>
+
+        <div>
           <label class="text-xs text-gray-400 font-semibold block mb-1">Quantidade de Horas Extras</label>
           <select id="extra-qtd" class="w-full bg-black border border-pegas-border text-white text-xs rounded-xl p-3 focus:outline-none focus:border-white">
             <option value="1">1 Hora</option>
@@ -256,8 +334,8 @@
         <div>
           <label class="text-xs text-gray-400 font-semibold block mb-1">Momento do Encaixe</label>
           <select id="extra-posicao" class="w-full bg-black border border-pegas-border text-white text-xs rounded-xl p-3 focus:outline-none focus:border-white">
-            <option value="antes">Antes do Expediente (Ex: começar mais cedo)</option>
-            <option value="depois">Depois do Expediente (Ex: esticar até mais tarde)</option>
+            <option value="antes">Antes do Expediente (Começar mais cedo)</option>
+            <option value="depois">Depois do Expediente (Esticar até mais tarde)</option>
           </select>
         </div>
       </div>
@@ -268,7 +346,7 @@
     </div>
   </div>
 
-  <!-- FIREBASE SDK (COMPATIBILIDADE) -->
+  <!-- FIREBASE SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
@@ -276,34 +354,44 @@
     // -------------------------------------------------------------
     // 1. CONFIGURAÇÃO DO FIREBASE (SUBSTITUA PELAS SUAS CHAVES)
     // -------------------------------------------------------------
-const firebaseConfig = {
-  apiKey: "AIzaSyDoEw0fz9a8NvNrMq0jx_tNNQQeny74_4c",
-  authDomain: "pegas-barbearia-d664a.firebaseapp.com",
-  databaseURL: "https://pegas-barbearia-d664a-default-rtdb.firebaseio.com",
-  projectId: "pegas-barbearia-d664a",
-  storageBucket: "pegas-barbearia-d664a.firebasestorage.app",
-  messagingSenderId: "736639531485",
-  appId: "1:736639531485:web:0daaab6391682845859e34",
-  measurementId: "G-R7GGDC95QY"
-};
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY_AQUI",
+      authDomain: "SEU_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://SEU_PROJECT_ID-default-rtdb.firebaseio.com",
+      projectId: "SEU_PROJECT_ID",
+      storageBucket: "SEU_PROJECT_ID.appspot.com",
+      messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+      appId: "SEU_APP_ID"
+    };
 
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // BARBEIROS CADASTRADOS NO SISTEMA
     const barbeiros = [
-      { id: "lucas", nome: "Lucas Pegas", tmc: 30, inicio: 8, jornada: 10, foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200" },
-      { id: "felipe", nome: "Felipe Santos", tmc: 30, inicio: 9, jornada: 10, foto: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200" },
-      { id: "mateus", nome: "Mateus Oliveira", tmc: 45, inicio: 10, jornada: 8, foto: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200" }
+      { id: "lucas", nome: "Lucas Pegas", foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200" },
+      { id: "felipe", nome: "Felipe Santos", foto: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200" },
+      { id: "mateus", nome: "Mateus Oliveira", foto: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200" }
     ];
 
     let barbeiroLogado = null;
     let agendamentosLista = [];
-    let dataFiltro = new Date().toISOString().split('T')[0];
+    let servicosLista = [];
+    let dataAtualCal = new Date();
 
-    document.getElementById('input-filtro-data').value = dataFiltro;
+    // INICIALIZAR DATAS PADRÃO (ÚLTIMOS 7 DIAS)
+    function setUltimosSeteDias() {
+      const hoje = new Date();
+      const seteDiasAtras = new Date();
+      seteDiasAtras.setDate(hoje.getDate() - 6);
 
-    // RENDERIZAR TELA DE PERFIL ESTILO NETFLIX
+      document.getElementById('filtro-data-inicio').value = seteDiasAtras.toISOString().split('T')[0];
+      document.getElementById('filtro-data-fim').value = hoje.toISOString().split('T')[0];
+      document.getElementById('extra-data').value = hoje.toISOString().split('T')[0];
+
+      if (barbeiroLogado) renderizarAgendamentos();
+    }
+
+    // PERFIS / LOGIN COM TRANSIÇÃO
     function renderizarPerfis() {
       const container = document.getElementById('container-perfis-barbeiros');
       container.innerHTML = '';
@@ -320,145 +408,268 @@ const firebaseConfig = {
 
     function logarBarbeiro(id) {
       barbeiroLogado = barbeiros.find(b => b.id === id);
-      
-      document.getElementById('header-user-foto').src = barbeiroLogado.foto;
-      document.getElementById('header-user-nome').innerText = barbeiroLogado.nome;
 
-      document.getElementById('select-tmc').value = barbeiroLogado.tmc;
-      document.getElementById('select-inicio').value = barbeiroLogado.inicio;
-      document.getElementById('select-jornada').value = barbeiroLogado.jornada;
+      // Transição de Animação
+      const profilesScreen = document.getElementById('screen-profiles');
+      profilesScreen.classList.remove('fade-in');
+      profilesScreen.classList.add('fade-out');
 
-      document.getElementById('screen-profiles').classList.add('hidden');
-      document.getElementById('screen-dashboard').classList.remove('hidden');
-      document.getElementById('screen-dashboard').classList.add('flex');
+      setTimeout(() => {
+        profilesScreen.classList.add('hidden');
+        
+        document.getElementById('header-user-foto').src = barbeiroLogado.foto;
+        document.getElementById('header-user-nome').innerText = barbeiroLogado.nome;
 
-      iniciarEscutaFirebase();
+        const dashScreen = document.getElementById('screen-dashboard');
+        dashScreen.classList.remove('hidden');
+        dashScreen.classList.add('flex', 'fade-in');
+
+        renderizarCalendarioGrid();
+        iniciarEscutasFirebase();
+      }, 300);
     }
 
     function trocarPerfil() {
-      document.getElementById('screen-dashboard').classList.add('hidden');
-      document.getElementById('screen-profiles').classList.remove('hidden');
+      location.reload();
     }
 
-    // ESCUTAR BANCO DE DADOS EM TEMPO REAL
-    function iniciarEscutaFirebase() {
+    // ESCUTAR FIREBASE (AGENDAMENTOS E SERVIÇOS)
+    function iniciarEscutasFirebase() {
+      // Agendamentos
       database.ref('agendamentos').on('value', (snapshot) => {
         const dados = snapshot.val();
         agendamentosLista = [];
-
         for (let id in dados) {
           agendamentosLista.push({ id: id, ...dados[id] });
         }
-
-        // Ordenar do mais recente para o mais antigo
         agendamentosLista.sort((a, b) => new Date(b.criadoEm || 0) - new Date(a.criadoEm || 0));
-
         renderizarAgendamentos();
+        renderizarCalendarioGrid();
+      });
+
+      // Serviços
+      database.ref('servicos').on('value', (snapshot) => {
+        const dados = snapshot.val();
+        servicosLista = [];
+        for (let id in dados) {
+          servicosLista.push({ id: id, ...dados[id] });
+        }
+        renderizarListaGestaoServicos();
       });
     }
 
+    // RENDERIZAR AGENDA DIVIDIDA (ATIVOS vs CONCLUÍDOS)
     function renderizarAgendamentos() {
-      const container = document.getElementById('lista-agendamentos');
-      container.innerHTML = '';
+      const containerAtivos = document.getElementById('lista-agendamentos-ativos');
+      const containerConcluidos = document.getElementById('lista-agendamentos-concluidos');
 
-      const filtrados = agendamentosLista.filter(a => a.data === dataFiltro && a.barbeiro === barbeiroLogado.nome);
+      containerAtivos.innerHTML = '';
+      containerConcluidos.innerHTML = '';
 
-      atualizarMetricas(filtrados);
+      const dtInicio = document.getElementById('filtro-data-inicio').value;
+      const dtFim = document.getElementById('filtro-data-fim').value;
 
-      if (filtrados.length === 0) {
-        container.innerHTML = `
-          <div class="bg-pegas-card border border-pegas-border p-8 text-center rounded-xl text-gray-500">
-            <i class="fa-solid fa-calendar-xmark text-3xl mb-2"></i>
-            <p class="text-xs">Nenhum agendamento encontrado para esta data.</p>
-          </div>
-        `;
-        return;
+      // Filtrar por período e barbeiro logado
+      const filtrados = agendamentosLista.filter(a => {
+        const atendeBarbeiro = a.barbeiro === barbeiroLogado.nome;
+        const atendeData = a.data >= dtInicio && a.data <= dtFim;
+        return atendeBarbeiro && atendeData;
+      });
+
+      const ativos = filtrados.filter(a => a.status !== 'Concluído');
+      const concluidos = filtrados.filter(a => a.status === 'Concluído');
+
+      atualizarMetricas(filtrados, ativos);
+
+      // Renderizar Ativos
+      if (ativos.length === 0) {
+        containerAtivos.innerHTML = `<p class="text-xs text-gray-500 py-4 text-center">Nenhum agendamento ativo para este período.</p>`;
+      } else {
+        ativos.forEach(item => {
+          containerAtivos.innerHTML += criarCardAgendamentoHTML(item, false);
+        });
       }
 
-      filtrados.forEach(item => {
-        let statusBadge = '';
-        if (item.status === 'Confirmado') {
-          statusBadge = `<span class="px-2 py-0.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[9px] font-bold rounded-full">Confirmado</span>`;
-        } else if (item.status === 'Pendente') {
-          statusBadge = `<span class="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[9px] font-bold rounded-full">Pendente</span>`;
-        } else if (item.status === 'Concluído') {
-          statusBadge = `<span class="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold rounded-full">Concluído</span>`;
-        } else {
-          statusBadge = `<span class="px-2 py-0.5 bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] font-bold rounded-full">Cancelado</span>`;
-        }
+      // Renderizar Concluídos
+      if (concluidos.length === 0) {
+        containerConcluidos.innerHTML = `<p class="text-xs text-gray-500 py-4 text-center">Nenhum agendamento concluído neste período.</p>`;
+      } else {
+        concluidos.forEach(item => {
+          containerConcluidos.innerHTML += criarCardAgendamentoHTML(item, true);
+        });
+      }
+    }
 
-        container.innerHTML += `
-          <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div class="flex items-start space-x-3">
-              <div class="text-center border-r border-pegas-border pr-3">
-                <span class="text-base font-black text-white block">${item.hora}</span>
-                <span class="text-[9px] text-gray-500 font-bold uppercase">Horário</span>
-              </div>
-              <div class="space-y-0.5">
-                <div class="flex items-center space-x-2">
-                  <h4 class="font-bold text-white text-sm">${item.cliente}</h4>
-                  ${statusBadge}
-                </div>
-                <p class="text-xs text-gray-400">${item.serviço} • <strong class="text-white">R$ ${item.valor},00</strong></p>
-                <p class="text-[10px] text-gray-500"><i class="fa-brands fa-whatsapp text-emerald-500 mr-1"></i>${item.telefone}</p>
-              </div>
+    function criarCardAgendamentoHTML(item, isConcluido) {
+      let statusBadge = item.status === 'Confirmado' 
+        ? `<span class="px-2 py-0.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[9px] font-bold rounded-full">Confirmado</span>`
+        : item.status === 'Pendente'
+        ? `<span class="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[9px] font-bold rounded-full">Pendente</span>`
+        : `<span class="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold rounded-full">Concluído</span>`;
+
+      return `
+        <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-start space-x-3">
+            <div class="text-center border-r border-pegas-border pr-3 min-w-[65px]">
+              <span class="text-xs font-black text-white block">${item.hora}</span>
+              <span class="text-[9px] text-gray-500 font-bold">${item.data}</span>
             </div>
-
-            <div class="flex items-center space-x-2 border-t sm:border-t-0 border-pegas-border pt-2 sm:pt-0">
-              <a href="https://wa.me/55${item.telefone.replace(/\D/g,'')}" target="_blank" class="px-3 py-1.5 bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 rounded-lg text-xs font-semibold hover:bg-emerald-600/30 transition flex items-center space-x-1">
-                <i class="fa-brands fa-whatsapp"></i>
-                <span>WhatsApp</span>
-              </a>
-
-              <button onclick="alterarStatusFirebase('${item.id}', 'Concluído')" class="p-2 bg-white/5 hover:bg-emerald-500/20 text-gray-300 hover:text-emerald-400 rounded-lg transition" title="Concluir">
-                <i class="fa-solid fa-check text-xs"></i>
-              </button>
-              <button onclick="alterarStatusFirebase('${item.id}', 'Cancelado')" class="p-2 bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 rounded-lg transition" title="Cancelar">
-                <i class="fa-solid fa-xmark text-xs"></i>
-              </button>
+            <div class="space-y-0.5">
+              <div class="flex items-center space-x-2">
+                <h4 class="font-bold text-white text-sm">${item.cliente}</h4>
+                ${statusBadge}
+              </div>
+              <p class="text-xs text-gray-400">${item.serviço} • <strong class="text-white">R$ ${item.valor},00</strong></p>
+              <p class="text-[10px] text-gray-500"><i class="fa-brands fa-whatsapp text-emerald-500 mr-1"></i>${item.telefone}</p>
             </div>
           </div>
-        `;
-      });
+
+          <div class="flex items-center space-x-2 border-t sm:border-t-0 border-pegas-border pt-2 sm:pt-0">
+            <a href="https://wa.me/55${item.telefone.replace(/\D/g,'')}" target="_blank" class="px-3 py-1.5 bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 rounded-lg text-xs font-semibold hover:bg-emerald-600/30 transition flex items-center space-x-1">
+              <i class="fa-brands fa-whatsapp"></i>
+              <span>WhatsApp</span>
+            </a>
+
+            ${!isConcluido ? `
+              <button onclick="alterarStatusFirebase('${item.id}', 'Concluído')" class="p-2 bg-white/5 hover:bg-emerald-500/20 text-gray-300 hover:text-emerald-400 rounded-lg transition" title="Marcar como Concluído">
+                <i class="fa-solid fa-check text-xs"></i>
+              </button>
+            ` : ''}
+            
+            <button onclick="alterarStatusFirebase('${item.id}', 'Cancelado')" class="p-2 bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 rounded-lg transition" title="Cancelar">
+              <i class="fa-solid fa-xmark text-xs"></i>
+            </button>
+          </div>
+        </div>
+      `;
     }
 
     function alterarStatusFirebase(id, novoStatus) {
-      database.ref(`agendamentos/${id}`).update({
-        status: novoStatus
-      });
+      database.ref(`agendamentos/${id}`).update({ status: novoStatus });
     }
 
-    function atualizarMetricas(lista) {
-      const total = lista.length;
-      const faturamento = lista.reduce((acc, cur) => cur.status !== 'Cancelado' ? acc + cur.valor : acc, 0);
-      const confirmados = lista.filter(a => a.status === 'Confirmado' || a.status === 'Concluído').length;
-      const pendentes = lista.filter(a => a.status === 'Pendente').length;
+    function aplicarFiltroData() {
+      renderizarAgendamentos();
+    }
 
-      document.getElementById('stat-total').innerText = total;
+    function atualizarMetricas(totalLista, ativos) {
+      const faturamento = totalLista.reduce((acc, cur) => cur.status !== 'Cancelado' ? acc + cur.valor : acc, 0);
+      const confirmados = ativos.filter(a => a.status === 'Confirmado').length;
+      const pendentes = ativos.filter(a => a.status === 'Pendente').length;
+
+      document.getElementById('stat-total').innerText = totalLista.length;
       document.getElementById('stat-faturamento').innerText = `R$ ${faturamento},00`;
       document.getElementById('stat-confirmados').innerText = confirmados;
       document.getElementById('stat-pendentes').innerText = pendentes;
     }
 
-    function atualizarDataFiltro() {
-      dataFiltro = document.getElementById('input-filtro-data').value;
+    // RENDERIZAR RENDERIZADOR DE CALENDÁRIO MENSAL PERMANENTE
+    function renderizarCalendarioGrid() {
+      const grid = document.getElementById('grid-calendario');
+      grid.innerHTML = '';
+
+      const ano = dataAtualCal.getFullYear();
+      const mes = dataAtualCal.getMonth();
+
+      const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+      document.getElementById('cal-mes-ano').innerText = `${nomesMeses[mes]} ${ano}`;
+
+      const primeiroDia = new Date(ano, mes, 1).getDay();
+      const totalDias = new Date(ano, mes + 1, 0).getDate();
+
+      // Espaços vazios
+      for (let i = 0; i < primeiroDia; i++) {
+        grid.innerHTML += `<div></div>`;
+      }
+
+      // Dias do mês
+      for (let dia = 1; dia <= totalDias; dia++) {
+        const strDia = dia.toString().padStart(2, '0');
+        const strMes = (mes + 1).toString().padStart(2, '0');
+        const dataFormatada = `${ano}-${strMes}-${strDia}`;
+
+        const qtdAgendamentos = agendamentosLista.filter(a => a.data === dataFormatada && a.barbeiro === barbeiroLogado.nome && a.status !== 'Cancelado').length;
+
+        grid.innerHTML += `
+          <button onclick="selecionarDiaCalendario('${dataFormatada}')" class="p-2 border border-pegas-border rounded-lg bg-black hover:border-white transition flex flex-col items-center justify-center relative">
+            <span class="font-bold text-white">${dia}</span>
+            ${qtdAgendamentos > 0 ? `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1"></span>` : ''}
+          </button>
+        `;
+      }
+    }
+
+    function navegarMes(delta) {
+      dataAtualCal.setMonth(dataAtualCal.getMonth() + delta);
+      renderizarCalendarioGrid();
+    }
+
+    function selecionarDiaCalendario(dataStr) {
+      document.getElementById('filtro-data-inicio').value = dataStr;
+      document.getElementById('filtro-data-fim').value = dataStr;
       renderizarAgendamentos();
     }
 
-    function salvarConfigJornada() {
-      barbeiroLogado.tmc = parseInt(document.getElementById('select-tmc').value);
-      barbeiroLogado.inicio = parseInt(document.getElementById('select-inicio').value);
-      barbeiroLogado.jornada = parseInt(document.getElementById('select-jornada').value);
-
-      database.ref(`configuracoes/${barbeiroLogado.id}`).set({
-        tmc: barbeiroLogado.tmc,
-        inicio: barbeiroLogado.inicio,
-        jornada: barbeiroLogado.jornada
-      });
-
-      alert("Configurações atualizadas no Firebase com sucesso!");
+    // MODAL DE GESTÃO DE SERVIÇOS
+    function abrirModalServicos() {
+      document.getElementById('modal-servicos').classList.remove('hidden');
+      document.getElementById('modal-servicos').classList.add('flex');
     }
 
+    function fecharModalServicos() {
+      document.getElementById('modal-servicos').classList.add('hidden');
+    }
+
+    function salvarNovoServicoFirebase() {
+      const nome = document.getElementById('novo-servico-nome').value.trim();
+      const preco = parseFloat(document.getElementById('novo-servico-preco').value);
+      const duracao = parseInt(document.getElementById('novo-servico-duracao').value);
+      const img = document.getElementById('novo-servico-img').value.trim() || "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200";
+
+      if (!nome || isNaN(preco) || isNaN(duracao)) {
+        alert("Preencha o nome, preço e duração do serviço!");
+        return;
+      }
+
+      database.ref('servicos').push({
+        nome: nome,
+        preco: preco,
+        duracao: duracao,
+        img: img
+      }).then(() => {
+        alert("Serviço cadastrado!");
+        document.getElementById('novo-servico-nome').value = '';
+        document.getElementById('novo-servico-preco').value = '';
+        document.getElementById('novo-servico-duracao').value = '';
+      });
+    }
+
+    function renderizarListaGestaoServicos() {
+      const container = document.getElementById('container-servicos-gestao');
+      container.innerHTML = '';
+
+      servicosLista.forEach(s => {
+        container.innerHTML += `
+          <div class="bg-pegas-card border border-pegas-border p-3 rounded-xl flex items-center justify-between">
+            <div>
+              <h5 class="font-bold text-white text-xs">${s.nome}</h5>
+              <p class="text-[10px] text-gray-400">R$ ${s.preco},00 • ${s.duracao} min</p>
+            </div>
+            <button onclick="removerServicoFirebase('${s.id}')" class="text-red-400 hover:text-red-300 p-1 text-xs">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        `;
+      });
+    }
+
+    function removerServicoFirebase(id) {
+      if (confirm("Remover este serviço do catálogo dos clientes?")) {
+        database.ref(`servicos/${id}`).remove();
+      }
+    }
+
+    // MODAL HORA EXTRA
     function abrirModalHoraExtra() {
       document.getElementById('modal-hora-extra').classList.remove('hidden');
       document.getElementById('modal-hora-extra').classList.add('flex');
@@ -469,20 +680,22 @@ const firebaseConfig = {
     }
 
     function salvarHoraExtraFirebase() {
+      const dt = document.getElementById('extra-data').value;
       const qtd = document.getElementById('extra-qtd').value;
       const posicao = document.getElementById('extra-posicao').value;
 
-      database.ref(`horasExtras/${barbeiroLogado.id}/${dataFiltro}`).push({
+      database.ref(`horasExtras/${barbeiroLogado.id}/${dt}`).push({
         horas: parseInt(qtd),
         posicao: posicao,
         criadoEm: new Date().toISOString()
       }).then(() => {
-        alert("Hora extra registrada! Os horários já foram liberados para os clientes.");
+        alert("Hora extra salva no banco de dados!");
         fecharModalHoraExtra();
       });
     }
 
     // INICIALIZAR
+    setUltimosSeteDias();
     renderizarPerfis();
   </script>
 </body>
