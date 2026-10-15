@@ -63,16 +63,13 @@
         </div>
       </div>
 
-      <!-- FORMULÁRIO DE LOGIN / REGISTRO -->
+      <!-- FORMULÁRIO -->
       <div class="bg-pegas-card border border-pegas-border p-6 rounded-2xl space-y-4">
-        
-        <!-- NAVEGAÇÃO ENTRE LOGIN E CADASTRO -->
         <div class="flex border-b border-pegas-border text-xs font-bold text-center">
           <button id="tab-login" onclick="alternarAbaAuth('login')" class="w-1/2 pb-2 border-b-2 border-white text-white">Entrar</button>
           <button id="tab-register" onclick="alternarAbaAuth('register')" class="w-1/2 pb-2 border-b-2 border-transparent text-gray-500 hover:text-white">Criar Conta</button>
         </div>
 
-        <!-- FORM LOGIN -->
         <form id="form-login" onsubmit="realizarLogin(event)" class="space-y-3">
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">E-mail</label>
@@ -87,7 +84,6 @@
           </button>
         </form>
 
-        <!-- FORM CADASTRO -->
         <form id="form-register" onsubmit="realizarCadastro(event)" class="space-y-3 hidden">
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Nome Completo</label>
@@ -113,15 +109,13 @@
             Cadastrar Conta
           </button>
         </form>
-
       </div>
     </div>
   </div>
 
-  <!-- CONTAINER DO APP (PORTAL LOGADO) -->
+  <!-- PORTAL LOGADO -->
   <div id="screen-app" class="hidden flex-col min-h-screen">
     
-    <!-- TOP BAR / PERFIL CLIENTE -->
     <header class="bg-pegas-card border-b border-pegas-border sticky top-0 z-30">
       <div class="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
         <div class="flex items-center space-x-3">
@@ -140,36 +134,28 @@
       </div>
     </header>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <main class="flex-1 max-w-2xl w-full mx-auto p-4 pb-24 space-y-6">
       
-      <!-- ABA 1: NOVO AGENDAMENTO -->
       <div id="tab-content-agendar" class="space-y-4">
         <div class="text-center py-4 space-y-1">
           <span class="text-[10px] font-bold uppercase tracking-[0.25em] px-3 py-1 border border-white/20 rounded-full text-gray-300">Agendamento Online</span>
           <h2 class="text-xl font-extrabold text-white">Escolha um Serviço</h2>
         </div>
 
-        <div id="container-servicos" class="space-y-3">
-          <!-- Renderizado via JS do Firebase -->
-        </div>
+        <div id="container-servicos" class="space-y-3"></div>
       </div>
 
-      <!-- ABA 2: MEUS AGENDAMENTOS -->
       <div id="tab-content-meus" class="space-y-4 hidden">
         <div class="border-b border-pegas-border pb-3">
           <h2 class="text-sm font-bold text-white uppercase tracking-wider">Meus Agendamentos</h2>
           <p class="text-xs text-gray-400">Acompanhe o status do seu corte</p>
         </div>
 
-        <div id="container-meus-agendamentos" class="space-y-3">
-          <!-- Renderizado via JS -->
-        </div>
+        <div id="container-meus-agendamentos" class="space-y-3"></div>
       </div>
 
     </main>
 
-    <!-- NAVBAR INFERIOR (NAVIGATION BAR) -->
     <nav class="fixed bottom-0 left-0 right-0 bg-pegas-card border-t border-pegas-border z-30">
       <div class="max-w-2xl mx-auto flex justify-around py-3">
         <button onclick="mudarAbaPortal('agendar')" id="nav-agendar" class="flex flex-col items-center text-white space-y-1">
@@ -194,15 +180,13 @@
         </button>
       </div>
 
-      <div class="space-y-3" id="container-profissionais">
-        <!-- Renderizado dinamicamente via JS -->
-      </div>
+      <div class="space-y-3" id="container-profissionais"></div>
     </div>
   </div>
 
-  <!-- TELA 3: RESUMO DO PROFISSIONAL E HORÁRIOS -->
+  <!-- TELA DE DETALHES E HORÁRIOS AJUSTADA PRO MOBILE -->
   <div id="screen-profissional" class="fixed inset-0 bg-black z-50 hidden flex-col justify-between overflow-y-auto">
-    <div class="max-w-md md:max-w-2xl mx-auto w-full p-6 pb-24">
+    <div class="max-w-md md:max-w-2xl mx-auto w-full p-4 sm:p-6 pb-24">
       
       <div class="flex items-center justify-between pb-4">
         <button onclick="fecharTelaProfissional()" class="text-gray-400 hover:text-white">
@@ -212,22 +196,25 @@
         <div class="w-6"></div>
       </div>
 
-      <div id="perfil-barbeiro-detalhes" class="bg-pegas-card border border-pegas-border p-6 rounded-2xl text-center space-y-3 mt-2"></div>
+      <div id="perfil-barbeiro-detalhes" class="bg-pegas-card border border-pegas-border p-5 rounded-2xl text-center space-y-3 mt-2"></div>
 
-      <div class="mt-6 space-y-2">
+      <!-- SELETOR DE DATA AJUSTADO AO TAMANHO DA TELA -->
+      <div class="mt-6 space-y-2 text-center sm:text-left">
         <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Data do Atendimento</label>
-        <input type="date" id="input-data-agendamento" onchange="carregarHorariosDisponiveis()" class="w-full bg-pegas-card border border-pegas-border text-white text-sm rounded-xl p-3 focus:outline-none focus:border-white">
+        <div class="w-full max-w-xs mx-auto sm:mx-0">
+          <input type="date" id="input-data-agendamento" onchange="carregarHorariosDisponiveis()" class="w-full bg-pegas-card border border-pegas-border text-white text-xs sm:text-sm rounded-xl p-3 text-center focus:outline-none focus:border-white box-border">
+        </div>
       </div>
 
       <div class="mt-6 space-y-3">
-        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400">Horários Livres Hoje</h4>
+        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400 text-center sm:text-left">Horários Livres</h4>
         <div id="container-horarios" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
       </div>
 
     </div>
   </div>
 
-  <!-- MODAL: CONFIRMAÇÃO DE AGENDAMENTO -->
+  <!-- MODAL: CONFIRMAÇÃO DE AGENDAMENTO COM DATA POR EXTENSO -->
   <div id="modal-confirmacao" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-pegas-card border border-pegas-border w-full max-w-sm rounded-2xl p-6 space-y-5 text-center">
       <div class="w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center mx-auto text-xl">
@@ -242,7 +229,7 @@
       <div class="bg-black/50 border border-pegas-border p-4 rounded-xl text-left text-xs space-y-2">
         <p class="text-gray-400">Serviço: <strong id="resumo-servico" class="text-white block text-sm mt-0.5">---</strong></p>
         <p class="text-gray-400">Profissional: <strong id="resumo-barbeiro" class="text-white block mt-0.5">---</strong></p>
-        <p class="text-gray-400">Data e Horário: <strong id="resumo-horario" class="text-white block mt-0.5">---</strong></p>
+        <p class="text-gray-400">Data e Horário: <strong id="resumo-horario" class="text-white block mt-0.5 leading-snug">---</strong></p>
         <p class="text-gray-400">Valor Total: <strong id="resumo-valor" class="text-white block text-sm mt-0.5">R$ 0,00</strong></p>
       </div>
 
@@ -269,7 +256,6 @@ const firebaseConfig = {
   appId: "1:736639531485:web:0daaab6391682845859e34",
   measurementId: "G-R7GGDC95QY"
 };
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
@@ -285,10 +271,25 @@ const firebaseConfig = {
 
     document.getElementById('input-data-agendamento').value = new Date().toISOString().split('T')[0];
 
-    // MONITORAR AUTENTICAÇÃO DO USUÁRIO
+    // FUNÇÃO FORMATADORA DE DATA POR EXTENSO
+    function formatarDataPorExtenso(dataIso, hora) {
+      if (!dataIso) return "---";
+      const partes = dataIso.split('-');
+      const dataObj = new Date(partes[0], partes[1] - 1, partes[2]);
+
+      const diasSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+      const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+      const diaSemana = diasSemana[dataObj.getDay()];
+      const dia = dataObj.getDate();
+      const mes = meses[dataObj.getMonth()];
+      const ano = dataObj.getFullYear();
+
+      return `${diaSemana}, ${dia} de ${mes} de ${ano} às ${hora}`;
+    }
+
     auth.onAuthStateChanged((user) => {
       if (user) {
-        // Buscar dados do perfil do cliente no banco
         database.ref(`clientes/${user.uid}`).once('value', (snapshot) => {
           clienteAtual = { uid: user.uid, email: user.email, ...snapshot.val() };
           document.getElementById('user-display-name').innerText = `Olá, ${clienteAtual.nome || 'Cliente'}`;
@@ -307,7 +308,6 @@ const firebaseConfig = {
       }
     });
 
-    // SISTEMA DE AUTH (LOGIN & CADASTRO)
     function alternarAbaAuth(aba) {
       if (aba === 'login') {
         document.getElementById('form-login').classList.remove('hidden');
@@ -326,10 +326,7 @@ const firebaseConfig = {
       e.preventDefault();
       const email = document.getElementById('login-email').value;
       const senha = document.getElementById('login-senha').value;
-
-      auth.signInWithEmailAndPassword(email, senha).catch(err => {
-        alert("Erro ao entrar: " + err.message);
-      });
+      auth.signInWithEmailAndPassword(email, senha).catch(err => alert("Erro ao entrar: " + err.message));
     }
 
     function realizarCadastro(e) {
@@ -341,23 +338,14 @@ const firebaseConfig = {
       const senha = document.getElementById('reg-senha').value;
 
       auth.createUserWithEmailAndPassword(email, senha).then((cred) => {
-        // Salva os dados estendidos do perfil no Firebase Realtime Database
         database.ref(`clientes/${cred.user.uid}`).set({
-          nome: nome,
-          telefone: telefone,
-          nascimento: nascimento,
-          criadoEm: new Date().toISOString()
+          nome, telefone, nascimento, criadoEm: new Date().toISOString()
         });
-      }).catch(err => {
-        alert("Erro ao cadastrar: " + err.message);
-      });
+      }).catch(err => alert("Erro ao cadastrar: " + err.message));
     }
 
-    function realizarLogout() {
-      auth.signOut();
-    }
+    function realizarLogout() { auth.signOut(); }
 
-    // CARREGAR SERVIÇOS E BARBEIROS
     function escutarServicosFirebase() {
       database.ref('servicos').on('value', (snapshot) => {
         const dados = snapshot.val();
@@ -444,38 +432,60 @@ const firebaseConfig = {
 
     function fecharTelaProfissional() { document.getElementById('screen-profissional').classList.add('hidden'); }
 
+    // CARREGAR HORÁRIOS DISPONÍVEIS INCLUINDO HORAS EXTRAS
     function carregarHorariosDisponiveis() {
       const container = document.getElementById('container-horarios');
-      container.innerHTML = '<p class="text-xs text-gray-500 col-span-3">Buscando horários...</p>';
+      container.innerHTML = '<p class="text-xs text-gray-500 col-span-3 text-center py-4">Buscando horários...</p>';
       const dataSelecionada = document.getElementById('input-data-agendamento').value;
 
-      database.ref('agendamentos').orderByChild('data').equalTo(dataSelecionada).once('value', (snapshot) => {
+      // Consulta Agendamentos Ocupados
+      database.ref('agendamentos').orderByChild('data').equalTo(dataSelecionada).once('value', (snapAgendamentos) => {
         const agendamentosOcupados = [];
-        snapshot.forEach(child => {
+        snapAgendamentos.forEach(child => {
           const val = child.val();
           if (val.barbeiro === barbeiroSelecionado.nome && val.status !== 'Cancelado') {
             agendamentosOcupados.push(val.hora);
           }
         });
 
-        container.innerHTML = '';
-        let horaAtual = barbeiroSelecionado.inicio || 8;
-        const totalHoras = barbeiroSelecionado.jornada || 10;
-        const tmc = barbeiroSelecionado.tmc || 30;
-        let limiteMinutos = totalHoras * 60;
+        // Consulta Horas Extras Lançadas
+        database.ref(`horasExtras/${barbeiroSelecionado.id}/${dataSelecionada}`).once('value', (snapExtras) => {
+          let extraAntesMinutos = 0;
+          let extraDepoisMinutos = 0;
 
-        for (let min = 0; min < limiteMinutos; min += tmc) {
-          let h = Math.floor(horaAtual + (min / 60));
-          let m = min % 60;
-          let strHora = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-          let ocupado = agendamentosOcupados.includes(strHora);
-
-          if (ocupado) {
-            container.innerHTML += `<button disabled class="bg-pegas-card border border-pegas-border text-gray-600 opacity-40 text-xs py-2 rounded-xl font-bold cursor-not-allowed">${strHora}</button>`;
-          } else {
-            container.innerHTML += `<button onclick="confirmarHorario('${strHora}')" class="bg-pegas-card border border-pegas-border hover:border-white text-white text-xs py-2 rounded-xl font-bold transition">${strHora}</button>`;
+          if (snapExtras.exists()) {
+            snapExtras.forEach(childExtra => {
+              const ext = childExtra.val();
+              if (ext.posicao === 'antes') extraAntesMinutos += (ext.horas * 60);
+              if (ext.posicao === 'depois') extraDepoisMinutos += (ext.horas * 60);
+            });
           }
-        }
+
+          container.innerHTML = '';
+          const tmc = barbeiroSelecionado.tmc || 30;
+          
+          // Calcula início ajustado pelas horas extras anteriores
+          let horaInicioBase = barbeiroSelecionado.inicio || 8;
+          let minutosInicioTotal = (horaInicioBase * 60) - extraAntesMinutos;
+          if (minutosInicioTotal < 0) minutosInicioTotal = 0;
+
+          // Calcula limite total ajustado pelas horas extras posteriores
+          let jornadaBaseMinutos = (barbeiroSelecionado.jornada || 10) * 60;
+          let minutosFimTotal = (horaInicioBase * 60) + jornadaBaseMinutos + extraDepoisMinutos;
+
+          for (let mAtual = minutosInicioTotal; mAtual < minutosFimTotal; mAtual += tmc) {
+            let h = Math.floor(mAtual / 60);
+            let m = mAtual % 60;
+            let strHora = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+            let ocupado = agendamentosOcupados.includes(strHora);
+
+            if (ocupado) {
+              container.innerHTML += `<button disabled class="bg-pegas-card border border-pegas-border text-gray-600 opacity-40 text-xs py-2 rounded-xl font-bold cursor-not-allowed">${strHora}</button>`;
+            } else {
+              container.innerHTML += `<button onclick="confirmarHorario('${strHora}')" class="bg-pegas-card border border-pegas-border hover:border-white text-white text-xs py-2 rounded-xl font-bold transition">${strHora}</button>`;
+            }
+          }
+        });
       });
     }
 
@@ -485,7 +495,9 @@ const firebaseConfig = {
 
       document.getElementById('resumo-servico').innerText = servicoSelecionado.nome;
       document.getElementById('resumo-barbeiro').innerText = barbeiroSelecionado.nome;
-      document.getElementById('resumo-horario').innerText = `${dataSelecionada} às ${horaSelecionada}`;
+      
+      // EXIBE A DATA POR EXTENSO
+      document.getElementById('resumo-horario').innerText = formatarDataPorExtenso(dataSelecionada, horaSelecionada);
       document.getElementById('resumo-valor').innerText = `R$ ${servicoSelecionado.preco},00`;
 
       document.getElementById('modal-confirmacao').classList.remove('hidden');
@@ -494,7 +506,6 @@ const firebaseConfig = {
 
     function fecharModalConfirmacao() { document.getElementById('modal-confirmacao').classList.add('hidden'); }
 
-    // SALVAR AGENDAMENTO VINCULADO AO USUÁRIO LOGADO
     function salvarAgendamentoNoFirebase() {
       const dataSelecionada = document.getElementById('input-data-agendamento').value;
 
@@ -519,7 +530,6 @@ const firebaseConfig = {
       });
     }
 
-    // CARREGAR MEUS AGENDAMENTOS
     function carregarMeusAgendamentos() {
       database.ref('agendamentos').orderByChild('clienteId').equalTo(clienteAtual.uid).on('value', (snapshot) => {
         const dados = snapshot.val();
@@ -556,11 +566,11 @@ const firebaseConfig = {
                 ${statusBadge}
               </div>
               <p class="text-xs text-gray-400">Barbeiro: <strong class="text-white">${item.barbeiro}</strong></p>
-              <p class="text-[11px] text-gray-500"><i class="fa-solid fa-calendar-day mr-1"></i>${item.data} às ${item.hora} • R$ ${item.valor},00</p>
+              <p class="text-[11px] text-gray-500"><i class="fa-solid fa-calendar-day mr-1"></i>${formatarDataPorExtenso(item.data, item.hora)} • R$ ${item.valor},00</p>
             </div>
 
             ${item.status !== 'Cancelado' && item.status !== 'Concluído' ? `
-              <button onclick="cancelarMeuAgendamento('${item.id}')" class="text-xs text-red-400 hover:text-red-300 font-semibold px-2 py-1 bg-red-500/10 rounded-lg">
+              <button onclick="cancelarMeuAgendamento('${item.id}')" class="text-xs text-red-400 hover:text-red-300 font-semibold px-2.5 py-1 bg-red-500/10 rounded-lg">
                 Cancelar
               </button>
             ` : ''}
@@ -575,7 +585,6 @@ const firebaseConfig = {
       }
     }
 
-    // ALTERNAR ABAS DO PORTAL
     function mudarAbaPortal(aba) {
       if (aba === 'agendar') {
         document.getElementById('tab-content-agendar').classList.remove('hidden');
