@@ -45,10 +45,8 @@
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-white selection:text-black">
 
-  <!-- TELA 1: SELEÇÃO DE PERFIL DO BARBEIRO (ESTILO NETFLIX) -->
+  <!-- TELA 1: SELEÇÃO DE PERFIL DO BARBEIRO -->
   <div id="screen-profiles" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-6 space-y-8 fade-in overflow-y-auto">
-    
-    <!-- LOGO OFICIAL VIA icon.png -->
     <div class="flex flex-col items-center space-y-3">
       <div class="w-24 h-24 border-2 border-white/20 rounded-full flex items-center justify-center bg-black shadow-2xl overflow-hidden p-1">
         <img src="icon.png" alt="Pegas Barbearia" class="w-full h-full object-contain" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
@@ -64,19 +62,14 @@
       <p class="text-xs text-gray-400">Selecione seu perfil ou cadastre um novo profissional</p>
     </div>
 
-    <!-- CARDS DOS BARBEIROS -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 max-w-2xl w-full" id="container-perfis-barbeiros">
-      <!-- Renderizado dinamicamente via JS do Firebase -->
-    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 max-w-2xl w-full" id="container-perfis-barbeiros"></div>
   </div>
 
   <!-- TELA 2: DASHBOARD DO GESTOR -->
   <div id="screen-dashboard" class="hidden flex-col min-h-screen">
     
-    <!-- HEADER DA BARBEARIA -->
     <header class="bg-pegas-card border-b border-pegas-border sticky top-0 z-30">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        
         <div class="flex items-center space-x-3">
           <div class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center bg-black overflow-hidden p-1">
             <img src="icon.png" alt="Pegas Barbearia" class="w-full h-full object-contain" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
@@ -102,11 +95,9 @@
             <i class="fa-solid fa-right-from-bracket"></i>
           </button>
         </div>
-
       </div>
     </header>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
       <!-- CARDS DE MÉTRICAS GERAIS -->
@@ -152,15 +143,15 @@
         </div>
       </section>
 
-      <!-- SEÇÃO DO CALENDÁRIO COM DIAS SELECIONÁVEIS -->
+      <!-- GRADE DO CALENDÁRIO PADRONIZADA SEM DEFORMAR -->
       <section class="bg-pegas-card border border-pegas-border p-4 sm:p-5 rounded-xl space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-pegas-border pb-3">
           <div>
             <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2">
               <i class="fa-solid fa-calendar-days text-gray-400"></i>
-              <span>Calendário Mensal (Clique no dia para detalhes)</span>
+              <span>Calendário Mensal</span>
             </h3>
-            <p class="text-xs text-gray-400 mt-0.5">Dias com agendamento possuem indicador verde</p>
+            <p class="text-xs text-gray-400 mt-0.5">Clique em um dia para ver os agendamentos</p>
           </div>
 
           <button onclick="abrirModalHoraExtra()" class="bg-white text-black font-extrabold text-xs px-3 py-2 rounded-lg hover:bg-gray-200 transition flex items-center space-x-1">
@@ -169,7 +160,6 @@
           </button>
         </div>
 
-        <!-- GRADE DE CALENDÁRIO -->
         <div class="space-y-2">
           <div class="flex items-center justify-between text-xs font-bold text-white mb-2">
             <span id="cal-mes-ano">Mês</span>
@@ -183,17 +173,16 @@
             <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
           </div>
 
-          <div id="grid-calendario" class="grid grid-cols-7 gap-1.5 text-center text-xs">
-            <!-- Renderizado dinamicamente via JS -->
-          </div>
+          <!-- GRID PADRONIZADO QUADRADO (ASPECT-SQUARE) -->
+          <div id="grid-calendario" class="grid grid-cols-7 gap-1 sm:gap-1.5 text-center text-xs"></div>
         </div>
       </section>
 
-      <!-- BARRA DE FILTRO POR PERÍODO (PADRÃO 30 DIAS) -->
+      <!-- FILTRO DE EXIBIÇÃO: MÊS ATUAL POR PADRÃO -->
       <section class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h3 class="text-xs font-bold text-white uppercase tracking-wider">Período de Exibição da Lista</h3>
-          <p class="text-[11px] text-gray-400">Padrão configurado para os últimos 30 dias</p>
+          <p class="text-[11px] text-gray-400">Exibindo por padrão os dias do mês atual</p>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
@@ -205,38 +194,32 @@
             <label class="text-[10px] text-gray-400 font-bold uppercase">Até:</label>
             <input type="date" id="filtro-data-fim" onchange="aplicarFiltroData()" class="bg-black border border-pegas-border text-white text-xs rounded-lg p-2 focus:outline-none focus:border-white">
           </div>
-          <button onclick="setUltimosTrintaDias()" class="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/20 text-white text-xs rounded-lg font-semibold transition">
-            Últimos 30 dias
+          <button onclick="setMesAtualFiltro()" class="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/20 text-white text-xs rounded-lg font-semibold transition">
+            Mês Atual
           </button>
         </div>
       </section>
 
-      <!-- LISTA 1: AGENDAMENTOS ATIVOS -->
+      <!-- AGENDAMENTOS ATIVOS -->
       <section class="space-y-3">
         <div class="flex items-center justify-between">
           <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center space-x-2">
             <i class="fa-solid fa-list-check text-amber-400"></i>
-            <span>Agendamentos Ativos (Pendentes & Confirmados no Período)</span>
+            <span>Agendamentos Ativos (No Período Filtrado)</span>
           </h3>
         </div>
-
-        <div id="lista-agendamentos-ativos" class="space-y-3">
-          <!-- Renderizado dinamicamente -->
-        </div>
+        <div id="lista-agendamentos-ativos" class="space-y-3"></div>
       </section>
 
-      <!-- LISTA 2: AGENDAMENTOS CONCLUÍDOS E CANCELADOS -->
+      <!-- HISTÓRICO -->
       <section class="space-y-3 pt-6 border-t border-pegas-border">
         <div class="flex items-center justify-between">
           <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center space-x-2">
             <i class="fa-solid fa-circle-check"></i>
-            <span>Histórico (Concluídos e Cancelados no Período)</span>
+            <span>Histórico (Concluídos e Cancelados No Período)</span>
           </h3>
         </div>
-
-        <div id="lista-agendamentos-concluidos" class="space-y-3">
-          <!-- Renderizado dinamicamente -->
-        </div>
+        <div id="lista-agendamentos-concluidos" class="space-y-3"></div>
       </section>
 
     </main>
@@ -271,7 +254,7 @@
     </div>
   </div>
 
-  <!-- MODAL: DETALHES DO DIA SELECIONADO (LINHA DO TEMPO) -->
+  <!-- MODAL: LINHA DO TEMPO DO DIA -->
   <div id="modal-dia-detalhes" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-pegas-card border border-pegas-border w-full max-w-xl rounded-2xl p-6 space-y-5 max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-pegas-border pb-3">
@@ -314,32 +297,40 @@
     </div>
   </div>
 
-  <!-- MODAL HORA EXTRA -->
+  <!-- MODAL: ADICIONAR HORA EXTRA (AJUSTADO PRO MOBILE E COM ATÉ 6 HORAS) -->
   <div id="modal-hora-extra" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-pegas-card border border-pegas-border w-full max-w-sm rounded-2xl p-6 space-y-5">
+    <div class="bg-pegas-card border border-pegas-border w-full max-w-sm rounded-2xl p-5 space-y-4">
       <div class="flex justify-between items-center border-b border-pegas-border pb-3">
         <h3 class="font-bold text-white text-sm">Adicionar Hora Extra</h3>
         <button onclick="fecharModalHoraExtra()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="space-y-3">
         <div>
-          <label class="text-xs text-gray-400 font-semibold block mb-1">Data</label>
-          <input type="date" id="extra-data" class="w-full bg-black border border-pegas-border text-white text-xs rounded-xl p-3 focus:outline-none focus:border-white">
+          <label class="text-[10px] text-gray-400 font-bold block uppercase mb-1">Data da Hora Extra</label>
+          <input type="date" id="extra-data" class="w-full bg-black border border-pegas-border text-white text-xs rounded-xl p-3 focus:outline-none focus:border-white box-border">
         </div>
         <div>
-          <label class="text-xs text-gray-400 font-semibold block mb-1">Horas Extras</label>
-          <select id="extra-qtd" class="w-full bg-black border border-pegas-border text-white text-xs rounded-xl p-3 focus:outline-none focus:border-white">
-            <option value="1">1 Hora</option><option value="2">2 Horas</option><option value="3">3 Horas</option>
+          <label class="text-[10px] text-gray-400 font-bold block uppercase mb-1">Quantidade de Horas Extras</label>
+          <select id="extra-qtd" class="w-full bg-black border border-pegas-border text-white text-xs rounded-xl p-3 focus:outline-none focus:border-white box-border">
+            <option value="1">1 Hora Extra</option>
+            <option value="2">2 Horas Extras</option>
+            <option value="3">3 Horas Extras</option>
+            <option value="4">4 Horas Extras</option>
+            <option value="5">5 Horas Extras</option>
+            <option value="6">6 Horas Extras</option>
           </select>
         </div>
         <div>
-          <label class="text-xs text-gray-400 font-semibold block mb-1">Posição</label>
-          <select id="extra-posicao" class="w-full bg-black border border-pegas-border text-white text-xs rounded-xl p-3 focus:outline-none focus:border-white">
-            <option value="antes">Antes do Expediente</option><option value="depois">Depois do Expediente</option>
+          <label class="text-[10px] text-gray-400 font-bold block uppercase mb-1">Momento do Encaixe</label>
+          <select id="extra-posicao" class="w-full bg-black border border-pegas-border text-white text-xs rounded-xl p-3 focus:outline-none focus:border-white box-border">
+            <option value="antes">Antes do Expediente (Começar mais cedo)</option>
+            <option value="depois">Depois do Expediente (Esticar até mais tarde)</option>
           </select>
         </div>
       </div>
-      <button onclick="salvarHoraExtraFirebase()" class="w-full py-3 bg-white text-black font-extrabold text-xs rounded-xl hover:bg-gray-200">Salvar Hora Extra</button>
+      <button onclick="salvarHoraExtraFirebase()" class="w-full py-3 bg-white text-black font-extrabold text-xs rounded-xl hover:bg-gray-200 transition">
+        Salvar Hora Extra
+      </button>
     </div>
   </div>
 
@@ -368,14 +359,17 @@ const firebaseConfig = {
     let servicosLista = [];
     let dataAtualCal = new Date();
 
-    // DEFINIR PADRÃO PARA OS ÚLTIMOS 30 DIAS
-    function setUltimosTrintaDias() {
+    // DEFINIR FILTRO PARA O MÊS ATUAL COMPLETO (1º AO ÚLTIMO DIA)
+    function setMesAtualFiltro() {
       const hoje = new Date();
-      const trintaDiasAtras = new Date();
-      trintaDiasAtras.setDate(hoje.getDate() - 29);
+      const ano = hoje.getFullYear();
+      const mes = hoje.getMonth();
 
-      document.getElementById('filtro-data-inicio').value = trintaDiasAtras.toISOString().split('T')[0];
-      document.getElementById('filtro-data-fim').value = hoje.toISOString().split('T')[0];
+      const primeiroDia = new Date(ano, mes, 1);
+      const ultimoDia = new Date(ano, mes + 1, 0);
+
+      document.getElementById('filtro-data-inicio').value = primeiroDia.toISOString().split('T')[0];
+      document.getElementById('filtro-data-fim').value = ultimoDia.toISOString().split('T')[0];
       document.getElementById('extra-data').value = hoje.toISOString().split('T')[0];
 
       if (barbeiroLogado) renderizarAgendamentos();
@@ -435,11 +429,7 @@ const firebaseConfig = {
 
     function excluirProfissional(id, nome) {
       if (confirm(`Tem certeza que deseja excluir o perfil de ${nome}?`)) {
-        database.ref(`barbeiros/${id}`).remove().then(() => {
-          alert("Profissional removido com sucesso.");
-        }).catch(err => {
-          alert("Erro ao remover: " + err.message);
-        });
+        database.ref(`barbeiros/${id}`).remove();
       }
     }
 
@@ -457,18 +447,10 @@ const firebaseConfig = {
       const foto = document.getElementById('prof-foto').value.trim() || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200";
       const desc = document.getElementById('prof-desc').value.trim() || "Especialista em Barbearia";
 
-      if (!nome) {
-        alert("Preencha o nome do profissional!");
-        return;
-      }
+      if (!nome) { alert("Preencha o nome do profissional!"); return; }
 
       database.ref('barbeiros').push({
-        nome: nome,
-        foto: foto,
-        desc: desc,
-        tmc: 30,
-        inicio: 8,
-        jornada: 10
+        nome, foto, desc, tmc: 30, inicio: 8, jornada: 10
       }).then(() => {
         alert("Novo profissional cadastrado com sucesso!");
         fecharModalNovoProfissional();
@@ -504,9 +486,7 @@ const firebaseConfig = {
       database.ref('agendamentos').on('value', (snapshot) => {
         const dados = snapshot.val();
         agendamentosLista = [];
-        for (let id in dados) {
-          agendamentosLista.push({ id: id, ...dados[id] });
-        }
+        for (let id in dados) { agendamentosLista.push({ id: id, ...dados[id] }); }
         agendamentosLista.sort((a, b) => new Date(b.criadoEm || 0) - new Date(a.criadoEm || 0));
         renderizarAgendamentos();
         renderizarCalendarioGrid();
@@ -515,9 +495,7 @@ const firebaseConfig = {
       database.ref('servicos').on('value', (snapshot) => {
         const dados = snapshot.val();
         servicosLista = [];
-        for (let id in dados) {
-          servicosLista.push({ id: id, ...dados[id] });
-        }
+        for (let id in dados) { servicosLista.push({ id: id, ...dados[id] }); }
         renderizarListaGestaoServicos();
       });
     }
@@ -532,7 +510,6 @@ const firebaseConfig = {
       const dtInicio = document.getElementById('filtro-data-inicio').value;
       const dtFim = document.getElementById('filtro-data-fim').value;
 
-      // Filtrar agendamentos do barbeiro logado no intervalo selecionado
       const filtrados = agendamentosLista.filter(a => {
         return a.barbeiro === barbeiroLogado.nome && a.data >= dtInicio && a.data <= dtFim;
       });
@@ -540,7 +517,6 @@ const firebaseConfig = {
       const ativos = filtrados.filter(a => a.status === 'Pendente' || a.status === 'Confirmado');
       const historico = filtrados.filter(a => a.status === 'Concluído' || a.status === 'Cancelado');
 
-      // Atualiza os totais dos cards no topo (que agora contam o geral do banco)
       atualizarMetricasGerais();
 
       if (ativos.length === 0) {
@@ -617,25 +593,17 @@ const firebaseConfig = {
 
     function aplicarFiltroData() { renderizarAgendamentos(); }
 
-    // ATUALIZA OS CARDS CONSIDERANDO O GERAL DO BANCO DE DADOS
     function atualizarMetricasGerais() {
       const hojeStr = new Date().toISOString().split('T')[0];
       const mesAnoAtual = dataAtualCal.toISOString().slice(0, 7);
 
-      // Todos os agendamentos do barbeiro logado no banco
       const doBarbeiroGeral = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome);
 
-      // Atendimentos Hoje
       const hojeCount = doBarbeiroGeral.filter(a => a.data === hojeStr && a.status !== 'Cancelado').length;
-
-      // Faturamento do Mês Atual
       const doMes = doBarbeiroGeral.filter(a => a.data.startsWith(mesAnoAtual) && a.status !== 'Cancelado');
       const faturamentoMes = doMes.reduce((acc, cur) => acc + cur.valor, 0);
 
-      // Confirmados Geral no Banco
       const confirmadosGeral = doBarbeiroGeral.filter(a => a.status === 'Confirmado').length;
-
-      // Pendentes Geral no Banco
       const pendentesGeral = doBarbeiroGeral.filter(a => a.status === 'Pendente').length;
 
       document.getElementById('stat-total').innerText = hojeCount;
@@ -644,6 +612,7 @@ const firebaseConfig = {
       document.getElementById('stat-pendentes').innerText = pendentesGeral;
     }
 
+    // GRADE DO CALENDÁRIO COM TAMANHO FIXO E SINALIZADOR SEM ESTICAR
     function renderizarCalendarioGrid() {
       const grid = document.getElementById('grid-calendario');
       grid.innerHTML = '';
@@ -666,9 +635,13 @@ const firebaseConfig = {
         const agendamentosDoDia = agendamentosLista.filter(a => a.data === dataFormatada && a.barbeiro === barbeiroLogado.nome && a.status !== 'Cancelado');
 
         grid.innerHTML += `
-          <button onclick="abrirDetalhesDia('${dataFormatada}')" class="p-2.5 border border-pegas-border rounded-xl bg-black hover:border-white transition flex flex-col items-center justify-center relative">
+          <button onclick="abrirDetalhesDia('${dataFormatada}')" class="aspect-square border border-pegas-border rounded-xl bg-black hover:border-white transition flex flex-col items-center justify-center relative p-1">
             <span class="font-bold text-white text-xs">${dia}</span>
-            ${agendamentosDoDia.length > 0 ? `<span class="px-1.5 py-0.2 bg-emerald-500 text-black text-[9px] font-black rounded-full mt-1">${agendamentosDoDia.length}</span>` : ''}
+            ${agendamentosDoDia.length > 0 ? `
+              <span class="absolute bottom-1 w-4 h-4 bg-emerald-500 text-black text-[9px] font-black rounded-full flex items-center justify-center">
+                ${agendamentosDoDia.length}
+              </span>
+            ` : ''}
           </button>
         `;
       }
@@ -758,21 +731,24 @@ const firebaseConfig = {
     function abrirModalHoraExtra() { document.getElementById('modal-hora-extra').classList.remove('hidden'); document.getElementById('modal-hora-extra').classList.add('flex'); }
     function fecharModalHoraExtra() { document.getElementById('modal-hora-extra').classList.add('hidden'); }
 
+    // SALVAR HORA EXTRA NO FIREBASE COM ATÉ 6 HORAS
     function salvarHoraExtraFirebase() {
       const dt = document.getElementById('extra-data').value;
       const qtd = document.getElementById('extra-qtd').value;
       const posicao = document.getElementById('extra-posicao').value;
 
+      if (!dt) { alert("Selecione a data da hora extra!"); return; }
+
       database.ref(`horasExtras/${barbeiroLogado.id}/${dt}`).push({
         horas: parseInt(qtd), posicao, criadoEm: new Date().toISOString()
       }).then(() => {
-        alert("Hora extra salva!");
+        alert("🎉 Hora extra lançada com sucesso! Os novos horários já estão visíveis para os clientes.");
         fecharModalHoraExtra();
       });
     }
 
-    // INICIALIZAR COM OS ÚLTIMOS 30 DIAS
-    setUltimosTrintaDias();
+    // INICIALIZAR COM O MÊS ATUAL COMPLETO
+    setMesAtualFiltro();
     escutarBarbeirosFirebase();
   </script>
 </body>
