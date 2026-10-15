@@ -109,11 +109,11 @@
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-      <!-- CARDS DE MÉTRICAS -->
+      <!-- CARDS DE MÉTRICAS GERAIS -->
       <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
           <div>
-            <p class="text-[10px] text-gray-400 uppercase font-semibold">Atendimentos (Período)</p>
+            <p class="text-[10px] text-gray-400 uppercase font-semibold">Atendimentos Hoje</p>
             <p id="stat-total" class="text-xl font-black text-white mt-1">0</p>
           </div>
           <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white">
@@ -133,7 +133,7 @@
 
         <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
           <div>
-            <p class="text-[10px] text-gray-400 uppercase font-semibold">Confirmados / Ativos</p>
+            <p class="text-[10px] text-gray-400 uppercase font-semibold">Confirmados (Geral)</p>
             <p id="stat-confirmados" class="text-xl font-black text-white mt-1">0</p>
           </div>
           <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-blue-400">
@@ -143,7 +143,7 @@
 
         <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
           <div>
-            <p class="text-[10px] text-gray-400 uppercase font-semibold">Pendentes</p>
+            <p class="text-[10px] text-gray-400 uppercase font-semibold">Pendentes (Geral)</p>
             <p id="stat-pendentes" class="text-xl font-black text-white mt-1">0</p>
           </div>
           <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-amber-400">
@@ -189,11 +189,11 @@
         </div>
       </section>
 
-      <!-- BARRA DE FILTRO POR PERÍODO -->
+      <!-- BARRA DE FILTRO POR PERÍODO (PADRÃO 30 DIAS) -->
       <section class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h3 class="text-xs font-bold text-white uppercase tracking-wider">Período de Exibição da Lista</h3>
-          <p class="text-[11px] text-gray-400">Filtrado estritamente pelo intervalo escolhido</p>
+          <p class="text-[11px] text-gray-400">Padrão configurado para os últimos 30 dias</p>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
@@ -205,8 +205,8 @@
             <label class="text-[10px] text-gray-400 font-bold uppercase">Até:</label>
             <input type="date" id="filtro-data-fim" onchange="aplicarFiltroData()" class="bg-black border border-pegas-border text-white text-xs rounded-lg p-2 focus:outline-none focus:border-white">
           </div>
-          <button onclick="setUltimosSeteDias()" class="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/20 text-white text-xs rounded-lg font-semibold transition">
-            Últimos 7 dias
+          <button onclick="setUltimosTrintaDias()" class="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/20 text-white text-xs rounded-lg font-semibold transition">
+            Últimos 30 dias
           </button>
         </div>
       </section>
@@ -216,7 +216,7 @@
         <div class="flex items-center justify-between">
           <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center space-x-2">
             <i class="fa-solid fa-list-check text-amber-400"></i>
-            <span>Agendamentos Ativos (Pendentes & Confirmados)</span>
+            <span>Agendamentos Ativos (Pendentes & Confirmados no Período)</span>
           </h3>
         </div>
 
@@ -230,7 +230,7 @@
         <div class="flex items-center justify-between">
           <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center space-x-2">
             <i class="fa-solid fa-circle-check"></i>
-            <span>Histórico (Concluídos e Cancelados)</span>
+            <span>Histórico (Concluídos e Cancelados no Período)</span>
           </h3>
         </div>
 
@@ -368,19 +368,19 @@ const firebaseConfig = {
     let servicosLista = [];
     let dataAtualCal = new Date();
 
-    function setUltimosSeteDias() {
+    // DEFINIR PADRÃO PARA OS ÚLTIMOS 30 DIAS
+    function setUltimosTrintaDias() {
       const hoje = new Date();
-      const seteDiasAtras = new Date();
-      seteDiasAtras.setDate(hoje.getDate() - 6);
+      const trintaDiasAtras = new Date();
+      trintaDiasAtras.setDate(hoje.getDate() - 29);
 
-      document.getElementById('filtro-data-inicio').value = seteDiasAtras.toISOString().split('T')[0];
+      document.getElementById('filtro-data-inicio').value = trintaDiasAtras.toISOString().split('T')[0];
       document.getElementById('filtro-data-fim').value = hoje.toISOString().split('T')[0];
       document.getElementById('extra-data').value = hoje.toISOString().split('T')[0];
 
       if (barbeiroLogado) renderizarAgendamentos();
     }
 
-    // ESCUTAR BARBEIROS CADASTRADOS NO FIREBASE
     function escutarBarbeirosFirebase() {
       database.ref('barbeiros').on('value', (snapshot) => {
         const dados = snapshot.val();
@@ -411,7 +411,6 @@ const firebaseConfig = {
       barbeirosLista.forEach(b => {
         container.innerHTML += `
           <div class="relative group bg-pegas-card border border-pegas-border hover:border-white p-4 rounded-2xl flex flex-col items-center space-y-3 transition duration-200 hover:scale-105">
-            <!-- Botão de Excluir Profissional (Lixeira) -->
             <button onclick="event.stopPropagation(); excluirProfissional('${b.id}', '${b.nome}')" class="absolute top-2 right-2 w-7 h-7 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white rounded-full flex items-center justify-center transition" title="Excluir Profissional">
               <i class="fa-solid fa-trash text-[10px]"></i>
             </button>
@@ -424,7 +423,6 @@ const firebaseConfig = {
         `;
       });
 
-      // CARD BOTÃO DE ADICIONAR NOVO PROFISSIONAL
       container.innerHTML += `
         <button onclick="abrirModalNovoProfissional()" class="bg-black border border-dashed border-white/30 hover:border-white p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 transition duration-200 hover:scale-105 text-gray-400 hover:text-white min-h-[130px]">
           <div class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-lg">
@@ -534,6 +532,7 @@ const firebaseConfig = {
       const dtInicio = document.getElementById('filtro-data-inicio').value;
       const dtFim = document.getElementById('filtro-data-fim').value;
 
+      // Filtrar agendamentos do barbeiro logado no intervalo selecionado
       const filtrados = agendamentosLista.filter(a => {
         return a.barbeiro === barbeiroLogado.nome && a.data >= dtInicio && a.data <= dtFim;
       });
@@ -541,7 +540,8 @@ const firebaseConfig = {
       const ativos = filtrados.filter(a => a.status === 'Pendente' || a.status === 'Confirmado');
       const historico = filtrados.filter(a => a.status === 'Concluído' || a.status === 'Cancelado');
 
-      atualizarMetricas(filtrados, ativos);
+      // Atualiza os totais dos cards no topo (que agora contam o geral do banco)
+      atualizarMetricasGerais();
 
       if (ativos.length === 0) {
         containerAtivos.innerHTML = `<p class="text-xs text-gray-500 py-4 text-center">Nenhum agendamento ativo para este período.</p>`;
@@ -617,18 +617,31 @@ const firebaseConfig = {
 
     function aplicarFiltroData() { renderizarAgendamentos(); }
 
-    function atualizarMetricas(totalLista, ativos) {
+    // ATUALIZA OS CARDS CONSIDERANDO O GERAL DO BANCO DE DADOS
+    function atualizarMetricasGerais() {
+      const hojeStr = new Date().toISOString().split('T')[0];
       const mesAnoAtual = dataAtualCal.toISOString().slice(0, 7);
-      const doMes = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome && a.data.startsWith(mesAnoAtual) && a.status !== 'Cancelado');
+
+      // Todos os agendamentos do barbeiro logado no banco
+      const doBarbeiroGeral = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome);
+
+      // Atendimentos Hoje
+      const hojeCount = doBarbeiroGeral.filter(a => a.data === hojeStr && a.status !== 'Cancelado').length;
+
+      // Faturamento do Mês Atual
+      const doMes = doBarbeiroGeral.filter(a => a.data.startsWith(mesAnoAtual) && a.status !== 'Cancelado');
       const faturamentoMes = doMes.reduce((acc, cur) => acc + cur.valor, 0);
 
-      const confirmados = ativos.filter(a => a.status === 'Confirmado').length;
-      const pendentes = ativos.filter(a => a.status === 'Pendente').length;
+      // Confirmados Geral no Banco
+      const confirmadosGeral = doBarbeiroGeral.filter(a => a.status === 'Confirmado').length;
 
-      document.getElementById('stat-total').innerText = totalLista.length;
+      // Pendentes Geral no Banco
+      const pendentesGeral = doBarbeiroGeral.filter(a => a.status === 'Pendente').length;
+
+      document.getElementById('stat-total').innerText = hojeCount;
       document.getElementById('stat-faturamento').innerText = `R$ ${faturamentoMes},00`;
-      document.getElementById('stat-confirmados').innerText = confirmados;
-      document.getElementById('stat-pendentes').innerText = pendentes;
+      document.getElementById('stat-confirmados').innerText = confirmadosGeral;
+      document.getElementById('stat-pendentes').innerText = pendentesGeral;
     }
 
     function renderizarCalendarioGrid() {
@@ -758,8 +771,8 @@ const firebaseConfig = {
       });
     }
 
-    // INICIALIZAR
-    setUltimosSeteDias();
+    // INICIALIZAR COM OS ÚLTIMOS 30 DIAS
+    setUltimosTrintaDias();
     escutarBarbeirosFirebase();
   </script>
 </body>
