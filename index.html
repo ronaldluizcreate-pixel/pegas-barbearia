@@ -56,13 +56,10 @@
   <!-- TELA INICIAL / HOME -->
   <div id="screen-home" class="relative min-h-screen flex flex-col justify-between p-6 sm:p-10 max-w-md md:max-w-4xl mx-auto w-full">
     
-    <!-- CABEÇALHO / LOGO -->
+    <!-- CABEÇALHO / LOGO VIA icon.png -->
     <header class="flex flex-col items-center pt-8 space-y-4">
-      <div class="w-24 h-24 sm:w-32 sm:h-32 border-2 border-white/20 rounded-full flex items-center justify-center bg-black/80 shadow-2xl p-2">
-        <svg class="w-16 h-16 sm:w-20 sm:h-20 text-white" viewBox="0 0 100 100" fill="currentColor">
-          <path d="M 30,15 C 65,15 80,30 80,48 C 80,68 62,75 35,75 C 32,75 25,74 20,72 L 20,85 C 20,88 17,90 14,90 C 11,90 8,88 8,85 L 8,20 C 8,17 11,15 14,15 Z M 30,28 L 22,28 L 22,62 C 26,63 31,64 36,64 C 53,64 66,58 66,45 C 66,33 54,28 30,28 Z" />
-          <path d="M 46,32 L 52,32 L 48,58 L 42,58 Z" fill="#ffffff"/>
-        </svg>
+      <div class="w-24 h-24 sm:w-32 sm:h-32 border-2 border-white/20 rounded-full flex items-center justify-center bg-black/80 shadow-2xl p-2 overflow-hidden">
+        <img src="icon.png" alt="Pegas Barbearia" class="w-full h-full object-contain" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
       </div>
 
       <div class="text-center">
@@ -71,14 +68,14 @@
       </div>
     </header>
 
-    <!-- ÁREA CENTRAL (MENSAGEM DE BOAS-VINDAS) -->
+    <!-- ÁREA CENTRAL -->
     <div class="my-auto text-center py-10 space-y-3">
       <span class="text-[10px] sm:text-xs font-bold uppercase tracking-[0.3em] px-3 py-1 border border-white/20 rounded-full text-gray-300">Agendamento Online</span>
       <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Estilo e Tradição</h2>
       <p class="text-xs sm:text-sm text-gray-400 max-w-xs mx-auto">Agende seu horário com os melhores profissionais da cidade em poucos segundos.</p>
     </div>
 
-    <!-- PARTE INFERIOR: BOTÃO NOVO AGENDAMENTO COM DEGRADÊ -->
+    <!-- PARTE INFERIOR: BOTÃO NOVO AGENDAMENTO -->
     <div class="sticky bottom-0 left-0 right-0 pt-12 pb-6 bg-gradient-to-t from-black via-black/90 to-transparent">
       <button onclick="abrirTelaServicos()" class="w-full bg-white text-black hover:bg-gray-200 active:scale-[0.98] transition-all duration-200 font-extrabold text-sm sm:text-base tracking-wider uppercase py-4 rounded-xl shadow-xl flex items-center justify-center space-x-2">
         <i class="fa-solid fa-calendar-plus text-base"></i>
@@ -100,16 +97,16 @@
         <div class="w-6"></div>
       </div>
 
-      <!-- LISTA DE SERVIÇOS -->
+      <!-- LISTA DE SERVIÇOS DO FIREBASE -->
       <div class="mt-6 space-y-4" id="container-servicos">
-        <!-- Renderizado dinamicamente do Firebase -->
+        <!-- Renderizado dinamicamente via JS -->
       </div>
     </div>
   </div>
 
-  <!-- MODAL: SELEÇÃO DE PROFISSIONAL -->
+  <!-- MODAL: SELEÇÃO DE PROFISSIONAL DO FIREBASE -->
   <div id="modal-profissionais" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-pegas-card border border-pegas-border w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 modal-slide-up space-y-5">
+    <div class="bg-pegas-card border border-pegas-border w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 modal-slide-up space-y-5 max-h-[80vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-pegas-border pb-3">
         <h3 class="font-bold text-white uppercase text-xs tracking-wider">Escolha o Barbeiro</h3>
         <button onclick="fecharModalProfissionais()" class="text-gray-400 hover:text-white">
@@ -118,12 +115,12 @@
       </div>
 
       <div class="space-y-3" id="container-profissionais">
-        <!-- Renderizado dinamicamente pelo JS -->
+        <!-- Renderizado dinamicamente via JS -->
       </div>
     </div>
   </div>
 
-  <!-- TELA 3: RESUMO DO PROFISSIONAL E AGENDAMENTO -->
+  <!-- TELA 3: RESUMO DO PROFISSIONAL E HORÁRIOS -->
   <div id="screen-profissional" class="fixed inset-0 bg-black z-50 hidden flex-col justify-between overflow-y-auto">
     <div class="max-w-md md:max-w-2xl mx-auto w-full p-6 pb-24">
       
@@ -212,12 +209,7 @@ const firebaseConfig = {
     const database = firebase.database();
 
     let servicosLista = [];
-
-    const barbeiros = [
-      { id: "lucas", nome: "Lucas Pegas", desc: "Especialista em Degradê & Barba Clássica", tmc: 30, inicio: 8, jornada: 10, foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200" },
-      { id: "felipe", nome: "Felipe Santos", desc: "Mestre em Cortes Modernos e Nevou", tmc: 30, inicio: 9, jornada: 10, foto: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200" },
-      { id: "mateus", nome: "Mateus Oliveira", desc: "Visagismo Masculino e Sobrancelha", tmc: 45, inicio: 10, jornada: 8, foto: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200" }
-    ];
+    let barbeirosLista = [];
 
     let servicoSelecionado = null;
     let barbeiroSelecionado = null;
@@ -225,21 +217,19 @@ const firebaseConfig = {
 
     document.getElementById('input-data-agendamento').value = new Date().toISOString().split('T')[0];
 
-    // CARREGAR E ESCUTAR SERVIÇOS DO FIREBASE EM TEMPO REAL
+    // ESCUTAR SERVIÇOS EM TEMPO REAL
     function escutarServicosFirebase() {
       database.ref('servicos').on('value', (snapshot) => {
         const dados = snapshot.val();
         servicosLista = [];
 
         if (!dados) {
-          // Se o banco estiver vazio, popula os 4 serviços iniciais
           const servicosIniciais = [
             { nome: "Corte Barba & Cabelo (Combo)", preco: 90, duracao: 60, img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200" },
             { nome: "Corte Degradê / Fade", preco: 55, duracao: 45, img: "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&q=80&w=200" },
             { nome: "Barba Completa", preco: 45, duracao: 30, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=200" },
             { nome: "Platinado / Nevou", preco: 150, duracao: 120, img: "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&q=80&w=200" }
           ];
-
           servicosIniciais.forEach(s => database.ref('servicos').push(s));
           return;
         }
@@ -247,8 +237,19 @@ const firebaseConfig = {
         for (let id in dados) {
           servicosLista.push({ id: id, ...dados[id] });
         }
-
         renderizarServicos();
+      });
+    }
+
+    // ESCUTAR BARBEIROS CADASTRADOS EM TEMPO REAL
+    function escutarBarbeirosFirebase() {
+      database.ref('barbeiros').on('value', (snapshot) => {
+        const dados = snapshot.val();
+        barbeirosLista = [];
+
+        for (let id in dados) {
+          barbeirosLista.push({ id: id, ...dados[id] });
+        }
       });
     }
 
@@ -297,17 +298,26 @@ const firebaseConfig = {
     function abrirModalProfissionais() {
       const container = document.getElementById('container-profissionais');
       container.innerHTML = '';
-      barbeiros.forEach(b => {
-        container.innerHTML += `
-          <button onclick="selecionarProfissional('${b.id}')" class="w-full bg-black border border-pegas-border p-3 rounded-xl flex items-center justify-between hover:border-white transition">
-            <div class="flex items-center space-x-3">
-              <img src="${b.foto}" alt="${b.nome}" class="w-10 h-10 rounded-full object-cover">
-              <span class="text-sm font-bold text-white">${b.nome}</span>
-            </div>
-            <i class="fa-solid fa-chevron-right text-xs text-gray-500"></i>
-          </button>
-        `;
-      });
+
+      if (barbeirosLista.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-500 text-center py-4">Nenhum barbeiro disponível no momento.</p>`;
+      } else {
+        barbeirosLista.forEach(b => {
+          container.innerHTML += `
+            <button onclick="selecionarProfissional('${b.id}')" class="w-full bg-black border border-pegas-border p-3 rounded-xl flex items-center justify-between hover:border-white transition">
+              <div class="flex items-center space-x-3">
+                <img src="${b.foto}" alt="${b.nome}" class="w-10 h-10 rounded-full object-cover">
+                <div class="text-left">
+                  <span class="text-sm font-bold text-white block">${b.nome}</span>
+                  <span class="text-[10px] text-gray-400 line-clamp-1">${b.desc || ''}</span>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right text-xs text-gray-500"></i>
+            </button>
+          `;
+        });
+      }
+
       document.getElementById('modal-profissionais').classList.remove('hidden');
       document.getElementById('modal-profissionais').classList.add('flex');
     }
@@ -317,7 +327,7 @@ const firebaseConfig = {
     }
 
     function selecionarProfissional(id) {
-      barbeiroSelecionado = barbeiros.find(b => b.id === id);
+      barbeiroSelecionado = barbeirosLista.find(b => b.id === id);
       fecharModalProfissionais();
       abrirTelaProfissional();
     }
@@ -326,7 +336,7 @@ const firebaseConfig = {
       document.getElementById('perfil-barbeiro-detalhes').innerHTML = `
         <img src="${barbeiroSelecionado.foto}" class="w-20 h-20 rounded-full mx-auto object-cover border-2 border-white/20">
         <h3 class="text-base font-bold text-white">${barbeiroSelecionado.nome}</h3>
-        <p class="text-xs text-gray-400 italic font-medium">"${barbeiroSelecionado.desc}"</p>
+        <p class="text-xs text-gray-400 italic font-medium">"${barbeiroSelecionado.desc || 'Profissional PEGAS'}"</p>
       `;
 
       carregarHorariosDisponiveis();
@@ -355,9 +365,9 @@ const firebaseConfig = {
         });
 
         container.innerHTML = '';
-        let horaAtual = barbeiroSelecionado.inicio;
-        const totalHoras = barbeiroSelecionado.jornada;
-        const tmc = barbeiroSelecionado.tmc;
+        let horaAtual = barbeiroSelecionado.inicio || 8;
+        const totalHoras = barbeiroSelecionado.jornada || 10;
+        const tmc = barbeiroSelecionado.tmc || 30;
 
         let limiteMinutos = totalHoras * 60;
 
@@ -432,8 +442,9 @@ const firebaseConfig = {
       });
     }
 
-    // INICIALIZAR ESCUTA DE SERVIÇOS
+    // INICIALIZAR BANCO DE DADOS
     escutarServicosFirebase();
+    escutarBarbeirosFirebase();
   </script>
 </body>
 </html>
