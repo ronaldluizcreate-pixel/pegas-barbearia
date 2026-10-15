@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PEGAS BARBEARIA - Agendamento</title>
+  <title>PEGAS BARBEARIA - Portal do Cliente</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,69 +42,149 @@
       from { transform: translateY(100%); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
-    .scrollbar-none::-webkit-scrollbar {
-      display: none;
-    }
-    .scrollbar-none {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
+    .scrollbar-none::-webkit-scrollbar { display: none; }
+    .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-white selection:text-black">
 
-  <!-- TELA INICIAL / HOME -->
-  <div id="screen-home" class="relative min-h-screen flex flex-col justify-between p-6 sm:p-10 max-w-md md:max-w-4xl mx-auto w-full">
-    
-    <!-- CABEÇALHO / LOGO VIA icon.png -->
-    <header class="flex flex-col items-center pt-8 space-y-4">
-      <div class="w-24 h-24 sm:w-32 sm:h-32 border-2 border-white/20 rounded-full flex items-center justify-center bg-black/80 shadow-2xl p-2 overflow-hidden">
-        <img src="icon.png" alt="Pegas Barbearia" class="w-full h-full object-contain" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
+  <!-- TELA DE AUTENTICAÇÃO (LOGIN / CADASTRO) -->
+  <div id="screen-auth" class="fixed inset-0 bg-black z-50 flex flex-col justify-center items-center p-6 overflow-y-auto">
+    <div class="max-w-sm w-full space-y-6">
+      
+      <!-- LOGO -->
+      <div class="flex flex-col items-center space-y-3">
+        <div class="w-20 h-20 border-2 border-white/20 rounded-full flex items-center justify-center bg-black shadow-2xl p-1 overflow-hidden">
+          <img src="icon.png" alt="Pegas Barbearia" class="w-full h-full object-contain" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
+        </div>
+        <div class="text-center">
+          <h1 class="text-2xl font-black tracking-[0.2em] text-white leading-none">PEGAS</h1>
+          <p class="text-[9px] tracking-[0.35em] text-gray-400 uppercase font-semibold mt-1">PORTAL DO CLIENTE</p>
+        </div>
       </div>
 
-      <div class="text-center">
-        <h1 class="text-3xl sm:text-4xl font-black tracking-[0.2em] text-white leading-none">PEGAS</h1>
-        <p class="text-xs sm:text-sm tracking-[0.35em] text-gray-400 uppercase font-semibold mt-1">BARBEARIA</p>
+      <!-- FORMULÁRIO DE LOGIN / REGISTRO -->
+      <div class="bg-pegas-card border border-pegas-border p-6 rounded-2xl space-y-4">
+        
+        <!-- NAVEGAÇÃO ENTRE LOGIN E CADASTRO -->
+        <div class="flex border-b border-pegas-border text-xs font-bold text-center">
+          <button id="tab-login" onclick="alternarAbaAuth('login')" class="w-1/2 pb-2 border-b-2 border-white text-white">Entrar</button>
+          <button id="tab-register" onclick="alternarAbaAuth('register')" class="w-1/2 pb-2 border-b-2 border-transparent text-gray-500 hover:text-white">Criar Conta</button>
+        </div>
+
+        <!-- FORM LOGIN -->
+        <form id="form-login" onsubmit="realizarLogin(event)" class="space-y-3">
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">E-mail</label>
+            <input type="email" id="login-email" required placeholder="seu@email.com" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+          </div>
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Senha</label>
+            <input type="password" id="login-senha" required placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+          </div>
+          <button type="submit" class="w-full py-3 bg-white text-black font-black text-xs uppercase tracking-wider rounded-xl hover:bg-gray-200 transition">
+            Entrar no Portal
+          </button>
+        </form>
+
+        <!-- FORM CADASTRO -->
+        <form id="form-register" onsubmit="realizarCadastro(event)" class="space-y-3 hidden">
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Nome Completo</label>
+            <input type="text" id="reg-nome" required placeholder="Seu nome" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+          </div>
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">WhatsApp / Telefone</label>
+            <input type="tel" id="reg-telefone" required placeholder="(84) 99999-9999" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+          </div>
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Data de Nascimento</label>
+            <input type="date" id="reg-nascimento" required class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+          </div>
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">E-mail</label>
+            <input type="email" id="reg-email" required placeholder="seu@email.com" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+          </div>
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Senha (Mínimo 6 caracteres)</label>
+            <input type="password" id="reg-senha" required minlength="6" placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+          </div>
+          <button type="submit" class="w-full py-3 bg-white text-black font-black text-xs uppercase tracking-wider rounded-xl hover:bg-gray-200 transition">
+            Cadastrar Conta
+          </button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTAINER DO APP (PORTAL LOGADO) -->
+  <div id="screen-app" class="hidden flex-col min-h-screen">
+    
+    <!-- TOP BAR / PERFIL CLIENTE -->
+    <header class="bg-pegas-card border-b border-pegas-border sticky top-0 z-30">
+      <div class="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 border border-white/20 rounded-full flex items-center justify-center bg-black overflow-hidden p-0.5">
+            <img src="icon.png" alt="Pegas Barbearia" class="w-full h-full object-contain" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
+          </div>
+          <div>
+            <h1 id="user-display-name" class="text-xs font-bold text-white">Olá, Cliente</h1>
+            <p class="text-[9px] text-gray-400 uppercase tracking-widest font-semibold">PEGAS BARBEARIA</p>
+          </div>
+        </div>
+
+        <button onclick="realizarLogout()" class="text-xs text-gray-400 hover:text-white p-2" title="Sair da Conta">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
       </div>
     </header>
 
-    <!-- ÁREA CENTRAL -->
-    <div class="my-auto text-center py-10 space-y-3">
-      <span class="text-[10px] sm:text-xs font-bold uppercase tracking-[0.3em] px-3 py-1 border border-white/20 rounded-full text-gray-300">Agendamento Online</span>
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Estilo e Tradição</h2>
-      <p class="text-xs sm:text-sm text-gray-400 max-w-xs mx-auto">Agende seu horário com os melhores profissionais da cidade em poucos segundos.</p>
-    </div>
-
-    <!-- PARTE INFERIOR: BOTÃO NOVO AGENDAMENTO -->
-    <div class="sticky bottom-0 left-0 right-0 pt-12 pb-6 bg-gradient-to-t from-black via-black/90 to-transparent">
-      <button onclick="abrirTelaServicos()" class="w-full bg-white text-black hover:bg-gray-200 active:scale-[0.98] transition-all duration-200 font-extrabold text-sm sm:text-base tracking-wider uppercase py-4 rounded-xl shadow-xl flex items-center justify-center space-x-2">
-        <i class="fa-solid fa-calendar-plus text-base"></i>
-        <span>Novo Agendamento</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- TELA 2: LISTA DE SERVIÇOS (SLIDE UP) -->
-  <div id="screen-servicos" class="fixed inset-0 bg-black z-40 hidden flex-col justify-between overflow-y-auto">
-    <div class="max-w-md md:max-w-2xl mx-auto w-full p-6 pb-24 flex-1">
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="flex-1 max-w-2xl w-full mx-auto p-4 pb-24 space-y-6">
       
-      <!-- HEADER FIXO DA TELA -->
-      <div class="flex items-center justify-between pb-6 border-b border-pegas-border sticky top-0 bg-black/95 backdrop-blur z-10 pt-2">
-        <button onclick="fecharTelaServicos()" class="text-gray-400 hover:text-white p-2">
-          <i class="fa-solid fa-arrow-left text-lg"></i>
-        </button>
-        <h2 class="text-sm font-bold uppercase tracking-widest text-white">Selecione o Serviço</h2>
-        <div class="w-6"></div>
+      <!-- ABA 1: NOVO AGENDAMENTO -->
+      <div id="tab-content-agendar" class="space-y-4">
+        <div class="text-center py-4 space-y-1">
+          <span class="text-[10px] font-bold uppercase tracking-[0.25em] px-3 py-1 border border-white/20 rounded-full text-gray-300">Agendamento Online</span>
+          <h2 class="text-xl font-extrabold text-white">Escolha um Serviço</h2>
+        </div>
+
+        <div id="container-servicos" class="space-y-3">
+          <!-- Renderizado via JS do Firebase -->
+        </div>
       </div>
 
-      <!-- LISTA DE SERVIÇOS DO FIREBASE -->
-      <div class="mt-6 space-y-4" id="container-servicos">
-        <!-- Renderizado dinamicamente via JS -->
+      <!-- ABA 2: MEUS AGENDAMENTOS -->
+      <div id="tab-content-meus" class="space-y-4 hidden">
+        <div class="border-b border-pegas-border pb-3">
+          <h2 class="text-sm font-bold text-white uppercase tracking-wider">Meus Agendamentos</h2>
+          <p class="text-xs text-gray-400">Acompanhe o status do seu corte</p>
+        </div>
+
+        <div id="container-meus-agendamentos" class="space-y-3">
+          <!-- Renderizado via JS -->
+        </div>
       </div>
-    </div>
+
+    </main>
+
+    <!-- NAVBAR INFERIOR (NAVIGATION BAR) -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-pegas-card border-t border-pegas-border z-30">
+      <div class="max-w-2xl mx-auto flex justify-around py-3">
+        <button onclick="mudarAbaPortal('agendar')" id="nav-agendar" class="flex flex-col items-center text-white space-y-1">
+          <i class="fa-solid fa-calendar-plus text-base"></i>
+          <span class="text-[10px] font-bold uppercase">Agendar</span>
+        </button>
+        <button onclick="mudarAbaPortal('meus')" id="nav-meus" class="flex flex-col items-center text-gray-500 hover:text-white space-y-1">
+          <i class="fa-solid fa-clock-rotate-left text-base"></i>
+          <span class="text-[10px] font-bold uppercase">Meus Cortes</span>
+        </button>
+      </div>
+    </nav>
   </div>
 
-  <!-- MODAL: SELEÇÃO DE PROFISSIONAL DO FIREBASE -->
+  <!-- MODAL: SELEÇÃO DE PROFISSIONAL -->
   <div id="modal-profissionais" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-pegas-card border border-pegas-border w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 modal-slide-up space-y-5 max-h-[80vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-pegas-border pb-3">
@@ -132,23 +212,16 @@
         <div class="w-6"></div>
       </div>
 
-      <!-- CARD DO PROFISSIONAL SELECIONADO -->
-      <div id="perfil-barbeiro-detalhes" class="bg-pegas-card border border-pegas-border p-6 rounded-2xl text-center space-y-3 mt-2">
-        <!-- Preenchido via JS -->
-      </div>
+      <div id="perfil-barbeiro-detalhes" class="bg-pegas-card border border-pegas-border p-6 rounded-2xl text-center space-y-3 mt-2"></div>
 
-      <!-- SELETOR DE DATA -->
       <div class="mt-6 space-y-2">
         <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Data do Atendimento</label>
         <input type="date" id="input-data-agendamento" onchange="carregarHorariosDisponiveis()" class="w-full bg-pegas-card border border-pegas-border text-white text-sm rounded-xl p-3 focus:outline-none focus:border-white">
       </div>
 
-      <!-- SELEÇÃO DE HORÁRIOS -->
       <div class="mt-6 space-y-3">
         <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400">Horários Livres Hoje</h4>
-        <div id="container-horarios" class="grid grid-cols-3 sm:grid-cols-4 gap-2">
-          <!-- Renderizado dinamicamente via JS -->
-        </div>
+        <div id="container-horarios" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
       </div>
 
     </div>
@@ -173,12 +246,6 @@
         <p class="text-gray-400">Valor Total: <strong id="resumo-valor" class="text-white block text-sm mt-0.5">R$ 0,00</strong></p>
       </div>
 
-      <!-- CAMPOS DO CLIENTE -->
-      <div class="space-y-2 text-left">
-        <input type="text" id="cliente-nome" placeholder="Seu Nome Completo" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
-        <input type="tel" id="cliente-telefone" placeholder="Seu WhatsApp / Telefone" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
-      </div>
-
       <div class="flex space-x-2 pt-2">
         <button onclick="fecharModalConfirmacao()" class="w-1/2 py-3 bg-black border border-pegas-border text-gray-400 font-bold rounded-xl text-xs hover:text-white">Cancelar</button>
         <button onclick="salvarAgendamentoNoFirebase()" class="w-1/2 py-3 bg-white text-black font-extrabold rounded-xl text-xs hover:bg-gray-200">Confirmar</button>
@@ -188,12 +255,10 @@
 
   <!-- FIREBASE SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <script>
-    // -------------------------------------------------------------
-    // 1. CONFIGURAÇÃO DO FIREBASE (SUBSTITUA PELAS SUAS CHAVES)
-    // -------------------------------------------------------------
 const firebaseConfig = {
   apiKey: "AIzaSyDoEw0fz9a8NvNrMq0jx_tNNQQeny74_4c",
   authDomain: "pegas-barbearia-d664a.firebaseapp.com",
@@ -206,10 +271,13 @@ const firebaseConfig = {
 };
 
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const database = firebase.database();
 
+    let clienteAtual = null;
     let servicosLista = [];
     let barbeirosLista = [];
+    let meusAgendamentosLista = [];
 
     let servicoSelecionado = null;
     let barbeiroSelecionado = null;
@@ -217,51 +285,99 @@ const firebaseConfig = {
 
     document.getElementById('input-data-agendamento').value = new Date().toISOString().split('T')[0];
 
-    // ESCUTAR SERVIÇOS EM TEMPO REAL
+    // MONITORAR AUTENTICAÇÃO DO USUÁRIO
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        // Buscar dados do perfil do cliente no banco
+        database.ref(`clientes/${user.uid}`).once('value', (snapshot) => {
+          clienteAtual = { uid: user.uid, email: user.email, ...snapshot.val() };
+          document.getElementById('user-display-name').innerText = `Olá, ${clienteAtual.nome || 'Cliente'}`;
+          
+          document.getElementById('screen-auth').classList.add('hidden');
+          document.getElementById('screen-app').classList.remove('hidden');
+          document.getElementById('screen-app').classList.add('flex');
+
+          escutarServicosFirebase();
+          escutarBarbeirosFirebase();
+          carregarMeusAgendamentos();
+        });
+      } else {
+        document.getElementById('screen-app').classList.add('hidden');
+        document.getElementById('screen-auth').classList.remove('hidden');
+      }
+    });
+
+    // SISTEMA DE AUTH (LOGIN & CADASTRO)
+    function alternarAbaAuth(aba) {
+      if (aba === 'login') {
+        document.getElementById('form-login').classList.remove('hidden');
+        document.getElementById('form-register').classList.add('hidden');
+        document.getElementById('tab-login').className = "w-1/2 pb-2 border-b-2 border-white text-white";
+        document.getElementById('tab-register').className = "w-1/2 pb-2 border-b-2 border-transparent text-gray-500 hover:text-white";
+      } else {
+        document.getElementById('form-login').classList.add('hidden');
+        document.getElementById('form-register').classList.remove('hidden');
+        document.getElementById('tab-register').className = "w-1/2 pb-2 border-b-2 border-white text-white";
+        document.getElementById('tab-login').className = "w-1/2 pb-2 border-b-2 border-transparent text-gray-500 hover:text-white";
+      }
+    }
+
+    function realizarLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const senha = document.getElementById('login-senha').value;
+
+      auth.signInWithEmailAndPassword(email, senha).catch(err => {
+        alert("Erro ao entrar: " + err.message);
+      });
+    }
+
+    function realizarCadastro(e) {
+      e.preventDefault();
+      const nome = document.getElementById('reg-nome').value.trim();
+      const telefone = document.getElementById('reg-telefone').value.trim();
+      const nascimento = document.getElementById('reg-nascimento').value;
+      const email = document.getElementById('reg-email').value.trim();
+      const senha = document.getElementById('reg-senha').value;
+
+      auth.createUserWithEmailAndPassword(email, senha).then((cred) => {
+        // Salva os dados estendidos do perfil no Firebase Realtime Database
+        database.ref(`clientes/${cred.user.uid}`).set({
+          nome: nome,
+          telefone: telefone,
+          nascimento: nascimento,
+          criadoEm: new Date().toISOString()
+        });
+      }).catch(err => {
+        alert("Erro ao cadastrar: " + err.message);
+      });
+    }
+
+    function realizarLogout() {
+      auth.signOut();
+    }
+
+    // CARREGAR SERVIÇOS E BARBEIROS
     function escutarServicosFirebase() {
       database.ref('servicos').on('value', (snapshot) => {
         const dados = snapshot.val();
         servicosLista = [];
-
-        if (!dados) {
-          const servicosIniciais = [
-            { nome: "Corte Barba & Cabelo (Combo)", preco: 90, duracao: 60, img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200" },
-            { nome: "Corte Degradê / Fade", preco: 55, duracao: 45, img: "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&q=80&w=200" },
-            { nome: "Barba Completa", preco: 45, duracao: 30, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=200" },
-            { nome: "Platinado / Nevou", preco: 150, duracao: 120, img: "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&q=80&w=200" }
-          ];
-          servicosIniciais.forEach(s => database.ref('servicos').push(s));
-          return;
-        }
-
-        for (let id in dados) {
-          servicosLista.push({ id: id, ...dados[id] });
-        }
+        for (let id in dados) { servicosLista.push({ id: id, ...dados[id] }); }
         renderizarServicos();
       });
     }
 
-    // ESCUTAR BARBEIROS CADASTRADOS EM TEMPO REAL
     function escutarBarbeirosFirebase() {
       database.ref('barbeiros').on('value', (snapshot) => {
         const dados = snapshot.val();
         barbeirosLista = [];
-
-        for (let id in dados) {
-          barbeirosLista.push({ id: id, ...dados[id] });
-        }
+        for (let id in dados) { barbeirosLista.push({ id: id, ...dados[id] }); }
       });
     }
 
     function renderizarServicos() {
       const container = document.getElementById('container-servicos');
       container.innerHTML = '';
-
-      if (servicosLista.length === 0) {
-        container.innerHTML = `<p class="text-xs text-gray-500 text-center py-6">Nenhum serviço disponível no momento.</p>`;
-        return;
-      }
-
       servicosLista.forEach(s => {
         container.innerHTML += `
           <div class="bg-pegas-card border border-pegas-border p-3 rounded-2xl flex items-center justify-between">
@@ -281,15 +397,6 @@ const firebaseConfig = {
       });
     }
 
-    function abrirTelaServicos() {
-      document.getElementById('screen-servicos').classList.remove('hidden');
-      document.getElementById('screen-servicos').classList.add('flex');
-    }
-
-    function fecharTelaServicos() {
-      document.getElementById('screen-servicos').classList.add('hidden');
-    }
-
     function selecionarServico(id) {
       servicoSelecionado = servicosLista.find(s => s.id === id);
       abrirModalProfissionais();
@@ -298,33 +405,25 @@ const firebaseConfig = {
     function abrirModalProfissionais() {
       const container = document.getElementById('container-profissionais');
       container.innerHTML = '';
-
-      if (barbeirosLista.length === 0) {
-        container.innerHTML = `<p class="text-xs text-gray-500 text-center py-4">Nenhum barbeiro disponível no momento.</p>`;
-      } else {
-        barbeirosLista.forEach(b => {
-          container.innerHTML += `
-            <button onclick="selecionarProfissional('${b.id}')" class="w-full bg-black border border-pegas-border p-3 rounded-xl flex items-center justify-between hover:border-white transition">
-              <div class="flex items-center space-x-3">
-                <img src="${b.foto}" alt="${b.nome}" class="w-10 h-10 rounded-full object-cover">
-                <div class="text-left">
-                  <span class="text-sm font-bold text-white block">${b.nome}</span>
-                  <span class="text-[10px] text-gray-400 line-clamp-1">${b.desc || ''}</span>
-                </div>
+      barbeirosLista.forEach(b => {
+        container.innerHTML += `
+          <button onclick="selecionarProfissional('${b.id}')" class="w-full bg-black border border-pegas-border p-3 rounded-xl flex items-center justify-between hover:border-white transition">
+            <div class="flex items-center space-x-3">
+              <img src="${b.foto}" alt="${b.nome}" class="w-10 h-10 rounded-full object-cover">
+              <div class="text-left">
+                <span class="text-sm font-bold text-white block">${b.nome}</span>
+                <span class="text-[10px] text-gray-400 line-clamp-1">${b.desc || ''}</span>
               </div>
-              <i class="fa-solid fa-chevron-right text-xs text-gray-500"></i>
-            </button>
-          `;
-        });
-      }
-
+            </div>
+            <i class="fa-solid fa-chevron-right text-xs text-gray-500"></i>
+          </button>
+        `;
+      });
       document.getElementById('modal-profissionais').classList.remove('hidden');
       document.getElementById('modal-profissionais').classList.add('flex');
     }
 
-    function fecharModalProfissionais() {
-      document.getElementById('modal-profissionais').classList.add('hidden');
-    }
+    function fecharModalProfissionais() { document.getElementById('modal-profissionais').classList.add('hidden'); }
 
     function selecionarProfissional(id) {
       barbeiroSelecionado = barbeirosLista.find(b => b.id === id);
@@ -338,21 +437,16 @@ const firebaseConfig = {
         <h3 class="text-base font-bold text-white">${barbeiroSelecionado.nome}</h3>
         <p class="text-xs text-gray-400 italic font-medium">"${barbeiroSelecionado.desc || 'Profissional PEGAS'}"</p>
       `;
-
       carregarHorariosDisponiveis();
-
       document.getElementById('screen-profissional').classList.remove('hidden');
       document.getElementById('screen-profissional').classList.add('flex');
     }
 
-    function fecharTelaProfissional() {
-      document.getElementById('screen-profissional').classList.add('hidden');
-    }
+    function fecharTelaProfissional() { document.getElementById('screen-profissional').classList.add('hidden'); }
 
     function carregarHorariosDisponiveis() {
       const container = document.getElementById('container-horarios');
       container.innerHTML = '<p class="text-xs text-gray-500 col-span-3">Buscando horários...</p>';
-
       const dataSelecionada = document.getElementById('input-data-agendamento').value;
 
       database.ref('agendamentos').orderByChild('data').equalTo(dataSelecionada).once('value', (snapshot) => {
@@ -368,28 +462,18 @@ const firebaseConfig = {
         let horaAtual = barbeiroSelecionado.inicio || 8;
         const totalHoras = barbeiroSelecionado.jornada || 10;
         const tmc = barbeiroSelecionado.tmc || 30;
-
         let limiteMinutos = totalHoras * 60;
 
         for (let min = 0; min < limiteMinutos; min += tmc) {
           let h = Math.floor(horaAtual + (min / 60));
           let m = min % 60;
           let strHora = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-
           let ocupado = agendamentosOcupados.includes(strHora);
 
           if (ocupado) {
-            container.innerHTML += `
-              <button disabled class="bg-pegas-card border border-pegas-border text-gray-600 opacity-40 text-xs py-2 rounded-xl font-bold cursor-not-allowed">
-                ${strHora}
-              </button>
-            `;
+            container.innerHTML += `<button disabled class="bg-pegas-card border border-pegas-border text-gray-600 opacity-40 text-xs py-2 rounded-xl font-bold cursor-not-allowed">${strHora}</button>`;
           } else {
-            container.innerHTML += `
-              <button onclick="confirmarHorario('${strHora}')" class="bg-pegas-card border border-pegas-border hover:border-white text-white text-xs py-2 rounded-xl font-bold transition">
-                ${strHora}
-              </button>
-            `;
+            container.innerHTML += `<button onclick="confirmarHorario('${strHora}')" class="bg-pegas-card border border-pegas-border hover:border-white text-white text-xs py-2 rounded-xl font-bold transition">${strHora}</button>`;
           }
         }
       });
@@ -408,23 +492,16 @@ const firebaseConfig = {
       document.getElementById('modal-confirmacao').classList.add('flex');
     }
 
-    function fecharModalConfirmacao() {
-      document.getElementById('modal-confirmacao').classList.add('hidden');
-    }
+    function fecharModalConfirmacao() { document.getElementById('modal-confirmacao').classList.add('hidden'); }
 
+    // SALVAR AGENDAMENTO VINCULADO AO USUÁRIO LOGADO
     function salvarAgendamentoNoFirebase() {
-      const nome = document.getElementById('cliente-nome').value.trim();
-      const telefone = document.getElementById('cliente-telefone').value.trim();
       const dataSelecionada = document.getElementById('input-data-agendamento').value;
 
-      if (!nome || !telefone) {
-        alert("Por favor, preencha seu nome e telefone/WhatsApp.");
-        return;
-      }
-
       const novoAgendamento = {
-        cliente: nome,
-        telefone: telefone,
+        clienteId: clienteAtual.uid,
+        cliente: clienteAtual.nome,
+        telefone: clienteAtual.telefone,
         serviço: servicoSelecionado.nome,
         valor: servicoSelecionado.preco,
         barbeiro: barbeiroSelecionado.nome,
@@ -436,15 +513,82 @@ const firebaseConfig = {
 
       database.ref('agendamentos').push(novoAgendamento).then(() => {
         alert("🎉 Agendamento realizado com sucesso!");
-        location.reload();
-      }).catch(err => {
-        alert("Erro ao agendar: " + err.message);
+        fecharModalConfirmacao();
+        fecharTelaProfissional();
+        mudarAbaPortal('meus');
       });
     }
 
-    // INICIALIZAR BANCO DE DADOS
-    escutarServicosFirebase();
-    escutarBarbeirosFirebase();
+    // CARREGAR MEUS AGENDAMENTOS
+    function carregarMeusAgendamentos() {
+      database.ref('agendamentos').orderByChild('clienteId').equalTo(clienteAtual.uid).on('value', (snapshot) => {
+        const dados = snapshot.val();
+        meusAgendamentosLista = [];
+        for (let id in dados) { meusAgendamentosLista.push({ id: id, ...dados[id] }); }
+        meusAgendamentosLista.sort((a, b) => new Date(b.criadoEm || 0) - new Date(a.criadoEm || 0));
+        renderizarMeusAgendamentos();
+      });
+    }
+
+    function renderizarMeusAgendamentos() {
+      const container = document.getElementById('container-meus-agendamentos');
+      container.innerHTML = '';
+
+      if (meusAgendamentosLista.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-500 text-center py-8">Você ainda não tem agendamentos marcados.</p>`;
+        return;
+      }
+
+      meusAgendamentosLista.forEach(item => {
+        let statusBadge = item.status === 'Confirmado' 
+          ? `<span class="px-2 py-0.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[9px] font-bold rounded-full">Confirmado</span>`
+          : item.status === 'Pendente'
+          ? `<span class="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[9px] font-bold rounded-full">Pendente</span>`
+          : item.status === 'Concluído'
+          ? `<span class="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold rounded-full">Concluído</span>`
+          : `<span class="px-2 py-0.5 bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] font-bold rounded-full">Cancelado</span>`;
+
+        container.innerHTML += `
+          <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
+            <div class="space-y-1">
+              <div class="flex items-center space-x-2">
+                <h4 class="font-bold text-white text-sm">${item.serviço}</h4>
+                ${statusBadge}
+              </div>
+              <p class="text-xs text-gray-400">Barbeiro: <strong class="text-white">${item.barbeiro}</strong></p>
+              <p class="text-[11px] text-gray-500"><i class="fa-solid fa-calendar-day mr-1"></i>${item.data} às ${item.hora} • R$ ${item.valor},00</p>
+            </div>
+
+            ${item.status !== 'Cancelado' && item.status !== 'Concluído' ? `
+              <button onclick="cancelarMeuAgendamento('${item.id}')" class="text-xs text-red-400 hover:text-red-300 font-semibold px-2 py-1 bg-red-500/10 rounded-lg">
+                Cancelar
+              </button>
+            ` : ''}
+          </div>
+        `;
+      });
+    }
+
+    function cancelarMeuAgendamento(id) {
+      if (confirm("Deseja cancelar este agendamento?")) {
+        database.ref(`agendamentos/${id}`).update({ status: 'Cancelado' });
+      }
+    }
+
+    // ALTERNAR ABAS DO PORTAL
+    function mudarAbaPortal(aba) {
+      if (aba === 'agendar') {
+        document.getElementById('tab-content-agendar').classList.remove('hidden');
+        document.getElementById('tab-content-meus').classList.add('hidden');
+        document.getElementById('nav-agendar').className = "flex flex-col items-center text-white space-y-1";
+        document.getElementById('nav-meus').className = "flex flex-col items-center text-gray-500 hover:text-white space-y-1";
+      } else {
+        document.getElementById('tab-content-agendar').classList.add('hidden');
+        document.getElementById('tab-content-meus').classList.remove('hidden');
+        document.getElementById('nav-meus').className = "flex flex-col items-center text-white space-y-1";
+        document.getElementById('nav-agendar').className = "flex flex-col items-center text-gray-500 hover:text-white space-y-1";
+      }
+    }
   </script>
 </body>
 </html>
