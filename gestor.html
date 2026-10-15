@@ -35,33 +35,18 @@
       background-color: #050505;
       color: #f5f5f5;
     }
-    .scrollbar-none::-webkit-scrollbar {
-      display: none;
-    }
-    .scrollbar-none {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    .fade-in {
-      animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-    .fade-out {
-      animation: fadeOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.97); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    @keyframes fadeOut {
-      from { opacity: 1; transform: scale(1); }
-      to { opacity: 0; transform: scale(0.97); }
-    }
+    .scrollbar-none::-webkit-scrollbar { display: none; }
+    .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+    .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .fade-out { animation: fadeOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+    @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.97); } }
   </style>
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-white selection:text-black">
 
   <!-- TELA 1: SELEÇÃO DE PERFIL DO BARBEIRO (ESTILO NETFLIX) -->
-  <div id="screen-profiles" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-6 space-y-8 fade-in">
+  <div id="screen-profiles" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-6 space-y-8 fade-in overflow-y-auto">
     
     <!-- LOGO OFICIAL VIA icon.png -->
     <div class="flex flex-col items-center space-y-3">
@@ -80,8 +65,8 @@
     </div>
 
     <!-- CARDS DOS BARBEIROS -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 max-w-lg w-full" id="container-perfis-barbeiros">
-      <!-- Renderizado dinamicamente via JS -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 max-w-2xl w-full" id="container-perfis-barbeiros">
+      <!-- Renderizado dinamicamente via JS do Firebase -->
     </div>
   </div>
 
@@ -138,7 +123,7 @@
 
         <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
           <div>
-            <p class="text-[10px] text-gray-400 uppercase font-semibold">Faturamento Previsto</p>
+            <p class="text-[10px] text-gray-400 uppercase font-semibold">Faturamento Mês Atual</p>
             <p id="stat-faturamento" class="text-xl font-black text-white mt-1">R$ 0,00</p>
           </div>
           <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-emerald-400">
@@ -175,7 +160,7 @@
               <i class="fa-solid fa-calendar-days text-gray-400"></i>
               <span>Calendário Mensal (Clique no dia para detalhes)</span>
             </h3>
-            <p class="text-xs text-gray-400 mt-0.5">Dias com marcação possuem indicador verde</p>
+            <p class="text-xs text-gray-400 mt-0.5">Dias com agendamento possuem indicador verde</p>
           </div>
 
           <button onclick="abrirModalHoraExtra()" class="bg-white text-black font-extrabold text-xs px-3 py-2 rounded-lg hover:bg-gray-200 transition flex items-center space-x-1">
@@ -187,7 +172,7 @@
         <!-- GRADE DE CALENDÁRIO -->
         <div class="space-y-2">
           <div class="flex items-center justify-between text-xs font-bold text-white mb-2">
-            <span id="cal-mes-ano">Outubro 2026</span>
+            <span id="cal-mes-ano">Mês</span>
             <div class="flex space-x-1">
               <button onclick="navegarMes(-1)" class="px-2 py-1 bg-black border border-pegas-border rounded hover:border-white text-gray-400 hover:text-white"><i class="fa-solid fa-chevron-left text-xs"></i></button>
               <button onclick="navegarMes(1)" class="px-2 py-1 bg-black border border-pegas-border rounded hover:border-white text-gray-400 hover:text-white"><i class="fa-solid fa-chevron-right text-xs"></i></button>
@@ -204,7 +189,7 @@
         </div>
       </section>
 
-      <!-- BARRA DE FILTRO POR PERÍODO (PADRÃO 7 DIAS) -->
+      <!-- BARRA DE FILTRO POR PERÍODO -->
       <section class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h3 class="text-xs font-bold text-white uppercase tracking-wider">Período de Exibição da Lista</h3>
@@ -240,12 +225,12 @@
         </div>
       </section>
 
-      <!-- LISTA 2: AGENDAMENTOS CONCLUÍDOS -->
+      <!-- LISTA 2: AGENDAMENTOS CONCLUÍDOS E CANCELADOS -->
       <section class="space-y-3 pt-6 border-t border-pegas-border">
         <div class="flex items-center justify-between">
           <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center space-x-2">
             <i class="fa-solid fa-circle-check"></i>
-            <span>Histórico de Agendamentos Concluídos</span>
+            <span>Histórico (Concluídos e Cancelados)</span>
           </h3>
         </div>
 
@@ -255,6 +240,35 @@
       </section>
 
     </main>
+  </div>
+
+  <!-- MODAL: CADASTRAR NOVO PROFISSIONAL -->
+  <div id="modal-novo-profissional" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-pegas-card border border-pegas-border w-full max-w-sm rounded-2xl p-6 space-y-4">
+      <div class="flex justify-between items-center border-b border-pegas-border pb-3">
+        <h3 class="font-bold text-white text-sm uppercase">Cadastrar Profissional</h3>
+        <button onclick="fecharModalNovoProfissional()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold block uppercase mb-1">Nome do Profissional</label>
+          <input type="text" id="prof-nome" placeholder="Ex: Lucas Pegas" class="w-full bg-black border border-pegas-border text-white text-xs rounded-xl p-3 focus:outline-none focus:border-white">
+        </div>
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold block uppercase mb-1">Foto de Perfil (URL da Imagem)</label>
+          <input type="url" id="prof-foto" placeholder="https://..." class="w-full bg-black border border-pegas-border text-white text-xs rounded-xl p-3 focus:outline-none focus:border-white">
+        </div>
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold block uppercase mb-1">Descrição / Especialidade</label>
+          <input type="text" id="prof-desc" placeholder="Ex: Especialista em Barba e Degradê" class="w-full bg-black border border-pegas-border text-white text-xs rounded-xl p-3 focus:outline-none focus:border-white">
+        </div>
+      </div>
+
+      <button onclick="salvarNovoProfissionalFirebase()" class="w-full py-3 bg-white text-black font-extrabold text-xs rounded-xl hover:bg-gray-200 transition">
+        Salvar Profissional
+      </button>
+    </div>
   </div>
 
   <!-- MODAL: DETALHES DO DIA SELECIONADO (LINHA DO TEMPO) -->
@@ -281,9 +295,7 @@
     <div class="bg-pegas-card border border-pegas-border w-full max-w-lg rounded-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-pegas-border pb-3">
         <h3 class="font-bold text-white text-sm uppercase tracking-wider">Configurar Serviços da Barbearia</h3>
-        <button onclick="fecharModalServicos()" class="text-gray-400 hover:text-white">
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
+        <button onclick="fecharModalServicos()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
 
       <div class="bg-black border border-pegas-border p-4 rounded-xl space-y-3">
@@ -294,9 +306,7 @@
           <input type="number" id="novo-servico-duracao" placeholder="Duração (min)" class="bg-pegas-card border border-pegas-border text-xs text-white p-2.5 rounded-lg focus:outline-none focus:border-white">
           <input type="url" id="novo-servico-img" placeholder="URL da Imagem" class="bg-pegas-card border border-pegas-border text-xs text-white p-2.5 rounded-lg focus:outline-none focus:border-white">
         </div>
-        <button onclick="salvarNovoServicoFirebase()" class="w-full bg-white text-black font-extrabold text-xs py-2.5 rounded-lg hover:bg-gray-200 transition">
-          Cadastrar Serviço
-        </button>
+        <button onclick="salvarNovoServicoFirebase()" class="w-full bg-white text-black font-extrabold text-xs py-2.5 rounded-lg hover:bg-gray-200 transition">Cadastrar Serviço</button>
       </div>
 
       <div class="space-y-2">
@@ -354,12 +364,7 @@ const firebaseConfig = {
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    const barbeiros = [
-      { id: "lucas", nome: "Lucas Pegas", foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200" },
-      { id: "felipe", nome: "Felipe Santos", foto: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200" },
-      { id: "mateus", nome: "Mateus Oliveira", foto: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200" }
-    ];
-
+    let barbeirosLista = [];
     let barbeiroLogado = null;
     let agendamentosLista = [];
     let servicosLista = [];
@@ -377,21 +382,92 @@ const firebaseConfig = {
       if (barbeiroLogado) renderizarAgendamentos();
     }
 
+    // ESCUTAR BARBEIROS CADASTRADOS NO FIREBASE
+    function escutarBarbeirosFirebase() {
+      database.ref('barbeiros').on('value', (snapshot) => {
+        const dados = snapshot.val();
+        barbeirosLista = [];
+        
+        if (!dados) {
+          // Se não houver nenhum barbeiro, cadastra o perfil inicial do gestor
+          const inicial = {
+            nome: "Carlos Pegas",
+            foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
+            desc: "Barbeiro Principal / Gestor",
+            tmc: 30, inicio: 8, jornada: 10
+          };
+          database.ref('barbeiros').push(inicial);
+          return;
+        }
+
+        for (let id in dados) {
+          barbeirosLista.push({ id: id, ...dados[id] });
+        }
+        renderizarPerfis();
+      });
+    }
+
     function renderizarPerfis() {
       const container = document.getElementById('container-perfis-barbeiros');
       container.innerHTML = '';
-      barbeiros.forEach(b => {
+
+      barbeirosLista.forEach(b => {
         container.innerHTML += `
           <button onclick="logarBarbeiro('${b.id}')" class="bg-pegas-card border border-pegas-border hover:border-white p-4 rounded-2xl flex flex-col items-center space-y-3 transition duration-200 hover:scale-105">
-            <img src="${b.foto}" alt="${b.nome}" class="w-20 h-20 rounded-full object-cover border-2 border-white/20">
-            <span class="text-xs font-bold text-white text-center">${b.nome}</span>
+            <img src="${b.foto}" alt="${b.nome}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-white/20">
+            <span class="text-xs font-bold text-white text-center line-clamp-1">${b.nome}</span>
           </button>
         `;
+      });
+
+      // CARD BOTÃO DE ADICIONAR NOVO PROFISSIONAL
+      container.innerHTML += `
+        <button onclick="abrirModalNovoProfissional()" class="bg-black border border-dashed border-white/30 hover:border-white p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 transition duration-200 hover:scale-105 text-gray-400 hover:text-white min-h-[130px]">
+          <div class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-plus"></i>
+          </div>
+          <span class="text-xs font-bold text-center">Adicionar</span>
+        </button>
+      `;
+    }
+
+    function abrirModalNovoProfissional() {
+      document.getElementById('modal-novo-profissional').classList.remove('hidden');
+      document.getElementById('modal-novo-profissional').classList.add('flex');
+    }
+
+    function fecharModalNovoProfissional() {
+      document.getElementById('modal-novo-profissional').classList.add('hidden');
+    }
+
+    function salvarNovoProfissionalFirebase() {
+      const nome = document.getElementById('prof-nome').value.trim();
+      const foto = document.getElementById('prof-foto').value.trim() || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200";
+      const desc = document.getElementById('prof-desc').value.trim() || "Especialista em Barbearia";
+
+      if (!nome) {
+        alert("Preencha o nome do profissional!");
+        return;
+      }
+
+      database.ref('barbeiros').push({
+        nome: nome,
+        foto: foto,
+        desc: desc,
+        tmc: 30,
+        inicio: 8,
+        jornada: 10
+      }).then(() => {
+        alert("Novo profissional cadastrado com sucesso!");
+        fecharModalNovoProfissional();
+        document.getElementById('prof-nome').value = '';
+        document.getElementById('prof-foto').value = '';
+        document.getElementById('prof-desc').value = '';
       });
     }
 
     function logarBarbeiro(id) {
-      barbeiroLogado = barbeiros.find(b => b.id === id);
+      barbeiroLogado = barbeirosLista.find(b => b.id === id);
       const profilesScreen = document.getElementById('screen-profiles');
       profilesScreen.classList.remove('fade-in');
       profilesScreen.classList.add('fade-out');
@@ -410,9 +486,7 @@ const firebaseConfig = {
       }, 300);
     }
 
-    function trocarPerfil() {
-      location.reload();
-    }
+    function trocarPerfil() { location.reload(); }
 
     function iniciarEscutasFirebase() {
       database.ref('agendamentos').on('value', (snapshot) => {
@@ -450,8 +524,8 @@ const firebaseConfig = {
         return a.barbeiro === barbeiroLogado.nome && a.data >= dtInicio && a.data <= dtFim;
       });
 
-      const ativos = filtrados.filter(a => a.status !== 'Concluído');
-      const concluidos = filtrados.filter(a => a.status === 'Concluído');
+      const ativos = filtrados.filter(a => a.status === 'Pendente' || a.status === 'Confirmado');
+      const historico = filtrados.filter(a => a.status === 'Concluído' || a.status === 'Cancelado');
 
       atualizarMetricas(filtrados, ativos);
 
@@ -461,19 +535,21 @@ const firebaseConfig = {
         ativos.forEach(item => { containerAtivos.innerHTML += criarCardAgendamentoHTML(item, false); });
       }
 
-      if (concluidos.length === 0) {
-        containerConcluidos.innerHTML = `<p class="text-xs text-gray-500 py-4 text-center">Nenhum agendamento concluído neste período.</p>`;
+      if (historico.length === 0) {
+        containerConcluidos.innerHTML = `<p class="text-xs text-gray-500 py-4 text-center">Nenhum histórico para este período.</p>`;
       } else {
-        concluidos.forEach(item => { containerConcluidos.innerHTML += criarCardAgendamentoHTML(item, true); });
+        historico.forEach(item => { containerConcluidos.innerHTML += criarCardAgendamentoHTML(item, true); });
       }
     }
 
-    function criarCardAgendamentoHTML(item, isConcluido) {
+    function criarCardAgendamentoHTML(item, isHistorico) {
       let statusBadge = item.status === 'Confirmado' 
         ? `<span class="px-2 py-0.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[9px] font-bold rounded-full">Confirmado</span>`
         : item.status === 'Pendente'
         ? `<span class="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[9px] font-bold rounded-full">Pendente</span>`
-        : `<span class="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold rounded-full">Concluído</span>`;
+        : item.status === 'Concluído'
+        ? `<span class="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold rounded-full">Concluído</span>`
+        : `<span class="px-2 py-0.5 bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] font-bold rounded-full">Cancelado</span>`;
 
       return `
         <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -497,7 +573,7 @@ const firebaseConfig = {
               <i class="fa-brands fa-whatsapp"></i><span>WhatsApp</span>
             </a>
 
-            ${!isConcluido ? `
+            ${!isHistorico ? `
               ${item.status === 'Pendente' ? `
                 <button onclick="alterarStatusFirebase('${item.id}', 'Confirmado')" class="p-2 bg-white/5 hover:bg-blue-500/20 text-gray-300 hover:text-blue-400 rounded-lg transition" title="Confirmar Agendamento">
                   <i class="fa-solid fa-check-double text-xs"></i>
@@ -506,11 +582,16 @@ const firebaseConfig = {
               <button onclick="alterarStatusFirebase('${item.id}', 'Concluído')" class="p-2 bg-white/5 hover:bg-emerald-500/20 text-gray-300 hover:text-emerald-400 rounded-lg transition" title="Marcar como Concluído">
                 <i class="fa-solid fa-check text-xs"></i>
               </button>
-            ` : ''}
-
-            <button onclick="alterarStatusFirebase('${item.id}', 'Cancelado')" class="p-2 bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 rounded-lg transition" title="Cancelar">
-              <i class="fa-solid fa-xmark text-xs"></i>
-            </button>
+              <button onclick="alterarStatusFirebase('${item.id}', 'Cancelado')" class="p-2 bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 rounded-lg transition" title="Cancelar Agendamento">
+                <i class="fa-solid fa-xmark text-xs"></i>
+              </button>
+            ` : `
+              ${item.status === 'Cancelado' ? `
+                <button onclick="alterarStatusFirebase('${item.id}', 'Confirmado')" class="p-2 bg-white/5 hover:bg-blue-500/20 text-gray-300 hover:text-blue-400 rounded-lg transition" title="Restaurar para Ativos">
+                  <i class="fa-solid fa-rotate-left text-xs"></i>
+                </button>
+              ` : ''}
+            `}
           </div>
         </div>
       `;
@@ -520,17 +601,19 @@ const firebaseConfig = {
       database.ref(`agendamentos/${id}`).update({ status: novoStatus });
     }
 
-    function aplicarFiltroData() {
-      renderizarAgendamentos();
-    }
+    function aplicarFiltroData() { renderizarAgendamentos(); }
 
     function atualizarMetricas(totalLista, ativos) {
-      const faturamento = totalLista.reduce((acc, cur) => cur.status !== 'Cancelado' ? acc + cur.valor : acc, 0);
+      // CALCULAR FATURAMENTO DO MÊS ATUAL DO CALENDÁRIO/FILTRO
+      const mesAnoAtual = dataAtualCal.toISOString().slice(0, 7); // ex: "2026-10"
+      const doMes = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome && a.data.startsWith(mesAnoAtual) && a.status !== 'Cancelado');
+      const faturamentoMes = doMes.reduce((acc, cur) => acc + cur.valor, 0);
+
       const confirmados = ativos.filter(a => a.status === 'Confirmado').length;
       const pendentes = ativos.filter(a => a.status === 'Pendente').length;
 
       document.getElementById('stat-total').innerText = totalLista.length;
-      document.getElementById('stat-faturamento').innerText = `R$ ${faturamento},00`;
+      document.getElementById('stat-faturamento').innerText = `R$ ${faturamentoMes},00`;
       document.getElementById('stat-confirmados').innerText = confirmados;
       document.getElementById('stat-pendentes').innerText = pendentes;
     }
@@ -568,6 +651,7 @@ const firebaseConfig = {
     function navegarMes(delta) {
       dataAtualCal.setMonth(dataAtualCal.getMonth() + delta);
       renderizarCalendarioGrid();
+      if (barbeiroLogado) renderizarAgendamentos();
     }
 
     function abrirDetalhesDia(dataStr) {
@@ -603,18 +687,9 @@ const firebaseConfig = {
       document.getElementById('modal-dia-detalhes').classList.add('flex');
     }
 
-    function fecharModalDiaDetalhes() {
-      document.getElementById('modal-dia-detalhes').classList.add('hidden');
-    }
-
-    function abrirModalServicos() {
-      document.getElementById('modal-servicos').classList.remove('hidden');
-      document.getElementById('modal-servicos').classList.add('flex');
-    }
-
-    function fecharModalServicos() {
-      document.getElementById('modal-servicos').classList.add('hidden');
-    }
+    function fecharModalDiaDetalhes() { document.getElementById('modal-dia-detalhes').classList.add('hidden'); }
+    function abrirModalServicos() { document.getElementById('modal-servicos').classList.remove('hidden'); document.getElementById('modal-servicos').classList.add('flex'); }
+    function fecharModalServicos() { document.getElementById('modal-servicos').classList.add('hidden'); }
 
     function salvarNovoServicoFirebase() {
       const nome = document.getElementById('novo-servico-nome').value.trim();
@@ -622,10 +697,7 @@ const firebaseConfig = {
       const duracao = parseInt(document.getElementById('novo-servico-duracao').value);
       const img = document.getElementById('novo-servico-img').value.trim() || "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200";
 
-      if (!nome || isNaN(preco) || isNaN(duracao)) {
-        alert("Preencha o nome, preço e duração!");
-        return;
-      }
+      if (!nome || isNaN(preco) || isNaN(duracao)) { alert("Preencha o nome, preço e duração!"); return; }
 
       database.ref('servicos').push({ nome, preco, duracao, img }).then(() => {
         alert("Serviço cadastrado com sucesso!");
@@ -654,19 +726,11 @@ const firebaseConfig = {
     }
 
     function removerServicoFirebase(id) {
-      if (confirm("Remover este serviço do catálogo?")) {
-        database.ref(`servicos/${id}`).remove();
-      }
+      if (confirm("Remover este serviço do catálogo?")) { database.ref(`servicos/${id}`).remove(); }
     }
 
-    function abrirModalHoraExtra() {
-      document.getElementById('modal-hora-extra').classList.remove('hidden');
-      document.getElementById('modal-hora-extra').classList.add('flex');
-    }
-
-    function fecharModalHoraExtra() {
-      document.getElementById('modal-hora-extra').classList.add('hidden');
-    }
+    function abrirModalHoraExtra() { document.getElementById('modal-hora-extra').classList.remove('hidden'); document.getElementById('modal-hora-extra').classList.add('flex'); }
+    function fecharModalHoraExtra() { document.getElementById('modal-hora-extra').classList.add('hidden'); }
 
     function salvarHoraExtraFirebase() {
       const dt = document.getElementById('extra-data').value;
@@ -681,8 +745,9 @@ const firebaseConfig = {
       });
     }
 
+    // INICIALIZAR
     setUltimosSeteDias();
-    renderizarPerfis();
+    escutarBarbeirosFirebase();
   </script>
 </body>
 </html>
