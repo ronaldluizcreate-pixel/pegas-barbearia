@@ -23,9 +23,7 @@
               lightGray: '#1c1c1e'
             }
           },
-          fontFamily: {
-            sans: ['Montserrat', 'sans-serif'],
-          }
+          fontFamily: { sans: ['Montserrat', 'sans-serif'] }
         }
       }
     }
@@ -40,7 +38,7 @@
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-white selection:text-black">
 
-  <!-- TELA 1: AUTHENTICATION LOGIN DO GESTOR -->
+  <!-- TELA 1: LOGIN / REGISTRO DE NOVO GESTOR -->
   <div id="screen-login-gestor" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-6 space-y-6 fade-in overflow-y-auto">
     <div class="max-w-sm w-full space-y-6">
       
@@ -55,68 +53,91 @@
       </div>
 
       <div class="bg-pegas-card border border-pegas-border p-6 rounded-2xl space-y-4">
-        <div class="text-center border-b border-pegas-border pb-3">
-          <h2 class="text-sm font-bold text-white uppercase tracking-wider">Acesso Administrativo</h2>
-          <p class="text-[11px] text-gray-400">Entre com seu e-mail e senha de gestor</p>
+        <div class="flex border-b border-pegas-border text-xs font-bold text-center">
+          <button id="tab-login" onclick="alternarAbaAuth('login')" class="w-1/2 pb-2 border-b-2 border-white text-white">Entrar</button>
+          <button id="tab-register" onclick="alternarAbaAuth('register')" class="w-1/2 pb-2 border-b-2 border-transparent text-gray-500 hover:text-white">Criar Conta Gestor</button>
         </div>
 
+        <!-- FORM LOGIN GESTOR -->
         <form id="form-login-gestor" onsubmit="realizarLoginGestor(event)" class="space-y-3">
           <div>
-            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">E-mail do Gestor</label>
-            <input type="email" id="gestor-email" required placeholder="gestor@pegasbarbearia.com" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">E-mail</label>
+            <input type="email" id="gestor-login-email" required placeholder="seu@email.com" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
           </div>
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Senha</label>
-            <input type="password" id="gestor-senha" required placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+            <input type="password" id="gestor-login-senha" required placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
           </div>
           <button type="submit" class="w-full py-3 bg-white text-black font-black text-xs uppercase tracking-wider rounded-xl hover:bg-gray-200 transition">
             Entrar no Painel
           </button>
         </form>
-      </div>
 
+        <!-- FORM REGISTRO NOVO GESTOR -->
+        <form id="form-register-gestor" onsubmit="realizarCadastroGestor(event)" class="space-y-3 hidden">
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Nome da Barbearia / Gestor</label>
+            <input type="text" id="gestor-reg-nome" required placeholder="Ex: Barbearia do Carlos" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+          </div>
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">E-mail Administrativo</label>
+            <input type="email" id="gestor-reg-email" required placeholder="gestor@email.com" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+          </div>
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Senha (Mínimo 6 dígitos)</label>
+            <input type="password" id="gestor-reg-senha" minlength="6" required placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+          </div>
+          <button type="submit" class="w-full py-3 bg-white text-black font-black text-xs uppercase tracking-wider rounded-xl hover:bg-gray-200 transition">
+            Criar Conta e Assinar
+          </button>
+        </form>
+
+      </div>
     </div>
   </div>
 
-  <!-- TELA 2: TELA DE BLOQUEIO DE ASSINATURA PRO INATIVA/PENDENTE -->
+  <!-- TELA 2: TELA DE BLOQUEIO IMEDIATO (REQUER ASSINATURA R$ 45/MÊS) -->
   <div id="screen-blocked-pro" class="fixed inset-0 bg-black z-50 hidden flex-col items-center justify-center p-6 text-center space-y-6">
-    <div class="w-20 h-20 rounded-full bg-red-500/10 border border-red-500/30 text-red-500 flex items-center justify-center text-3xl">
-      <i class="fa-solid fa-lock"></i>
+    <div class="w-20 h-20 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center text-3xl">
+      <i class="fa-solid fa-crown"></i>
     </div>
 
     <div class="max-w-md space-y-2">
-      <h2 class="text-xl font-extrabold text-white">Plano PRO Necessário</h2>
-      <p class="text-xs text-gray-400">O uso deste painel de gestão é exclusivo para assinantes ativos do plano PRO por <strong class="text-white">R$ 45,00/mês</strong>.</p>
+      <h2 class="text-xl font-extrabold text-white">Ative seu Plano PEGAS Gestor PRO</h2>
+      <p class="text-xs text-gray-400">Sua conta foi criada! Assine agora para liberar a gestão de horários, barbeiros e serviços por apenas <strong class="text-white">R$ 45,00/mês</strong>.</p>
     </div>
 
     <div class="bg-pegas-card border border-pegas-border p-5 rounded-2xl max-w-md w-full text-left space-y-3">
       <div class="flex justify-between text-xs">
-        <span class="text-gray-400">Recurso:</span>
-        <strong class="text-white">Gestão Completa de Horários e Barbearia</strong>
+        <span class="text-gray-400">Serviço:</span>
+        <strong class="text-white">PEGAS Gestor SaaS</strong>
       </div>
       <div class="flex justify-between text-xs">
         <span class="text-gray-400">Valor da Assinatura:</span>
         <strong class="text-emerald-400 font-black">R$ 45,00 / mês</strong>
       </div>
       <div class="flex justify-between text-xs border-t border-pegas-border pt-2">
-        <span class="text-gray-400">Status da Conta:</span>
-        <span class="px-2 py-0.5 bg-red-500/20 text-red-400 text-[10px] font-bold rounded-full">Inativo / Vencido</span>
+        <span class="text-gray-400">Status do Acesso:</span>
+        <span class="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-[10px] font-bold rounded-full animate-pulse">Aguardando Pagamento</span>
       </div>
     </div>
 
     <div class="flex flex-col space-y-3 w-full max-w-xs">
-      <a id="btn-pagar-asaas" href="https://www.asaas.com" target="_blank" class="w-full py-3.5 bg-white text-black font-extrabold text-xs rounded-xl hover:bg-gray-200 transition flex items-center justify-center space-x-2">
+      <!-- LINK DO ASAAS CONECTADO AO EMAIL DO GESTOR -->
+      <a id="btn-pagar-asaas" href="#" target="_blank" class="w-full py-3.5 bg-white text-black font-extrabold text-xs rounded-xl hover:bg-gray-200 transition flex items-center justify-center space-x-2">
         <i class="fa-solid fa-qrcode"></i>
-        <span>Ativar Plano PRO no Asaas</span>
+        <span>Pagar R$ 45,00 no Asaas (Pix/Cartão)</span>
       </a>
 
+      <p class="text-[10px] text-gray-500">O acesso é liberado automaticamente após a confirmação do pagamento pelo Asaas.</p>
+
       <button onclick="realizarLogoutGestor()" class="text-xs text-gray-400 hover:text-white pt-2">
-        <i class="fa-solid fa-right-from-bracket mr-1"></i> Sair da Conta
+        <i class="fa-solid fa-right-from-bracket mr-1"></i> Sair
       </button>
     </div>
   </div>
 
-  <!-- TELA 3: SELEÇÃO DE BARBEIRO LOGADO PRO -->
+  <!-- TELA 3: SELEÇÃO DE PROFISSIONAL (LIBERADO APÓS PAGAMENTO) -->
   <div id="screen-profiles" class="fixed inset-0 bg-black z-40 hidden flex-col items-center justify-center p-6 space-y-8 fade-in overflow-y-auto">
     <div class="flex flex-col items-center space-y-3">
       <div class="w-24 h-24 border-2 border-white/20 rounded-full flex items-center justify-center bg-black shadow-2xl overflow-hidden p-1">
@@ -124,21 +145,20 @@
       </div>
       <div class="text-center">
         <h1 class="text-2xl font-black tracking-[0.2em] text-white">PEGAS</h1>
-        <p class="text-[9px] tracking-[0.3em] text-emerald-400 uppercase font-semibold">GESTOR PRO • LIBERADO</p>
+        <p class="text-[9px] tracking-[0.3em] text-emerald-400 uppercase font-semibold">GESTOR PRO • CONTA ATIVA</p>
       </div>
     </div>
 
     <div class="text-center space-y-2">
-      <h2 class="text-xl sm:text-2xl font-extrabold text-white">Selecione o Profissional</h2>
-      <p class="text-xs text-gray-400">Escolha o barbeiro para abrir a agenda correspondente</p>
+      <h2 class="text-xl sm:text-2xl font-extrabold text-white">Selecione o Barbeiro</h2>
+      <p class="text-xs text-gray-400">Escolha o profissional para visualizar e gerenciar a agenda</p>
     </div>
 
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 max-w-2xl w-full" id="container-perfis-barbeiros"></div>
   </div>
 
-  <!-- TELA 4: DASHBOARD PRINCIPAL (SÓ CARREGA SE FOR PRO) -->
+  <!-- TELA 4: DASHBOARD DO GESTOR -->
   <div id="screen-dashboard" class="hidden flex-col min-h-screen">
-    
     <header class="bg-pegas-card border-b border-pegas-border sticky top-0 z-30">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div class="flex items-center space-x-3">
@@ -152,17 +172,12 @@
         </div>
 
         <div class="flex items-center space-x-2 sm:space-x-4">
-          <button onclick="abrirModalServicos()" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5">
-            <i class="fa-solid fa-scissors text-xs"></i>
-            <span class="hidden sm:inline">Gerenciar Serviços</span>
-          </button>
-
           <div class="flex items-center space-x-2 bg-black border border-pegas-border px-3 py-1.5 rounded-xl">
             <img id="header-user-foto" src="" class="w-6 h-6 rounded-full object-cover border border-white/30">
             <span id="header-user-nome" class="text-xs font-bold text-white">---</span>
           </div>
 
-          <button onclick="realizarLogoutGestor()" class="text-xs text-gray-400 hover:text-white p-2" title="Sair da Conta">
+          <button onclick="realizarLogoutGestor()" class="text-xs text-gray-400 hover:text-white p-2" title="Sair">
             <i class="fa-solid fa-right-from-bracket"></i>
           </button>
         </div>
@@ -170,131 +185,51 @@
     </header>
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-
-      <!-- BADGE STATUS ASSINATURA -->
       <div class="bg-pegas-card border border-pegas-border p-3 rounded-xl flex items-center justify-between text-xs">
         <div class="flex items-center space-x-2">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span class="text-gray-200 font-semibold">Plano PRO Ativo</span>
+          <span class="text-gray-200 font-semibold">Assinatura Ativa</span>
         </div>
         <span id="badge-vencimento" class="text-gray-400 text-[11px]">Vencimento: ---</span>
       </div>
 
-      <!-- MÉTRICAS GERAIS -->
+      <!-- PAINEL COMPLETO -->
       <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
           <div>
             <p class="text-[10px] text-gray-400 uppercase font-semibold">Atendimentos Hoje</p>
             <p id="stat-total" class="text-xl font-black text-white mt-1">0</p>
           </div>
-          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white">
-            <i class="fa-solid fa-calendar-check text-sm"></i>
-          </div>
+          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white"><i class="fa-solid fa-calendar-check text-sm"></i></div>
         </div>
-
         <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
           <div>
             <p class="text-[10px] text-gray-400 uppercase font-semibold">Faturamento Mês Atual</p>
             <p id="stat-faturamento" class="text-xl font-black text-white mt-1">R$ 0,00</p>
           </div>
-          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-emerald-400">
-            <i class="fa-solid fa-wallet text-sm"></i>
-          </div>
+          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-wallet text-sm"></i></div>
         </div>
-
         <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
           <div>
             <p class="text-[10px] text-gray-400 uppercase font-semibold">Confirmados (Geral)</p>
             <p id="stat-confirmados" class="text-xl font-black text-white mt-1">0</p>
           </div>
-          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-blue-400">
-            <i class="fa-solid fa-circle-check text-sm"></i>
-          </div>
+          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-blue-400"><i class="fa-solid fa-circle-check text-sm"></i></div>
         </div>
-
         <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
           <div>
             <p class="text-[10px] text-gray-400 uppercase font-semibold">Pendentes (Geral)</p>
             <p id="stat-pendentes" class="text-xl font-black text-white mt-1">0</p>
           </div>
-          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-amber-400">
-            <i class="fa-solid fa-clock text-sm"></i>
-          </div>
+          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-amber-400"><i class="fa-solid fa-clock text-sm"></i></div>
         </div>
       </section>
 
-      <!-- CALENDÁRIO MENSAL -->
-      <section class="bg-pegas-card border border-pegas-border p-4 sm:p-5 rounded-xl space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-pegas-border pb-3">
-          <div>
-            <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2">
-              <i class="fa-solid fa-calendar-days text-gray-400"></i>
-              <span>Calendário Mensal</span>
-            </h3>
-            <p class="text-xs text-gray-400 mt-0.5">Clique em um dia para ver os agendamentos</p>
-          </div>
-
-          <button onclick="abrirModalHoraExtra()" class="bg-white text-black font-extrabold text-xs px-3 py-2 rounded-lg hover:bg-gray-200 transition flex items-center space-x-1">
-            <i class="fa-solid fa-plus text-xs"></i>
-            <span>Lançar Hora Extra</span>
-          </button>
-        </div>
-
-        <div class="space-y-2">
-          <div class="flex items-center justify-between text-xs font-bold text-white mb-2">
-            <span id="cal-mes-ano">Mês</span>
-            <div class="flex space-x-1">
-              <button onclick="navegarMes(-1)" class="px-2 py-1 bg-black border border-pegas-border rounded hover:border-white text-gray-400 hover:text-white"><i class="fa-solid fa-chevron-left text-xs"></i></button>
-              <button onclick="navegarMes(1)" class="px-2 py-1 bg-black border border-pegas-border rounded hover:border-white text-gray-400 hover:text-white"><i class="fa-solid fa-chevron-right text-xs"></i></button>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-gray-500 uppercase">
-            <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
-          </div>
-
-          <div id="grid-calendario" class="grid grid-cols-7 gap-1 sm:gap-1.5 text-center text-xs"></div>
-        </div>
-      </section>
-
-      <!-- FILTRO DE DATAS -->
-      <section class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h3 class="text-xs font-bold text-white uppercase tracking-wider">Período de Exibição da Lista</h3>
-          <p class="text-[11px] text-gray-400">Exibindo por padrão os dias do mês atual</p>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-3">
-          <div class="flex items-center space-x-2">
-            <label class="text-[10px] text-gray-400 font-bold uppercase">De:</label>
-            <input type="date" id="filtro-data-inicio" onchange="aplicarFiltroData()" class="bg-black border border-pegas-border text-white text-xs rounded-lg p-2 focus:outline-none focus:border-white">
-          </div>
-          <div class="flex items-center space-x-2">
-            <label class="text-[10px] text-gray-400 font-bold uppercase">Até:</label>
-            <input type="date" id="filtro-data-fim" onchange="aplicarFiltroData()" class="bg-black border border-pegas-border text-white text-xs rounded-lg p-2 focus:outline-none focus:border-white">
-          </div>
-          <button onclick="setMesAtualFiltro()" class="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/20 text-white text-xs rounded-lg font-semibold transition">
-            Mês Atual
-          </button>
-        </div>
-      </section>
-
+      <!-- AGENDAMENTOS -->
       <section class="space-y-3">
-        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center space-x-2">
-          <i class="fa-solid fa-list-check text-amber-400"></i>
-          <span>Agendamentos Ativos (No Período)</span>
-        </h3>
+        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Agendamentos Ativos</h3>
         <div id="lista-agendamentos-ativos" class="space-y-3"></div>
       </section>
-
-      <section class="space-y-3 pt-6 border-t border-pegas-border">
-        <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center space-x-2">
-          <i class="fa-solid fa-circle-check"></i>
-          <span>Histórico (Concluídos e Cancelados)</span>
-        </h3>
-        <div id="lista-agendamentos-concluidos" class="space-y-3"></div>
-      </section>
-
     </main>
   </div>
 
@@ -304,15 +239,16 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "SUA_API_KEY_AQUI",
-      authDomain: "SEU_PROJECT_ID.firebaseapp.com",
-      databaseURL: "https://SEU_PROJECT_ID-default-rtdb.firebaseio.com",
-      projectId: "SEU_PROJECT_ID",
-      storageBucket: "SEU_PROJECT_ID.appspot.com",
-      messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-      appId: "SEU_APP_ID"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyDoEw0fz9a8NvNrMq0jx_tNNQQeny74_4c",
+  authDomain: "pegas-barbearia-d664a.firebaseapp.com",
+  databaseURL: "https://pegas-barbearia-d664a-default-rtdb.firebaseio.com",
+  projectId: "pegas-barbearia-d664a",
+  storageBucket: "pegas-barbearia-d664a.firebasestorage.app",
+  messagingSenderId: "736639531485",
+  appId: "1:736639531485:web:0daaab6391682845859e34",
+  measurementId: "G-R7GGDC95QY"
+};
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
@@ -322,50 +258,75 @@
     let barbeirosLista = [];
     let barbeiroLogado = null;
     let agendamentosLista = [];
-    let dataAtualCal = new Date();
 
-    // INSIRA SEU LINK DE PAGAMENTO ASAAS AQUI
-    const LINK_ASAAS_ASSINATURA = "https://www.asaas.com/000/c/q7r828t12ir32220";
+    // SEU LINK DE PAGAMENTO RECORRENTE DO ASAAS
+    const LINK_ASAAS_BASE = "https://www.asaas.com/000/c/q7r828t12ir32220";
 
-    // MONITORAR SE O GESTOR ESTÁ AUTENTICADO
     auth.onAuthStateChanged((user) => {
       if (user) {
         gestorLogado = user;
-        verificarAssinaturaPro(user.uid);
+        escutarAssinaturaGestor(user.uid);
       } else {
         esconderTodasTelas();
         document.getElementById('screen-login-gestor').classList.remove('hidden');
       }
     });
 
+    function alternarAbaAuth(aba) {
+      if (aba === 'login') {
+        document.getElementById('form-login-gestor').classList.remove('hidden');
+        document.getElementById('form-register-gestor').classList.add('hidden');
+        document.getElementById('tab-login').className = "w-1/2 pb-2 border-b-2 border-white text-white";
+        document.getElementById('tab-register').className = "w-1/2 pb-2 border-b-2 border-transparent text-gray-500 hover:text-white";
+      } else {
+        document.getElementById('form-login-gestor').classList.add('hidden');
+        document.getElementById('form-register-gestor').classList.remove('hidden');
+        document.getElementById('tab-register').className = "w-1/2 pb-2 border-b-2 border-white text-white";
+        document.getElementById('tab-login').className = "w-1/2 pb-2 border-b-2 border-transparent text-gray-500 hover:text-white";
+      }
+    }
+
     function realizarLoginGestor(e) {
       e.preventDefault();
-      const email = document.getElementById('gestor-email').value;
-      const senha = document.getElementById('gestor-senha').value;
-
-      auth.signInWithEmailAndPassword(email, senha).catch(err => {
-        alert("Erro ao acessar painel: " + err.message);
-      });
+      const email = document.getElementById('gestor-login-email').value;
+      const senha = document.getElementById('gestor-login-senha').value;
+      auth.signInWithEmailAndPassword(email, senha).catch(err => alert("Erro ao entrar: " + err.message));
     }
 
-    function realizarLogoutGestor() {
-      auth.signOut();
+    function realizarCadastroGestor(e) {
+      e.preventDefault();
+      const nome = document.getElementById('gestor-reg-nome').value.trim();
+      const email = document.getElementById('gestor-reg-email').value.trim();
+      const senha = document.getElementById('gestor-reg-senha').value;
+
+      auth.createUserWithEmailAndPassword(email, senha).then((cred) => {
+        // GRAVA O NOVO GESTOR SEM ASSINATURA (REQUER PAGAMENTO IMEDIATO)
+        database.ref(`assinaturasGestores/${cred.user.uid}`).set({
+          nomeBarbearia: nome,
+          email: email,
+          planoPro: false,
+          vencimento: "2000-01-01", // Data retroativa para exigir assinatura
+          criadoEm: new Date().toISOString()
+        });
+      }).catch(err => alert("Erro ao criar conta: " + err.message));
     }
 
-    // VALIDAÇÃO E RESTRIÇÃO PRO
-    function verificarAssinaturaPro(uid) {
+    function realizarLogoutGestor() { auth.signOut(); }
+
+    // ESCUTA EM TEMPO REAL: LIBERA A TELA SOZINHO SE O PAGAMENTO FOR CONFIRMADO VIA WEBHOOK
+    function escutarAssinaturaGestor(uid) {
       database.ref(`assinaturasGestores/${uid}`).on('value', (snapshot) => {
         const dados = snapshot.val();
         const hojeStr = new Date().toISOString().split('T')[0];
 
-        // SE NÃO TIVER CADASTRO OU VENCIDO -> EXIBE TELA DE BLOQUEIO PRO
         if (!dados || !dados.vencimento || dados.vencimento < hojeStr) {
+          // BLOQUEADO: Redireciona para o Asaas passando o e-mail do gestor
           esconderTodasTelas();
-          document.getElementById('btn-pagar-asaas').href = LINK_ASAAS_ASSINATURA;
+          document.getElementById('btn-pagar-asaas').href = `${LINK_ASAAS_BASE}?email=${encodeURIComponent(gestorLogado.email)}`;
           document.getElementById('screen-blocked-pro').classList.remove('hidden');
           document.getElementById('screen-blocked-pro').classList.add('flex');
         } else {
-          // SE TIVER PLANO PRO ATIVO -> LIBERA O PAINEL
+          // LIBERADO (ASSINATURA PAGA)
           document.getElementById('badge-vencimento').innerText = `Vencimento: ${dados.vencimento.split('-').reverse().join('/')}`;
           esconderTodasTelas();
           document.getElementById('screen-profiles').classList.remove('hidden');
@@ -380,16 +341,6 @@
       document.getElementById('screen-blocked-pro').classList.add('hidden');
       document.getElementById('screen-profiles').classList.add('hidden');
       document.getElementById('screen-dashboard').classList.add('hidden');
-    }
-
-    function setMesAtualFiltro() {
-      const hoje = new Date();
-      const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-      const ultimoDia = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
-
-      document.getElementById('filtro-data-inicio').value = primeiroDia.toISOString().split('T')[0];
-      document.getElementById('filtro-data-fim').value = ultimoDia.toISOString().split('T')[0];
-      if (barbeiroLogado) renderizarAgendamentos();
     }
 
     function escutarBarbeirosFirebase() {
@@ -417,15 +368,10 @@
     function logarBarbeiro(id) {
       barbeiroLogado = barbeirosLista.find(b => b.id === id);
       esconderTodasTelas();
-      
       document.getElementById('header-user-foto').src = barbeiroLogado.foto;
       document.getElementById('header-user-nome').innerText = barbeiroLogado.nome;
-
       document.getElementById('screen-dashboard').classList.remove('hidden');
       document.getElementById('screen-dashboard').classList.add('flex');
-
-      setMesAtualFiltro();
-      renderizarCalendarioGrid();
       iniciarEscutasFirebase();
     }
 
@@ -434,91 +380,25 @@
         const dados = snapshot.val();
         agendamentosLista = [];
         for (let id in dados) { agendamentosLista.push({ id: id, ...dados[id] }); }
-        agendamentosLista.sort((a, b) => new Date(b.criadoEm || 0) - new Date(a.criadoEm || 0));
         renderizarAgendamentos();
-        renderizarCalendarioGrid();
       });
     }
 
     function renderizarAgendamentos() {
       const containerAtivos = document.getElementById('lista-agendamentos-ativos');
-      const containerConcluidos = document.getElementById('lista-agendamentos-concluidos');
       containerAtivos.innerHTML = '';
-      containerConcluidos.innerHTML = '';
-
-      const dtInicio = document.getElementById('filtro-data-inicio').value;
-      const dtFim = document.getElementById('filtro-data-fim').value;
-
-      const filtrados = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome && a.data >= dtInicio && a.data <= dtFim);
-      const ativos = filtrados.filter(a => a.status === 'Pendente' || a.status === 'Confirmado');
-      const historico = filtrados.filter(a => a.status === 'Concluído' || a.status === 'Cancelado');
-
-      atualizarMetricasGerais();
-
-      if (ativos.length === 0) {
-        containerAtivos.innerHTML = `<p class="text-xs text-gray-500 py-4 text-center">Nenhum agendamento ativo.</p>`;
-      } else {
-        ativos.forEach(item => { containerAtivos.innerHTML += criarCardAgendamentoHTML(item, false); });
-      }
-
-      if (historico.length === 0) {
-        containerConcluidos.innerHTML = `<p class="text-xs text-gray-500 py-4 text-center">Nenhum histórico.</p>`;
-      } else {
-        historico.forEach(item => { containerConcluidos.innerHTML += criarCardAgendamentoHTML(item, true); });
-      }
-    }
-
-    function criarCardAgendamentoHTML(item, isHistorico) {
-      return `
-        <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
-          <div>
-            <h4 class="font-bold text-white text-sm">${item.cliente}</h4>
-            <p class="text-xs text-gray-400">${item.serviço} • <strong class="text-white">R$ ${item.valor},00</strong></p>
-          </div>
-        </div>
-      `;
-    }
-
-    function atualizarMetricasGerais() {
-      const hojeStr = new Date().toISOString().split('T')[0];
-      const mesAnoAtual = dataAtualCal.toISOString().slice(0, 7);
-      const doBarbeiroGeral = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome);
-
-      document.getElementById('stat-total').innerText = doBarbeiroGeral.filter(a => a.data === hojeStr && a.status !== 'Cancelado').length;
-      document.getElementById('stat-faturamento').innerText = `R$ ${doBarbeiroGeral.filter(a => a.data.startsWith(mesAnoAtual) && a.status !== 'Cancelado').reduce((acc, cur) => acc + cur.valor, 0)},00`;
-      document.getElementById('stat-confirmados').innerText = doBarbeiroGeral.filter(a => a.status === 'Confirmado').length;
-      document.getElementById('stat-pendentes').innerText = doBarbeiroGeral.filter(a => a.status === 'Pendente').length;
-    }
-
-    function renderizarCalendarioGrid() {
-      const grid = document.getElementById('grid-calendario');
-      grid.innerHTML = '';
-      const ano = dataAtualCal.getFullYear();
-      const mes = dataAtualCal.getMonth();
-      const primeiroDia = new Date(ano, mes, 1).getDay();
-      const totalDias = new Date(ano, mes + 1, 0).getDate();
-
-      for (let i = 0; i < primeiroDia; i++) { grid.innerHTML += `<div></div>`; }
-
-      for (let dia = 1; dia <= totalDias; dia++) {
-        const strDia = dia.toString().padStart(2, '0');
-        const strMes = (mes + 1).toString().padStart(2, '0');
-        const dataFormatada = `${ano}-${strMes}-${strDia}`;
-        const agendamentosDoDia = agendamentosLista.filter(a => a.data === dataFormatada && a.barbeiro === barbeiroLogado.nome && a.status !== 'Cancelado');
-
-        grid.innerHTML += `
-          <div class="aspect-square border border-pegas-border rounded-xl bg-black flex flex-col items-center justify-center relative p-1">
-            <span class="font-bold text-white text-xs">${dia}</span>
-            ${agendamentosDoDia.length > 0 ? `<span class="absolute bottom-1 w-4 h-4 bg-emerald-500 text-black text-[9px] font-black rounded-full flex items-center justify-center">${agendamentosDoDia.length}</span>` : ''}
+      const filtrados = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome && a.status !== 'Cancelado');
+      
+      filtrados.forEach(item => {
+        containerAtivos.innerHTML += `
+          <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
+            <div>
+              <h4 class="font-bold text-white text-sm">${item.cliente}</h4>
+              <p class="text-xs text-gray-400">${item.serviço} • R$ ${item.valor},00</p>
+            </div>
           </div>
         `;
-      }
-    }
-
-    function navegarMes(delta) {
-      dataAtualCal.setMonth(dataAtualCal.getMonth() + delta);
-      renderizarCalendarioGrid();
-      if (barbeiroLogado) renderizarAgendamentos();
+      });
     }
   </script>
 </body>
