@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PEGAS BARBEARIA - Portal do Cliente</title>
+  <title>PEGAS BARBEARIA - Painel do Gestor PRO</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,221 +23,214 @@
               lightGray: '#1c1c1e'
             }
           },
-          fontFamily: {
-            sans: ['Montserrat', 'sans-serif'],
-          }
+          fontFamily: { sans: ['Montserrat', 'sans-serif'] }
         }
       }
     }
   </script>
   <style>
-    body {
-      background-color: #050505;
-      color: #f5f5f5;
-    }
-    .modal-slide-up {
-      animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-    @keyframes slideUp {
-      from { transform: translateY(100%); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    .scrollbar-none::-webkit-scrollbar { display: none; }
-    .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+    body { background-color: #050505; color: #f5f5f5; }
+    .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .fade-out { animation: fadeOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+    @keyframes fadeOut { from { opacity: 1; transform: scale(0.97); } to { opacity: 0; transform: scale(0.97); } }
   </style>
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-white selection:text-black">
 
-  <!-- TELA DE AUTENTICAÇÃO (LOGIN / CADASTRO) -->
-  <div id="screen-auth" class="fixed inset-0 bg-black z-50 flex flex-col justify-center items-center p-6 overflow-y-auto">
+  <!-- TELA 1: LOGIN / REGISTRO DE NOVO GESTOR -->
+  <div id="screen-login-gestor" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-6 space-y-6 fade-in overflow-y-auto">
     <div class="max-w-sm w-full space-y-6">
       
-      <!-- LOGO -->
       <div class="flex flex-col items-center space-y-3">
         <div class="w-20 h-20 border-2 border-white/20 rounded-full flex items-center justify-center bg-black shadow-2xl p-1 overflow-hidden">
           <img src="icon.png" alt="Pegas Barbearia" class="w-full h-full object-contain" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
         </div>
         <div class="text-center">
           <h1 class="text-2xl font-black tracking-[0.2em] text-white leading-none">PEGAS</h1>
-          <p class="text-[9px] tracking-[0.35em] text-gray-400 uppercase font-semibold mt-1">PORTAL DO CLIENTE</p>
+          <p class="text-[9px] tracking-[0.35em] text-gray-400 uppercase font-semibold mt-1">PAINEL DO GESTOR PRO</p>
         </div>
       </div>
 
-      <!-- FORMULÁRIO -->
       <div class="bg-pegas-card border border-pegas-border p-6 rounded-2xl space-y-4">
         <div class="flex border-b border-pegas-border text-xs font-bold text-center">
           <button id="tab-login" onclick="alternarAbaAuth('login')" class="w-1/2 pb-2 border-b-2 border-white text-white">Entrar</button>
-          <button id="tab-register" onclick="alternarAbaAuth('register')" class="w-1/2 pb-2 border-b-2 border-transparent text-gray-500 hover:text-white">Criar Conta</button>
+          <button id="tab-register" onclick="alternarAbaAuth('register')" class="w-1/2 pb-2 border-b-2 border-transparent text-gray-500 hover:text-white">Criar Conta Gestor</button>
         </div>
 
-        <form id="form-login" onsubmit="realizarLogin(event)" class="space-y-3">
+        <!-- FORM LOGIN GESTOR -->
+        <form id="form-login-gestor" onsubmit="realizarLoginGestor(event)" class="space-y-3">
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">E-mail</label>
-            <input type="email" id="login-email" required placeholder="seu@email.com" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+            <input type="email" id="gestor-login-email" required placeholder="seu@email.com" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
           </div>
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Senha</label>
-            <input type="password" id="login-senha" required placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+            <input type="password" id="gestor-login-senha" required placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
           </div>
           <button type="submit" class="w-full py-3 bg-white text-black font-black text-xs uppercase tracking-wider rounded-xl hover:bg-gray-200 transition">
-            Entrar no Portal
+            Entrar no Painel
           </button>
         </form>
 
-        <form id="form-register" onsubmit="realizarCadastro(event)" class="space-y-3 hidden">
+        <!-- FORM REGISTRO NOVO GESTOR -->
+        <form id="form-register-gestor" onsubmit="realizarCadastroGestor(event)" class="space-y-3 hidden">
           <div>
-            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Nome Completo</label>
-            <input type="text" id="reg-nome" required placeholder="Seu nome" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Nome da Barbearia / Gestor</label>
+            <input type="text" id="gestor-reg-nome" required placeholder="Ex: Barbearia do Carlos" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
           </div>
           <div>
-            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">WhatsApp / Telefone</label>
-            <input type="tel" id="reg-telefone" required placeholder="(84) 99999-9999" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">E-mail Administrativo</label>
+            <input type="email" id="gestor-reg-email" required placeholder="gestor@email.com" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
           </div>
           <div>
-            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Data de Nascimento</label>
-            <input type="date" id="reg-nascimento" required class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
-          </div>
-          <div>
-            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">E-mail</label>
-            <input type="email" id="reg-email" required placeholder="seu@email.com" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
-          </div>
-          <div>
-            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Senha (Mínimo 6 caracteres)</label>
-            <input type="password" id="reg-senha" required minlength="6" placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Senha (Mínimo 6 dígitos)</label>
+            <input type="password" id="gestor-reg-senha" minlength="6" required placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
           </div>
           <button type="submit" class="w-full py-3 bg-white text-black font-black text-xs uppercase tracking-wider rounded-xl hover:bg-gray-200 transition">
-            Cadastrar Conta
+            Criar Conta e Assinar
           </button>
         </form>
+
       </div>
     </div>
   </div>
 
-  <!-- PORTAL LOGADO -->
-  <div id="screen-app" class="hidden flex-col min-h-screen">
-    
+  <!-- TELA 2: TELA DE BLOQUEIO IMEDIATO (REQUER ASSINATURA R$ 45/MÊS) -->
+  <div id="screen-blocked-pro" class="fixed inset-0 bg-black z-50 hidden flex-col items-center justify-center p-6 text-center space-y-6">
+    <div class="w-20 h-20 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center text-3xl">
+      <i class="fa-solid fa-crown"></i>
+    </div>
+
+    <div class="max-w-md space-y-2">
+      <h2 class="text-xl font-extrabold text-white">Ative seu Plano PEGAS Gestor PRO</h2>
+      <p class="text-xs text-gray-400">Sua conta foi criada! Assine agora para liberar a gestão de horários, barbeiros e serviços por apenas <strong class="text-white">R$ 45,00/mês</strong>.</p>
+    </div>
+
+    <div class="bg-pegas-card border border-pegas-border p-5 rounded-2xl max-w-md w-full text-left space-y-3">
+      <div class="flex justify-between text-xs">
+        <span class="text-gray-400">Serviço:</span>
+        <strong class="text-white">PEGAS Gestor SaaS</strong>
+      </div>
+      <div class="flex justify-between text-xs">
+        <span class="text-gray-400">Valor da Assinatura:</span>
+        <strong class="text-emerald-400 font-black">R$ 45,00 / mês</strong>
+      </div>
+      <div class="flex justify-between text-xs border-t border-pegas-border pt-2">
+        <span class="text-gray-400">Status do Acesso:</span>
+        <span class="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-[10px] font-bold rounded-full animate-pulse">Aguardando Pagamento</span>
+      </div>
+    </div>
+
+    <div class="flex flex-col space-y-3 w-full max-w-xs">
+      <!-- LINK DO ASAAS CONECTADO AO EMAIL DO GESTOR -->
+      <a id="btn-pagar-asaas" href="#" target="_blank" class="w-full py-3.5 bg-white text-black font-extrabold text-xs rounded-xl hover:bg-gray-200 transition flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-qrcode"></i>
+        <span>Pagar R$ 45,00 no Asaas (Pix/Cartão)</span>
+      </a>
+
+      <p class="text-[10px] text-gray-500">O acesso é liberado automaticamente após a confirmação do pagamento pelo Asaas.</p>
+
+      <button onclick="realizarLogoutGestor()" class="text-xs text-gray-400 hover:text-white pt-2">
+        <i class="fa-solid fa-right-from-bracket mr-1"></i> Sair
+      </button>
+    </div>
+  </div>
+
+  <!-- TELA 3: SELEÇÃO DE PROFISSIONAL (LIBERADO APÓS PAGAMENTO) -->
+  <div id="screen-profiles" class="fixed inset-0 bg-black z-40 hidden flex-col items-center justify-center p-6 space-y-8 fade-in overflow-y-auto">
+    <div class="flex flex-col items-center space-y-3">
+      <div class="w-24 h-24 border-2 border-white/20 rounded-full flex items-center justify-center bg-black shadow-2xl overflow-hidden p-1">
+        <img src="icon.png" alt="Pegas Barbearia" class="w-full h-full object-contain" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
+      </div>
+      <div class="text-center">
+        <h1 class="text-2xl font-black tracking-[0.2em] text-white">PEGAS</h1>
+        <p class="text-[9px] tracking-[0.3em] text-emerald-400 uppercase font-semibold">GESTOR PRO • CONTA ATIVA</p>
+      </div>
+    </div>
+
+    <div class="text-center space-y-2">
+      <h2 class="text-xl sm:text-2xl font-extrabold text-white">Selecione o Barbeiro</h2>
+      <p class="text-xs text-gray-400">Escolha o profissional para visualizar e gerenciar a agenda</p>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 max-w-2xl w-full" id="container-perfis-barbeiros"></div>
+  </div>
+
+  <!-- TELA 4: DASHBOARD DO GESTOR -->
+  <div id="screen-dashboard" class="hidden flex-col min-h-screen">
     <header class="bg-pegas-card border-b border-pegas-border sticky top-0 z-30">
-      <div class="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div class="flex items-center space-x-3">
-          <div class="w-9 h-9 border border-white/20 rounded-full flex items-center justify-center bg-black overflow-hidden p-0.5">
+          <div class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center bg-black overflow-hidden p-1">
             <img src="icon.png" alt="Pegas Barbearia" class="w-full h-full object-contain" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
           </div>
           <div>
-            <h1 id="user-display-name" class="text-xs font-bold text-white">Olá, Cliente</h1>
-            <p class="text-[9px] text-gray-400 uppercase tracking-widest font-semibold">PEGAS BARBEARIA</p>
+            <h1 class="text-base font-black tracking-widest text-white leading-none">PEGAS</h1>
+            <p class="text-[8px] tracking-[0.25em] text-emerald-400 uppercase font-semibold">PAINEL PRO</p>
           </div>
         </div>
 
-        <button onclick="realizarLogout()" class="text-xs text-gray-400 hover:text-white p-2" title="Sair da Conta">
-          <i class="fa-solid fa-right-from-bracket"></i>
-        </button>
+        <div class="flex items-center space-x-2 sm:space-x-4">
+          <div class="flex items-center space-x-2 bg-black border border-pegas-border px-3 py-1.5 rounded-xl">
+            <img id="header-user-foto" src="" class="w-6 h-6 rounded-full object-cover border border-white/30">
+            <span id="header-user-nome" class="text-xs font-bold text-white">---</span>
+          </div>
+
+          <button onclick="realizarLogoutGestor()" class="text-xs text-gray-400 hover:text-white p-2" title="Sair">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </div>
       </div>
     </header>
 
-    <main class="flex-1 max-w-2xl w-full mx-auto p-4 pb-24 space-y-6">
-      
-      <div id="tab-content-agendar" class="space-y-4">
-        <div class="text-center py-4 space-y-1">
-          <span class="text-[10px] font-bold uppercase tracking-[0.25em] px-3 py-1 border border-white/20 rounded-full text-gray-300">Agendamento Online</span>
-          <h2 class="text-xl font-extrabold text-white">Escolha um Serviço</h2>
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <div class="bg-pegas-card border border-pegas-border p-3 rounded-xl flex items-center justify-between text-xs">
+        <div class="flex items-center space-x-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="text-gray-200 font-semibold">Assinatura Ativa</span>
         </div>
-
-        <div id="container-servicos" class="space-y-3"></div>
+        <span id="badge-vencimento" class="text-gray-400 text-[11px]">Vencimento: ---</span>
       </div>
 
-      <div id="tab-content-meus" class="space-y-4 hidden">
-        <div class="border-b border-pegas-border pb-3">
-          <h2 class="text-sm font-bold text-white uppercase tracking-wider">Meus Agendamentos</h2>
-          <p class="text-xs text-gray-400">Acompanhe o status do seu corte</p>
+      <!-- PAINEL COMPLETO -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
+          <div>
+            <p class="text-[10px] text-gray-400 uppercase font-semibold">Atendimentos Hoje</p>
+            <p id="stat-total" class="text-xl font-black text-white mt-1">0</p>
+          </div>
+          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white"><i class="fa-solid fa-calendar-check text-sm"></i></div>
         </div>
+        <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
+          <div>
+            <p class="text-[10px] text-gray-400 uppercase font-semibold">Faturamento Mês Atual</p>
+            <p id="stat-faturamento" class="text-xl font-black text-white mt-1">R$ 0,00</p>
+          </div>
+          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-wallet text-sm"></i></div>
+        </div>
+        <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
+          <div>
+            <p class="text-[10px] text-gray-400 uppercase font-semibold">Confirmados (Geral)</p>
+            <p id="stat-confirmados" class="text-xl font-black text-white mt-1">0</p>
+          </div>
+          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-blue-400"><i class="fa-solid fa-circle-check text-sm"></i></div>
+        </div>
+        <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
+          <div>
+            <p class="text-[10px] text-gray-400 uppercase font-semibold">Pendentes (Geral)</p>
+            <p id="stat-pendentes" class="text-xl font-black text-white mt-1">0</p>
+          </div>
+          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-amber-400"><i class="fa-solid fa-clock text-sm"></i></div>
+        </div>
+      </section>
 
-        <div id="container-meus-agendamentos" class="space-y-3"></div>
-      </div>
-
+      <!-- AGENDAMENTOS -->
+      <section class="space-y-3">
+        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Agendamentos Ativos</h3>
+        <div id="lista-agendamentos-ativos" class="space-y-3"></div>
+      </section>
     </main>
-
-    <nav class="fixed bottom-0 left-0 right-0 bg-pegas-card border-t border-pegas-border z-30">
-      <div class="max-w-2xl mx-auto flex justify-around py-3">
-        <button onclick="mudarAbaPortal('agendar')" id="nav-agendar" class="flex flex-col items-center text-white space-y-1">
-          <i class="fa-solid fa-calendar-plus text-base"></i>
-          <span class="text-[10px] font-bold uppercase">Agendar</span>
-        </button>
-        <button onclick="mudarAbaPortal('meus')" id="nav-meus" class="flex flex-col items-center text-gray-500 hover:text-white space-y-1">
-          <i class="fa-solid fa-clock-rotate-left text-base"></i>
-          <span class="text-[10px] font-bold uppercase">Meus Cortes</span>
-        </button>
-      </div>
-    </nav>
-  </div>
-
-  <!-- MODAL: SELEÇÃO DE PROFISSIONAL -->
-  <div id="modal-profissionais" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-pegas-card border border-pegas-border w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 modal-slide-up space-y-5 max-h-[80vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-pegas-border pb-3">
-        <h3 class="font-bold text-white uppercase text-xs tracking-wider">Escolha o Barbeiro</h3>
-        <button onclick="fecharModalProfissionais()" class="text-gray-400 hover:text-white">
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
-      </div>
-
-      <div class="space-y-3" id="container-profissionais"></div>
-    </div>
-  </div>
-
-  <!-- TELA DE DETALHES E HORÁRIOS AJUSTADA PRO MOBILE -->
-  <div id="screen-profissional" class="fixed inset-0 bg-black z-50 hidden flex-col justify-between overflow-y-auto">
-    <div class="max-w-md md:max-w-2xl mx-auto w-full p-4 sm:p-6 pb-24">
-      
-      <div class="flex items-center justify-between pb-4">
-        <button onclick="fecharTelaProfissional()" class="text-gray-400 hover:text-white">
-          <i class="fa-solid fa-arrow-left text-lg"></i>
-        </button>
-        <span class="text-xs font-bold uppercase tracking-widest text-gray-400">Horários Disponíveis</span>
-        <div class="w-6"></div>
-      </div>
-
-      <div id="perfil-barbeiro-detalhes" class="bg-pegas-card border border-pegas-border p-5 rounded-2xl text-center space-y-3 mt-2"></div>
-
-      <!-- SELETOR DE DATA AJUSTADO AO TAMANHO DA TELA -->
-      <div class="mt-6 space-y-2 text-center sm:text-left">
-        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Data do Atendimento</label>
-        <div class="w-full max-w-xs mx-auto sm:mx-0">
-          <input type="date" id="input-data-agendamento" onchange="carregarHorariosDisponiveis()" class="w-full bg-pegas-card border border-pegas-border text-white text-xs sm:text-sm rounded-xl p-3 text-center focus:outline-none focus:border-white box-border">
-        </div>
-      </div>
-
-      <div class="mt-6 space-y-3">
-        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400 text-center sm:text-left">Horários Livres</h4>
-        <div id="container-horarios" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- MODAL: CONFIRMAÇÃO DE AGENDAMENTO COM DATA POR EXTENSO -->
-  <div id="modal-confirmacao" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-pegas-card border border-pegas-border w-full max-w-sm rounded-2xl p-6 space-y-5 text-center">
-      <div class="w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center mx-auto text-xl">
-        <i class="fa-solid fa-check"></i>
-      </div>
-
-      <div>
-        <h3 class="text-lg font-bold text-white">Confirmar Agendamento</h3>
-        <p class="text-xs text-gray-400 mt-1">Confira os dados antes de finalizar</p>
-      </div>
-
-      <div class="bg-black/50 border border-pegas-border p-4 rounded-xl text-left text-xs space-y-2">
-        <p class="text-gray-400">Serviço: <strong id="resumo-servico" class="text-white block text-sm mt-0.5">---</strong></p>
-        <p class="text-gray-400">Profissional: <strong id="resumo-barbeiro" class="text-white block mt-0.5">---</strong></p>
-        <p class="text-gray-400">Data e Horário: <strong id="resumo-horario" class="text-white block mt-0.5 leading-snug">---</strong></p>
-        <p class="text-gray-400">Valor Total: <strong id="resumo-valor" class="text-white block text-sm mt-0.5">R$ 0,00</strong></p>
-      </div>
-
-      <div class="flex space-x-2 pt-2">
-        <button onclick="fecharModalConfirmacao()" class="w-1/2 py-3 bg-black border border-pegas-border text-gray-400 font-bold rounded-xl text-xs hover:text-white">Cancelar</button>
-        <button onclick="salvarAgendamentoNoFirebase()" class="w-1/2 py-3 bg-white text-black font-extrabold rounded-xl text-xs hover:bg-gray-200">Confirmar</button>
-      </div>
-    </div>
   </div>
 
   <!-- FIREBASE SDK -->
@@ -246,113 +239,108 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDoEw0fz9a8NvNrMq0jx_tNNQQeny74_4c",
-  authDomain: "pegas-barbearia-d664a.firebaseapp.com",
-  databaseURL: "https://pegas-barbearia-d664a-default-rtdb.firebaseio.com",
-  projectId: "pegas-barbearia-d664a",
-  storageBucket: "pegas-barbearia-d664a.firebasestorage.app",
-  messagingSenderId: "736639531485",
-  appId: "1:736639531485:web:0daaab6391682845859e34",
-  measurementId: "G-R7GGDC95QY"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyDoEw0fz9a8NvNrMq0jx_tNNQQeny74_4c",
+      authDomain: "pegas-barbearia-d664a.firebaseapp.com",
+      databaseURL: "https://pegas-barbearia-d664a-default-rtdb.firebaseio.com",
+      projectId: "pegas-barbearia-d664a",
+      storageBucket: "pegas-barbearia-d664a.firebasestorage.app",
+      messagingSenderId: "736639531485",
+      appId: "1:736639531485:web:0daaab6391682845859e34",
+      measurementId: "G-R7GGDC95QY"
+    };
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
 
-    let clienteAtual = null;
-    let servicosLista = [];
+    let gestorLogado = null;
     let barbeirosLista = [];
-    let meusAgendamentosLista = [];
+    let barbeiroLogado = null;
+    let agendamentosLista = [];
 
-    let servicoSelecionado = null;
-    let barbeiroSelecionado = null;
-    let horaSelecionada = null;
-
-    document.getElementById('input-data-agendamento').value = new Date().toISOString().split('T')[0];
-
-    // FUNÇÃO FORMATADORA DE DATA POR EXTENSO
-    function formatarDataPorExtenso(dataIso, hora) {
-      if (!dataIso) return "---";
-      const partes = dataIso.split('-');
-      const dataObj = new Date(partes[0], partes[1] - 1, partes[2]);
-
-      const diasSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-      const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-
-      const diaSemana = diasSemana[dataObj.getDay()];
-      const dia = dataObj.getDate();
-      const mes = meses[dataObj.getMonth()];
-      const ano = dataObj.getFullYear();
-
-      return `${diaSemana}, ${dia} de ${mes} de ${ano} às ${hora}`;
-    }
+    // SEU LINK DE PAGAMENTO RECORRENTE DO ASAAS
+    const LINK_ASAAS_BASE = "https://www.asaas.com/000/c/q7r828t12ir32220";
 
     auth.onAuthStateChanged((user) => {
       if (user) {
-        database.ref(`clientes/${user.uid}`).once('value', (snapshot) => {
-          clienteAtual = { uid: user.uid, email: user.email, ...snapshot.val() };
-          document.getElementById('user-display-name').innerText = `Olá, ${clienteAtual.nome || 'Cliente'}`;
-          
-          document.getElementById('screen-auth').classList.add('hidden');
-          document.getElementById('screen-app').classList.remove('hidden');
-          document.getElementById('screen-app').classList.add('flex');
-
-          escutarServicosFirebase();
-          escutarBarbeirosFirebase();
-          carregarMeusAgendamentos();
-        });
+        gestorLogado = user;
+        escutarAssinaturaGestor(user.uid);
       } else {
-        document.getElementById('screen-app').classList.add('hidden');
-        document.getElementById('screen-auth').classList.remove('hidden');
+        esconderTodasTelas();
+        document.getElementById('screen-login-gestor').classList.remove('hidden');
       }
     });
 
     function alternarAbaAuth(aba) {
       if (aba === 'login') {
-        document.getElementById('form-login').classList.remove('hidden');
-        document.getElementById('form-register').classList.add('hidden');
+        document.getElementById('form-login-gestor').classList.remove('hidden');
+        document.getElementById('form-register-gestor').classList.add('hidden');
         document.getElementById('tab-login').className = "w-1/2 pb-2 border-b-2 border-white text-white";
         document.getElementById('tab-register').className = "w-1/2 pb-2 border-b-2 border-transparent text-gray-500 hover:text-white";
       } else {
-        document.getElementById('form-login').classList.add('hidden');
-        document.getElementById('form-register').classList.remove('hidden');
+        document.getElementById('form-login-gestor').classList.add('hidden');
+        document.getElementById('form-register-gestor').classList.remove('hidden');
         document.getElementById('tab-register').className = "w-1/2 pb-2 border-b-2 border-white text-white";
         document.getElementById('tab-login').className = "w-1/2 pb-2 border-b-2 border-transparent text-gray-500 hover:text-white";
       }
     }
 
-    function realizarLogin(e) {
+    function realizarLoginGestor(e) {
       e.preventDefault();
-      const email = document.getElementById('login-email').value;
-      const senha = document.getElementById('login-senha').value;
+      const email = document.getElementById('gestor-login-email').value;
+      const senha = document.getElementById('gestor-login-senha').value;
       auth.signInWithEmailAndPassword(email, senha).catch(err => alert("Erro ao entrar: " + err.message));
     }
 
-    function realizarCadastro(e) {
+    function realizarCadastroGestor(e) {
       e.preventDefault();
-      const nome = document.getElementById('reg-nome').value.trim();
-      const telefone = document.getElementById('reg-telefone').value.trim();
-      const nascimento = document.getElementById('reg-nascimento').value;
-      const email = document.getElementById('reg-email').value.trim();
-      const senha = document.getElementById('reg-senha').value;
+      const nome = document.getElementById('gestor-reg-nome').value.trim();
+      const email = document.getElementById('gestor-reg-email').value.trim();
+      const senha = document.getElementById('gestor-reg-senha').value;
 
       auth.createUserWithEmailAndPassword(email, senha).then((cred) => {
-        database.ref(`clientes/${cred.user.uid}`).set({
-          nome, telefone, nascimento, criadoEm: new Date().toISOString()
+        // GRAVA O NOVO GESTOR SEM ASSINATURA (REQUER PAGAMENTO IMEDIATO)
+        database.ref(`assinaturasGestores/${cred.user.uid}`).set({
+          nomeBarbearia: nome,
+          email: email,
+          planoPro: false,
+          vencimento: "2000-01-01", // Data retroativa para exigir assinatura
+          criadoEm: new Date().toISOString()
         });
-      }).catch(err => alert("Erro ao cadastrar: " + err.message));
+      }).catch(err => alert("Erro ao criar conta: " + err.message));
     }
 
-    function realizarLogout() { auth.signOut(); }
+    function realizarLogoutGestor() { auth.signOut(); }
 
-    function escutarServicosFirebase() {
-      database.ref('servicos').on('value', (snapshot) => {
+    // ESCUTA EM TEMPO REAL: LIBERA A TELA SOZINHO SE O PAGAMENTO FOR CONFIRMADO VIA WEBHOOK
+    function escutarAssinaturaGestor(uid) {
+      database.ref(`assinaturasGestores/${uid}`).on('value', (snapshot) => {
         const dados = snapshot.val();
-        servicosLista = [];
-        for (let id in dados) { servicosLista.push({ id: id, ...dados[id] }); }
-        renderizarServicos();
+        const hojeStr = new Date().toISOString().split('T')[0];
+
+        if (!dados || !dados.vencimento || dados.vencimento < hojeStr) {
+          // BLOQUEADO: Redireciona para o Asaas passando o e-mail do gestor
+          esconderTodasTelas();
+          document.getElementById('btn-pagar-asaas').href = `${LINK_ASAAS_BASE}?email=${encodeURIComponent(gestorLogado.email)}`;
+          document.getElementById('screen-blocked-pro').classList.remove('hidden');
+          document.getElementById('screen-blocked-pro').classList.add('flex');
+        } else {
+          // LIBERADO (ASSINATURA PAGA)
+          document.getElementById('badge-vencimento').innerText = `Vencimento: ${dados.vencimento.split('-').reverse().join('/')}`;
+          esconderTodasTelas();
+          document.getElementById('screen-profiles').classList.remove('hidden');
+          document.getElementById('screen-profiles').classList.add('flex');
+          escutarBarbeirosFirebase();
+        }
       });
+    }
+
+    function esconderTodasTelas() {
+      document.getElementById('screen-login-gestor').classList.add('hidden');
+      document.getElementById('screen-blocked-pro').classList.add('hidden');
+      document.getElementById('screen-profiles').classList.add('hidden');
+      document.getElementById('screen-dashboard').classList.add('hidden');
     }
 
     function escutarBarbeirosFirebase() {
@@ -360,243 +348,57 @@ const firebaseConfig = {
         const dados = snapshot.val();
         barbeirosLista = [];
         for (let id in dados) { barbeirosLista.push({ id: id, ...dados[id] }); }
+        renderizarPerfis();
       });
     }
 
-    function renderizarServicos() {
-      const container = document.getElementById('container-servicos');
-      container.innerHTML = '';
-      servicosLista.forEach(s => {
-        container.innerHTML += `
-          <div class="bg-pegas-card border border-pegas-border p-3 rounded-2xl flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-              <img src="${s.img}" alt="${s.nome}" class="w-16 h-16 rounded-xl object-cover border border-pegas-border">
-              <div>
-                <h3 class="font-bold text-white text-sm">${s.nome}</h3>
-                <p class="text-xs text-gray-400 mt-0.5">Duração: ~${s.duracao} min</p>
-                <p class="text-sm font-black text-white mt-1">R$ ${s.preco},00</p>
-              </div>
-            </div>
-            <button onclick="selecionarServico('${s.id}')" class="bg-white text-black text-xs font-black px-3 py-2 rounded-xl hover:bg-gray-200">
-              Agendar
-            </button>
-          </div>
-        `;
-      });
-    }
-
-    function selecionarServico(id) {
-      servicoSelecionado = servicosLista.find(s => s.id === id);
-      abrirModalProfissionais();
-    }
-
-    function abrirModalProfissionais() {
-      const container = document.getElementById('container-profissionais');
+    function renderizarPerfis() {
+      const container = document.getElementById('container-perfis-barbeiros');
       container.innerHTML = '';
       barbeirosLista.forEach(b => {
         container.innerHTML += `
-          <button onclick="selecionarProfissional('${b.id}')" class="w-full bg-black border border-pegas-border p-3 rounded-xl flex items-center justify-between hover:border-white transition">
-            <div class="flex items-center space-x-3">
-              <img src="${b.foto}" alt="${b.nome}" class="w-10 h-10 rounded-full object-cover">
-              <div class="text-left">
-                <span class="text-sm font-bold text-white block">${b.nome}</span>
-                <span class="text-[10px] text-gray-400 line-clamp-1">${b.desc || ''}</span>
-              </div>
-            </div>
-            <i class="fa-solid fa-chevron-right text-xs text-gray-500"></i>
-          </button>
-        `;
-      });
-      document.getElementById('modal-profissionais').classList.remove('hidden');
-      document.getElementById('modal-profissionais').classList.add('flex');
-    }
-
-    function fecharModalProfissionais() { document.getElementById('modal-profissionais').classList.add('hidden'); }
-
-    function selecionarProfissional(id) {
-      barbeiroSelecionado = barbeirosLista.find(b => b.id === id);
-      fecharModalProfissionais();
-      abrirTelaProfissional();
-    }
-
-    function abrirTelaProfissional() {
-      document.getElementById('perfil-barbeiro-detalhes').innerHTML = `
-        <img src="${barbeiroSelecionado.foto}" class="w-20 h-20 rounded-full mx-auto object-cover border-2 border-white/20">
-        <h3 class="text-base font-bold text-white">${barbeiroSelecionado.nome}</h3>
-        <p class="text-xs text-gray-400 italic font-medium">"${barbeiroSelecionado.desc || 'Profissional PEGAS'}"</p>
-      `;
-      carregarHorariosDisponiveis();
-      document.getElementById('screen-profissional').classList.remove('hidden');
-      document.getElementById('screen-profissional').classList.add('flex');
-    }
-
-    function fecharTelaProfissional() { document.getElementById('screen-profissional').classList.add('hidden'); }
-
-    // CARREGAR HORÁRIOS DISPONÍVEIS INCLUINDO HORAS EXTRAS
-    function carregarHorariosDisponiveis() {
-      const container = document.getElementById('container-horarios');
-      container.innerHTML = '<p class="text-xs text-gray-500 col-span-3 text-center py-4">Buscando horários...</p>';
-      const dataSelecionada = document.getElementById('input-data-agendamento').value;
-
-      // Consulta Agendamentos Ocupados
-      database.ref('agendamentos').orderByChild('data').equalTo(dataSelecionada).once('value', (snapAgendamentos) => {
-        const agendamentosOcupados = [];
-        snapAgendamentos.forEach(child => {
-          const val = child.val();
-          if (val.barbeiro === barbeiroSelecionado.nome && val.status !== 'Cancelado') {
-            agendamentosOcupados.push(val.hora);
-          }
-        });
-
-        // Consulta Horas Extras Lançadas
-        database.ref(`horasExtras/${barbeiroSelecionado.id}/${dataSelecionada}`).once('value', (snapExtras) => {
-          let extraAntesMinutos = 0;
-          let extraDepoisMinutos = 0;
-
-          if (snapExtras.exists()) {
-            snapExtras.forEach(childExtra => {
-              const ext = childExtra.val();
-              if (ext.posicao === 'antes') extraAntesMinutos += (ext.horas * 60);
-              if (ext.posicao === 'depois') extraDepoisMinutos += (ext.horas * 60);
-            });
-          }
-
-          container.innerHTML = '';
-          const tmc = barbeiroSelecionado.tmc || 30;
-          
-          // Calcula início ajustado pelas horas extras anteriores
-          let horaInicioBase = barbeiroSelecionado.inicio || 8;
-          let minutosInicioTotal = (horaInicioBase * 60) - extraAntesMinutos;
-          if (minutosInicioTotal < 0) minutosInicioTotal = 0;
-
-          // Calcula limite total ajustado pelas horas extras posteriores
-          let jornadaBaseMinutos = (barbeiroSelecionado.jornada || 10) * 60;
-          let minutosFimTotal = (horaInicioBase * 60) + jornadaBaseMinutos + extraDepoisMinutos;
-
-          for (let mAtual = minutosInicioTotal; mAtual < minutosFimTotal; mAtual += tmc) {
-            let h = Math.floor(mAtual / 60);
-            let m = mAtual % 60;
-            let strHora = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-            let ocupado = agendamentosOcupados.includes(strHora);
-
-            if (ocupado) {
-              container.innerHTML += `<button disabled class="bg-pegas-card border border-pegas-border text-gray-600 opacity-40 text-xs py-2 rounded-xl font-bold cursor-not-allowed">${strHora}</button>`;
-            } else {
-              container.innerHTML += `<button onclick="confirmarHorario('${strHora}')" class="bg-pegas-card border border-pegas-border hover:border-white text-white text-xs py-2 rounded-xl font-bold transition">${strHora}</button>`;
-            }
-          }
-        });
-      });
-    }
-
-    function confirmarHorario(hora) {
-      horaSelecionada = hora;
-      const dataSelecionada = document.getElementById('input-data-agendamento').value;
-
-      document.getElementById('resumo-servico').innerText = servicoSelecionado.nome;
-      document.getElementById('resumo-barbeiro').innerText = barbeiroSelecionado.nome;
-      
-      // EXIBE A DATA POR EXTENSO
-      document.getElementById('resumo-horario').innerText = formatarDataPorExtenso(dataSelecionada, horaSelecionada);
-      document.getElementById('resumo-valor').innerText = `R$ ${servicoSelecionado.preco},00`;
-
-      document.getElementById('modal-confirmacao').classList.remove('hidden');
-      document.getElementById('modal-confirmacao').classList.add('flex');
-    }
-
-    function fecharModalConfirmacao() { document.getElementById('modal-confirmacao').classList.add('hidden'); }
-
-    function salvarAgendamentoNoFirebase() {
-      const dataSelecionada = document.getElementById('input-data-agendamento').value;
-
-      const novoAgendamento = {
-        clienteId: clienteAtual.uid,
-        cliente: clienteAtual.nome,
-        telefone: clienteAtual.telefone,
-        serviço: servicoSelecionado.nome,
-        valor: servicoSelecionado.preco,
-        barbeiro: barbeiroSelecionado.nome,
-        data: dataSelecionada,
-        hora: horaSelecionada,
-        status: "Pendente",
-        criadoEm: new Date().toISOString()
-      };
-
-      database.ref('agendamentos').push(novoAgendamento).then(() => {
-        alert("🎉 Agendamento realizado com sucesso!");
-        fecharModalConfirmacao();
-        fecharTelaProfissional();
-        mudarAbaPortal('meus');
-      });
-    }
-
-    function carregarMeusAgendamentos() {
-      database.ref('agendamentos').orderByChild('clienteId').equalTo(clienteAtual.uid).on('value', (snapshot) => {
-        const dados = snapshot.val();
-        meusAgendamentosLista = [];
-        for (let id in dados) { meusAgendamentosLista.push({ id: id, ...dados[id] }); }
-        meusAgendamentosLista.sort((a, b) => new Date(b.criadoEm || 0) - new Date(a.criadoEm || 0));
-        renderizarMeusAgendamentos();
-      });
-    }
-
-    function renderizarMeusAgendamentos() {
-      const container = document.getElementById('container-meus-agendamentos');
-      container.innerHTML = '';
-
-      if (meusAgendamentosLista.length === 0) {
-        container.innerHTML = `<p class="text-xs text-gray-500 text-center py-8">Você ainda não tem agendamentos marcados.</p>`;
-        return;
-      }
-
-      meusAgendamentosLista.forEach(item => {
-        let statusBadge = item.status === 'Confirmado' 
-          ? `<span class="px-2 py-0.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[9px] font-bold rounded-full">Confirmado</span>`
-          : item.status === 'Pendente'
-          ? `<span class="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[9px] font-bold rounded-full">Pendente</span>`
-          : item.status === 'Concluído'
-          ? `<span class="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold rounded-full">Concluído</span>`
-          : `<span class="px-2 py-0.5 bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] font-bold rounded-full">Cancelado</span>`;
-
-        container.innerHTML += `
-          <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
-            <div class="space-y-1">
-              <div class="flex items-center space-x-2">
-                <h4 class="font-bold text-white text-sm">${item.serviço}</h4>
-                ${statusBadge}
-              </div>
-              <p class="text-xs text-gray-400">Barbeiro: <strong class="text-white">${item.barbeiro}</strong></p>
-              <p class="text-[11px] text-gray-500"><i class="fa-solid fa-calendar-day mr-1"></i>${formatarDataPorExtenso(item.data, item.hora)} • R$ ${item.valor},00</p>
-            </div>
-
-            ${item.status !== 'Cancelado' && item.status !== 'Concluído' ? `
-              <button onclick="cancelarMeuAgendamento('${item.id}')" class="text-xs text-red-400 hover:text-red-300 font-semibold px-2.5 py-1 bg-red-500/10 rounded-lg">
-                Cancelar
-              </button>
-            ` : ''}
+          <div onclick="logarBarbeiro('${b.id}')" class="cursor-pointer bg-pegas-card border border-pegas-border hover:border-white p-4 rounded-2xl flex flex-col items-center space-y-3 transition hover:scale-105">
+            <img src="${b.foto}" alt="${b.nome}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-white/20">
+            <span class="text-xs font-bold text-white text-center line-clamp-1">${b.nome}</span>
           </div>
         `;
       });
     }
 
-    function cancelarMeuAgendamento(id) {
-      if (confirm("Deseja cancelar este agendamento?")) {
-        database.ref(`agendamentos/${id}`).update({ status: 'Cancelado' });
-      }
+    function logarBarbeiro(id) {
+      barbeiroLogado = barbeirosLista.find(b => b.id === id);
+      esconderTodasTelas();
+      document.getElementById('header-user-foto').src = barbeiroLogado.foto;
+      document.getElementById('header-user-nome').innerText = barbeiroLogado.nome;
+      document.getElementById('screen-dashboard').classList.remove('hidden');
+      document.getElementById('screen-dashboard').classList.add('flex');
+      iniciarEscutasFirebase();
     }
 
-    function mudarAbaPortal(aba) {
-      if (aba === 'agendar') {
-        document.getElementById('tab-content-agendar').classList.remove('hidden');
-        document.getElementById('tab-content-meus').classList.add('hidden');
-        document.getElementById('nav-agendar').className = "flex flex-col items-center text-white space-y-1";
-        document.getElementById('nav-meus').className = "flex flex-col items-center text-gray-500 hover:text-white space-y-1";
-      } else {
-        document.getElementById('tab-content-agendar').classList.add('hidden');
-        document.getElementById('tab-content-meus').classList.remove('hidden');
-        document.getElementById('nav-meus').className = "flex flex-col items-center text-white space-y-1";
-        document.getElementById('nav-agendar').className = "flex flex-col items-center text-gray-500 hover:text-white space-y-1";
-      }
+    function iniciarEscutasFirebase() {
+      database.ref('agendamentos').on('value', (snapshot) => {
+        const dados = snapshot.val();
+        agendamentosLista = [];
+        for (let id in dados) { agendamentosLista.push({ id: id, ...dados[id] }); }
+        renderizarAgendamentos();
+      });
+    }
+
+    function renderizarAgendamentos() {
+      const containerAtivos = document.getElementById('lista-agendamentos-ativos');
+      containerAtivos.innerHTML = '';
+      const filtrados = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome && a.status !== 'Cancelado');
+      
+      filtrados.forEach(item => {
+        containerAtivos.innerHTML += `
+          <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
+            <div>
+              <h4 class="font-bold text-white text-sm">${item.cliente}</h4>
+              <p class="text-xs text-gray-400">${item.serviço} • R$ ${item.valor},00</p>
+            </div>
+          </div>
+        `;
+      });
     }
   </script>
 </body>
