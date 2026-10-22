@@ -36,10 +36,9 @@
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-white selection:text-black">
 
-  <!-- TELA 1: LOGIN / REGISTRO DE NOVO GESTOR -->
+  <!-- TELA 1: LOGIN / REGISTRO DE GESTOR -->
   <div id="screen-login-gestor" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-6 space-y-6 fade-in overflow-y-auto">
     <div class="max-w-sm w-full space-y-6">
-      
       <div class="flex flex-col items-center space-y-3">
         <div class="w-20 h-20 border-2 border-white/20 rounded-full flex items-center justify-center bg-black shadow-2xl p-1 overflow-hidden">
           <img src="icon.png" alt="Pegas Barbearia" class="w-full h-full object-contain" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
@@ -56,7 +55,6 @@
           <button id="tab-register" onclick="alternarAbaAuth('register')" class="w-1/2 pb-2 border-b-2 border-transparent text-gray-500 hover:text-white">Criar Conta Gestor</button>
         </div>
 
-        <!-- FORM LOGIN GESTOR -->
         <form id="form-login-gestor" onsubmit="realizarLoginGestor(event)" class="space-y-3">
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">E-mail</label>
@@ -71,7 +69,6 @@
           </button>
         </form>
 
-        <!-- FORM REGISTRO NOVO GESTOR -->
         <form id="form-register-gestor" onsubmit="realizarCadastroGestor(event)" class="space-y-3 hidden">
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Nome da Barbearia / Gestor</label>
@@ -89,22 +86,19 @@
             Criar Conta e Assinar
           </button>
         </form>
-
       </div>
     </div>
   </div>
 
-  <!-- TELA 2: TELA DE BLOQUEIO IMEDIATO (REQUER ASSINATURA R$ 45/MÊS) -->
+  <!-- TELA 2: TELA DE BLOQUEIO / PAYWALL (ASAAS) -->
   <div id="screen-blocked-pro" class="fixed inset-0 bg-black z-50 hidden flex-col items-center justify-center p-6 text-center space-y-6">
     <div class="w-20 h-20 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center text-3xl">
       <i class="fa-solid fa-crown"></i>
     </div>
-
     <div class="max-w-md space-y-2">
       <h2 class="text-xl font-extrabold text-white">Ative seu Plano PEGAS Gestor PRO</h2>
-      <p class="text-xs text-gray-400">Sua conta foi criada! Assine agora para liberar a gestão de horários, barbeiros e serviços por apenas <strong class="text-white">R$ 45,00/mês</strong>.</p>
+      <p class="text-xs text-gray-400">Assine agora para liberar a gestão completa por apenas <strong class="text-white">R$ 45,00/mês</strong>.</p>
     </div>
-
     <div class="bg-pegas-card border border-pegas-border p-5 rounded-2xl max-w-md w-full text-left space-y-3">
       <div class="flex justify-between text-xs">
         <span class="text-gray-400">Serviço:</span>
@@ -119,22 +113,19 @@
         <span class="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-[10px] font-bold rounded-full animate-pulse">Aguardando Pagamento</span>
       </div>
     </div>
-
     <div class="flex flex-col space-y-3 w-full max-w-xs">
       <a id="btn-pagar-asaas" href="#" target="_blank" class="w-full py-3.5 bg-white text-black font-extrabold text-xs rounded-xl hover:bg-gray-200 transition flex items-center justify-center space-x-2">
         <i class="fa-solid fa-qrcode"></i>
-        <span>Pagar R$ 45,00 no Asaas (Pix/Cartão)</span>
+        <span>Pagar R$ 45,00 no Asaas</span>
       </a>
-
-      <p class="text-[10px] text-gray-500">O acesso é liberado automaticamente após a confirmação do pagamento pelo Asaas.</p>
-
+      <p class="text-[10px] text-gray-500">O acesso é liberado automaticamente após a confirmação.</p>
       <button onclick="realizarLogoutGestor()" class="text-xs text-gray-400 hover:text-white pt-2">
         <i class="fa-solid fa-right-from-bracket mr-1"></i> Sair
       </button>
     </div>
   </div>
 
-  <!-- TELA 3: SELEÇÃO DE PROFISSIONAL (LIBERADO APÓS PAGAMENTO) -->
+  <!-- TELA 3: SELEÇÃO DE PROFISSIONAL -->
   <div id="screen-profiles" class="fixed inset-0 bg-black z-40 hidden flex-col items-center justify-center p-6 space-y-8 fade-in overflow-y-auto">
     <div class="flex flex-col items-center space-y-3">
       <div class="w-24 h-24 border-2 border-white/20 rounded-full flex items-center justify-center bg-black shadow-2xl overflow-hidden p-1">
@@ -145,12 +136,10 @@
         <p class="text-[9px] tracking-[0.3em] text-emerald-400 uppercase font-semibold">GESTOR PRO • CONTA ATIVA</p>
       </div>
     </div>
-
     <div class="text-center space-y-2">
       <h2 class="text-xl sm:text-2xl font-extrabold text-white">Selecione o Barbeiro</h2>
       <p class="text-xs text-gray-400">Escolha o profissional para visualizar e gerenciar a agenda</p>
     </div>
-
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 max-w-2xl w-full" id="container-perfis-barbeiros"></div>
   </div>
 
@@ -176,7 +165,6 @@
             <img id="header-user-foto" src="" class="w-6 h-6 rounded-full object-cover border border-white/30" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
             <span id="header-user-nome" class="text-xs font-bold text-white">---</span>
           </div>
-
           <button onclick="realizarLogoutGestor()" class="text-xs text-gray-400 hover:text-white p-2" title="Sair do Gestor">
             <i class="fa-solid fa-right-from-bracket"></i>
           </button>
@@ -186,7 +174,7 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       
-      <!-- NAVEGAÇÃO DE ABAS DO GESTOR -->
+      <!-- NAVEGAÇÃO DE ABAS -->
       <div class="flex border-b border-pegas-border space-x-4 text-xs font-bold">
         <button id="tab-nav-agendamentos" onclick="mudarAbaGestor('agendamentos')" class="pb-3 border-b-2 border-white text-white">
           <i class="fa-solid fa-calendar-days mr-1.5"></i> Agendamentos & Agenda
@@ -211,7 +199,7 @@
       <!-- ABA 1: AGENDAMENTOS & AGENDA -->
       <div id="gestor-sec-agendamentos" class="space-y-6">
         
-        <!-- PAINEL COMPLETO DE METRICAS -->
+        <!-- MÉTRICAS -->
         <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
             <div>
@@ -222,7 +210,11 @@
           </div>
           <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
             <div>
-              <p class="text-[10px] text-gray-400 uppercase font-semibold">Faturamento Mês Atual</p>
+              <div class="flex items-center justify-between">
+                <p class="text-[10px] text-gray-400 uppercase font-semibold">Faturamento</p>
+                <!-- SELETOR DE MÊS PARA O FATURAMENTO -->
+                <input type="month" id="filtro-mes-faturamento" onchange="renderizarAgendamentosGestor()" class="bg-black border border-pegas-border rounded px-1.5 py-0.5 text-[10px] text-white focus:outline-none">
+              </div>
               <p id="stat-faturamento" class="text-xl font-black text-white mt-1">R$ 0,00</p>
             </div>
             <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-wallet text-sm"></i></div>
@@ -243,108 +235,103 @@
           </div>
         </section>
 
-        <!-- FILTROS E CALENDÁRIO -->
-        <section class="bg-pegas-card border border-pegas-border p-4 rounded-2xl space-y-4">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div>
-              <h3 class="text-sm font-extrabold text-white uppercase tracking-wider">Filtro de Agendamentos</h3>
-              <p class="text-xs text-gray-400">Selecione a data e o status para filtrar os cortes</p>
+        <!-- CALENDÁRIO VISUAL DE DIAS DO MÊS -->
+        <section class="bg-pegas-card border border-pegas-border p-4 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 id="label-mes-ano-calendario" class="text-xs font-extrabold text-white uppercase tracking-wider">Calendário de Agendamentos</h3>
+            <div class="flex items-center space-x-2">
+              <button onclick="mudarMesCalendario(-1)" class="px-2.5 py-1 bg-black border border-pegas-border text-white text-xs rounded-lg"><i class="fa-solid fa-chevron-left"></i></button>
+              <button onclick="mudarMesCalendario(1)" class="px-2.5 py-1 bg-black border border-pegas-border text-white text-xs rounded-lg"><i class="fa-solid fa-chevron-right"></i></button>
             </div>
+          </div>
+          <!-- Grelha de botões de dias com tamanho fixo uniformizado -->
+          <div id="container-calendario-dias" class="grid grid-cols-7 gap-2 pt-1"></div>
+        </section>
 
-            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-              <!-- SELETOR DE CALENDÁRIO -->
-              <input type="date" id="gestor-filtro-data" onchange="renderizarAgendamentosGestor()" class="bg-black border border-pegas-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white">
-              
-              <!-- FILTRO POR STATUS -->
-              <select id="gestor-filtro-status" onchange="renderizarAgendamentosGestor()" class="bg-black border border-pegas-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white">
-                <option value="Todos">Todos os Status</option>
-                <option value="Pendente">Pendentes</option>
-                <option value="Confirmado">Confirmados</option>
-                <option value="Concluído">Concluídos</option>
-                <option value="Cancelado">Cancelados</option>
-              </select>
-            </div>
+        <!-- FILTROS DE STATUS E LISTAGEM -->
+        <section class="bg-pegas-card border border-pegas-border p-4 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 id="titulo-lista-data" class="text-xs font-extrabold text-white uppercase tracking-wider">Agendamentos do Dia</h3>
+            <select id="gestor-filtro-status" onchange="renderizarAgendamentosGestor()" class="bg-black border border-pegas-border rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none">
+              <option value="Todos">Todos os Status</option>
+              <option value="Pendente">Pendentes</option>
+              <option value="Confirmado">Confirmados</option>
+              <option value="Concluído">Concluídos</option>
+              <option value="Cancelado">Cancelados</option>
+            </select>
           </div>
         </section>
 
         <!-- LISTA DE AGENDAMENTOS -->
         <section class="space-y-3">
-          <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Agendamentos Encontrados</h3>
           <div id="lista-agendamentos-gestor" class="space-y-3"></div>
         </section>
       </div>
 
-      <!-- ABA 2: GERENCIAR SERVIÇOS (CADASTRO E EDIÇÃO EM TEMPO REAL) -->
+      <!-- ABA 2: GERENCIAR SERVIÇOS -->
       <div id="gestor-sec-servicos" class="space-y-6 hidden">
         <div class="bg-pegas-card border border-pegas-border p-5 rounded-2xl space-y-4">
           <h3 class="text-sm font-extrabold text-white uppercase tracking-wider">Cadastrar / Modificar Serviço</h3>
-          
           <form onsubmit="salvarServicoFirebase(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <input type="hidden" id="servico-id">
             <div>
               <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Nome do Serviço</label>
-              <input type="text" id="servico-nome" required placeholder="Ex: Cabelo + Barba" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+              <input type="text" id="servico-nome" required placeholder="Ex: Cabelo + Barba" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
             </div>
             <div>
               <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Preço (R$)</label>
-              <input type="number" id="servico-preco" required placeholder="45" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+              <input type="number" id="servico-preco" required placeholder="45" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
             </div>
             <div>
               <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Duração (minutos)</label>
-              <input type="number" id="servico-duracao" required placeholder="30" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+              <input type="number" id="servico-duracao" required placeholder="30" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
             </div>
             <div>
               <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">URL Imagem (Opcional)</label>
-              <input type="url" id="servico-img" placeholder="https://..." class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+              <input type="url" id="servico-img" placeholder="https://..." class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
             </div>
-            
             <div class="sm:col-span-2 lg:col-span-4 flex justify-end space-x-2 pt-2">
               <button type="button" onclick="limparFormServico()" class="px-4 py-2 bg-black border border-pegas-border text-gray-400 text-xs font-bold rounded-xl hover:text-white">Cancelar</button>
               <button type="submit" class="px-6 py-2 bg-white text-black text-xs font-extrabold uppercase rounded-xl hover:bg-gray-200">Salvar Serviço</button>
             </div>
           </form>
         </div>
-
         <div class="space-y-3">
           <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Serviços Ativos</h3>
           <div id="container-servicos-gestor" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
         </div>
       </div>
 
-      <!-- ABA 3: GERENCIAR BARBEIROS E HORAS EXTRAS -->
+      <!-- ABA 3: BARBEIROS E HORAS EXTRAS -->
       <div id="gestor-sec-barbeiros" class="space-y-6 hidden">
-        
-        <!-- CADASTRO DE BARBEIRO -->
         <div class="bg-pegas-card border border-pegas-border p-5 rounded-2xl space-y-4">
           <h3 class="text-sm font-extrabold text-white uppercase tracking-wider">Cadastrar / Editar Barbeiro</h3>
-          
           <form onsubmit="salvarBarbeiroFirebase(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <input type="hidden" id="barbeiro-id">
             <div>
               <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Nome do Barbeiro</label>
-              <input type="text" id="barbeiro-nome" required placeholder="Ex: Carlos Barber" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+              <input type="text" id="barbeiro-nome" required placeholder="Ex: Carlos Barber" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
             </div>
             <div>
-              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Hora de Início (Ex: 8 para 08:00)</label>
-              <input type="number" id="barbeiro-inicio" required min="0" max="23" placeholder="8" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Hora de Início (Ex: 8)</label>
+              <input type="number" id="barbeiro-inicio" required min="0" max="23" placeholder="8" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
             </div>
             <div>
-              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Jornada (Horas de Trabalho)</label>
-              <input type="number" id="barbeiro-jornada" required min="1" max="18" placeholder="10" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Jornada (Horas)</label>
+              <input type="number" id="barbeiro-jornada" required min="1" max="18" placeholder="10" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
             </div>
             <div>
-              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Tempo Médio por Corte (minutos)</label>
-              <input type="number" id="barbeiro-tmc" required placeholder="30" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">TMC (minutos)</label>
+              <input type="number" id="barbeiro-tmc" required placeholder="30" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
             </div>
             <div>
               <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">URL Foto Perfil</label>
-              <input type="url" id="barbeiro-foto" placeholder="https://..." class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+              <input type="url" id="barbeiro-foto" placeholder="https://..." class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
             </div>
             <div>
               <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Descrição / Biografia</label>
-              <input type="text" id="barbeiro-desc" placeholder="Especialista em degrade" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+              <input type="text" id="barbeiro-desc" placeholder="Especialista em degrade" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
             </div>
-
             <div class="sm:col-span-2 lg:col-span-3 flex justify-end space-x-2 pt-2">
               <button type="button" onclick="limparFormBarbeiro()" class="px-4 py-2 bg-black border border-pegas-border text-gray-400 text-xs font-bold rounded-xl hover:text-white">Cancelar</button>
               <button type="submit" class="px-6 py-2 bg-white text-black text-xs font-extrabold uppercase rounded-xl hover:bg-gray-200">Salvar Barbeiro</button>
@@ -352,43 +339,38 @@
           </form>
         </div>
 
-        <!-- LANÇAR HORAS EXTRAS -->
         <div class="bg-pegas-card border border-pegas-border p-5 rounded-2xl space-y-4">
           <h3 class="text-sm font-extrabold text-white uppercase tracking-wider">Lançar Horas Extras de Atendimento</h3>
-          
           <form onsubmit="salvarHoraExtraFirebase(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
               <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Barbeiro</label>
-              <select id="extra-barbeiro-select" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white"></select>
+              <select id="extra-barbeiro-select" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none"></select>
             </div>
             <div>
               <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Data</label>
-              <input type="date" id="extra-data" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+              <input type="date" id="extra-data" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
             </div>
             <div>
               <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Quantidade de Horas</label>
-              <input type="number" id="extra-horas" required min="1" max="6" placeholder="1" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+              <input type="number" id="extra-horas" required min="1" max="6" placeholder="1" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
             </div>
             <div>
               <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Posição do Turno</label>
-              <select id="extra-posicao" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+              <select id="extra-posicao" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
                 <option value="antes">Antes do Expediente (Cedo)</option>
                 <option value="depois">Após o Expediente (Tarde/Noite)</option>
               </select>
             </div>
-
             <div class="sm:col-span-2 lg:col-span-4 flex justify-end pt-2">
               <button type="submit" class="px-6 py-2 bg-emerald-500 text-black text-xs font-extrabold uppercase rounded-xl hover:bg-emerald-400">Adicionar Horas Extras</button>
             </div>
           </form>
         </div>
 
-        <!-- LISTA DE BARBEIROS -->
         <div class="space-y-3">
           <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Equipe de Barbeiros</h3>
           <div id="container-barbeiros-gestor" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
         </div>
-
       </div>
 
     </main>
@@ -415,7 +397,6 @@
     const auth = firebase.auth();
     const database = firebase.database();
 
-    // GARANTE QUE A AUTENTICAÇÃO DO GESTOR FIQUE ISOLADA APENAS NESTA SESSÃO/ABA
     auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
 
     let gestorLogado = null;
@@ -426,8 +407,15 @@
 
     const LINK_ASAAS_BASE = "https://www.asaas.com/000/c/q7r828t12ir32220";
 
-    document.getElementById('gestor-filtro-data').value = new Date().toISOString().split('T')[0];
-    document.getElementById('extra-data').value = new Date().toISOString().split('T')[0];
+    // Variáveis de controle de data selecionada e mês do calendário
+    let dataSelecionadaGlobal = new Date().toISOString().split('T')[0];
+    let dataCalendarioAtual = new Date();
+
+    // Inicializa o seletor de mês do faturamento com o mês atual (YYYY-MM)
+    const anoAtualStr = dataCalendarioAtual.getFullYear();
+    const mesAtualStr = String(dataCalendarioAtual.getMonth() + 1).padStart(2, '0');
+    document.getElementById('filtro-mes-faturamento').value = `${anoAtualStr}-${mesAtualStr}`;
+    document.getElementById('extra-data').value = dataSelecionadaGlobal;
 
     auth.onAuthStateChanged((user) => {
       if (user) {
@@ -457,7 +445,6 @@
       e.preventDefault();
       const email = document.getElementById('gestor-login-email').value;
       const senha = document.getElementById('gestor-login-senha').value;
-
       auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then(() => {
         return auth.signInWithEmailAndPassword(email, senha);
       }).catch(err => alert("Erro ao entrar: " + err.message));
@@ -468,7 +455,6 @@
       const nome = document.getElementById('gestor-reg-nome').value.trim();
       const email = document.getElementById('gestor-reg-email').value.trim();
       const senha = document.getElementById('gestor-reg-senha').value;
-
       auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then(() => {
         return auth.createUserWithEmailAndPassword(email, senha);
       }).then((cred) => {
@@ -493,7 +479,6 @@
       database.ref(`assinaturasGestores/${uid}`).on('value', (snapshot) => {
         const dados = snapshot.val();
         const hojeStr = new Date().toISOString().split('T')[0];
-
         if (!dados || !dados.vencimento || dados.vencimento < hojeStr) {
           esconderTodasTelas();
           document.getElementById('btn-pagar-asaas').href = `${LINK_ASAAS_BASE}?email=${encodeURIComponent(gestorLogado.email)}`;
@@ -544,7 +529,6 @@
         barbeirosLista = [];
         const selectExtra = document.getElementById('extra-barbeiro-select');
         selectExtra.innerHTML = '';
-
         for (let id in dados) { 
           barbeirosLista.push({ id: id, ...dados[id] });
           selectExtra.innerHTML += `<option value="${id}">${dados[id].nome}</option>`;
@@ -597,44 +581,120 @@
         const dados = snapshot.val();
         agendamentosLista = [];
         for (let id in dados) { agendamentosLista.push({ id: id, ...dados[id] }); }
+        renderizarCalendarioGestor();
         renderizarAgendamentosGestor();
       });
     }
 
+    function mudarMesCalendario(direcao) {
+      dataCalendarioAtual.setMonth(dataCalendarioAtual.getMonth() + direcao);
+      renderizarCalendarioGestor();
+    }
+
+    // --- RENDERIZAR CALENDÁRIO COM BOTÕES UNIFORMES E BADGE VERDE ---
+    function renderizarCalendarioGestor() {
+      const containerDias = document.getElementById('container-calendario-dias');
+      const labelMesAno = document.getElementById('label-mes-ano-calendario');
+      containerDias.innerHTML = '';
+
+      const ano = dataCalendarioAtual.getFullYear();
+      const mes = dataCalendarioAtual.getMonth();
+
+      const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+      labelMesAno.innerText = `${nomesMeses[mes]} de ${ano}`;
+
+      // Dias da semana cabeçalho
+      const diasSemanaNomes = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+      diasSemanaNomes.forEach(d => {
+        containerDias.innerHTML += `<div class="text-[10px] text-gray-500 font-bold text-center uppercase">${d}</div>`;
+      });
+
+      const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
+      const ultimoDiaMes = new Date(ano, mes + 1, 0).getDate();
+
+      // Espaços vazios iniciais
+      for (let i = 0; i < primeiroDiaSemana; i++) {
+        containerDias.innerHTML += `<div></div>`;
+      }
+
+      // Renderiza cada dia do mês como um botão uniforme
+      for (let dia = 1; dia <= ultimoDiaMes; dia++) {
+        const mesStr = String(mes + 1).padStart(2, '0');
+        const diaStr = String(dia).padStart(2, '0');
+        const dataIsoStr = `${ano}-${mesStr}-${diaStr}`;
+
+        // Conta agendamentos ativos neste dia para este barbeiro
+        const qtdPedidos = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome && a.data === dataIsoStr && a.status !== 'Cancelado').length;
+        const isSelecionado = (dataSelecionadaGlobal === dataIsoStr);
+
+        let badgeHtml = '';
+        if (qtdPedidos > 0) {
+          // Bolinha verde no canto superior direito para não cobrir o número do dia
+          badgeHtml = `<span class="absolute top-1 right-1 bg-emerald-500 text-black text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow">${qtdPedidos}</span>`;
+        }
+
+        const estiloBotao = isSelecionado
+          ? "bg-white text-black border-white shadow-lg scale-105"
+          : "bg-black text-white border-pegas-border hover:border-gray-500";
+
+        containerDias.innerHTML += `
+          <button type="button" onclick="selecionarDataCalendario('${dataIsoStr}')" 
+            class="relative w-full h-12 rounded-xl border text-xs font-bold flex flex-col items-center justify-center transition-all ${estiloBotao}">
+            <span>${dia}</span>
+            ${badgeHtml}
+          </button>
+        `;
+      }
+    }
+
+    function selecionarDataCalendario(dataStr) {
+      dataSelecionadaGlobal = dataStr;
+      renderizarCalendarioGestor();
+      renderizarAgendamentosGestor();
+    }
+
+    // --- RENDERIZAR AGENDAMENTOS E ESTATÍSTICAS ---
     function renderizarAgendamentosGestor() {
       const container = document.getElementById('lista-agendamentos-gestor');
-      const dataFiltro = document.getElementById('gestor-filtro-data').value;
       const statusFiltro = document.getElementById('gestor-filtro-status').value;
+      const filtroMesVal = document.getElementById('filtro-mes-faturamento').value; // YYYY-MM
       container.innerHTML = '';
 
       if (!barbeiroLogado) return;
 
-      let filtrados = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome && a.data === dataFiltro);
-      
+      // Formatar rótulo da data selecionada
+      const partesData = dataSelecionadaGlobal.split('-');
+      document.getElementById('titulo-lista-data').innerText = `Agendamentos do dia ${partesData[2]}/${partesData[1]}/${partesData[0]}`;
+
+      let filtrados = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome && a.data === dataSelecionadaGlobal);
       if (statusFiltro !== 'Todos') {
         filtrados = filtrados.filter(a => a.status === statusFiltro);
       }
 
-      // Cálculo de Métricas
-      const doDiaGeral = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome && a.data === dataFiltro && a.status !== 'Cancelado');
+      // Métricas do Dia
+      const doDiaGeral = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome && a.data === dataSelecionadaGlobal && a.status !== 'Cancelado');
       let totalHoje = doDiaGeral.length;
       let confirmados = doDiaGeral.filter(a => a.status === 'Confirmado').length;
       let pendentes = doDiaGeral.filter(a => a.status === 'Pendente').length;
-      let faturamentoMes = 0;
 
+      // Faturamento somado do mês selecionado no input
+      let faturamentoMesSelecionado = 0;
       agendamentosLista.forEach(a => {
-        if (a.barbeiro === barbeiroLogado.nome && a.status === 'Concluído') {
-          faturamentoMes += Number(a.valor || 0);
+        if (a.barbeiro === barbeiroLogado.nome && a.status === 'Concluído' && a.data) {
+          const mesAnoAgendamento = a.data.substring(0, 7); // YYYY-MM
+          if (mesAnoAgendamento === filtroMesVal) {
+            faturamentoMesSelecionado += Number(a.valor || 0);
+          }
         }
       });
 
       document.getElementById('stat-total').innerText = totalHoje;
       document.getElementById('stat-confirmados').innerText = confirmados;
       document.getElementById('stat-pendentes').innerText = pendentes;
-      document.getElementById('stat-faturamento').innerText = `R$ ${faturamentoMes.toFixed(2)}`;
+      document.getElementById('stat-faturamento').innerText = `R$ ${faturamentoMesSelecionado.toFixed(2)}`;
 
       if (filtrados.length === 0) {
-        container.innerHTML = `<p class="text-xs text-gray-500 text-center py-8">Nenhum agendamento encontrado para o filtro selecionado.</p>`;
+        container.innerHTML = `<p class="text-xs text-gray-500 text-center py-8">Nenhum agendamento encontrado para esta data e filtro.</p>`;
         return;
       }
 
@@ -647,6 +707,29 @@
           ? `<span class="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold rounded-full">Concluído</span>`
           : `<span class="px-2 py-0.5 bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] font-bold rounded-full">Cancelado</span>`;
 
+        // Botões de ação simplificados com símbolos exatos conforme solicitado
+        let botoesAcao = '';
+        if (item.status === 'Pendente') {
+          botoesAcao = `
+            <button onclick="atualizarStatusAgendamento('${item.id}', 'Confirmado')" title="Confirmar" class="w-8 h-8 bg-blue-500/10 border border-blue-500/30 text-blue-400 font-bold rounded-lg hover:bg-blue-500/20 flex items-center justify-center"><i class="fa-solid fa-check"></i></button>
+            <button onclick="atualizarStatusAgendamento('${item.id}', 'Cancelado')" title="Cancelar" class="w-8 h-8 bg-red-500/10 border border-red-500/30 text-red-400 font-bold rounded-lg hover:bg-red-500/20 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+          `;
+        } else if (item.status === 'Confirmado') {
+          botoesAcao = `
+            <button onclick="atualizarStatusAgendamento('${item.id}', 'Concluído')" title="Concluído (Dois vistos)" class="w-8 h-8 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold rounded-lg hover:bg-emerald-500/20 flex items-center justify-center"><i class="fa-solid fa-check-double"></i></button>
+            <button onclick="atualizarStatusAgendamento('${item.id}', 'Cancelado')" title="Cancelar" class="w-8 h-8 bg-red-500/10 border border-red-500/30 text-red-400 font-bold rounded-lg hover:bg-red-500/20 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+          `;
+        } else if (item.status === 'Cancelado') {
+          // Botão de reagendar/retornar o agendamento em tempo real para o cliente
+          botoesAcao = `
+            <button onclick="atualizarStatusAgendamento('${item.id}', 'Pendente')" title="Reagendar / Retornar" class="px-3 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold rounded-lg hover:bg-amber-500/20 flex items-center space-x-1">
+              <i class="fa-solid fa-rotate-left"></i><span>Reagendar</span>
+            </button>
+          `;
+        } else if (item.status === 'Concluído') {
+          botoesAcao = `<span class="text-[10px] text-emerald-400 font-bold">Finalizado</span>`;
+        }
+
         container.innerHTML += `
           <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
             <div class="space-y-1">
@@ -656,26 +739,20 @@
               </div>
               <p class="text-xs text-gray-400"><strong class="text-white">${item.hora}</strong> • ${item.serviço} • R$ ${item.valor},00</p>
             </div>
-
             <div class="flex items-center space-x-2">
-              ${item.status === 'Pendente' ? `
-                <button onclick="atualizarStatusAgendamento('${item.id}', 'Confirmado')" class="px-3 py-1.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold rounded-lg hover:bg-blue-500/20">Confirmar</button>
-              ` : ''}
-              ${item.status !== 'Concluído' && item.status !== 'Cancelado' ? `
-                <button onclick="atualizarStatusAgendamento('${item.id}', 'Concluído')" class="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold rounded-lg hover:bg-emerald-500/20">Concluir</button>
-                <button onclick="atualizarStatusAgendamento('${item.id}', 'Cancelado')" class="px-2.5 py-1.5 bg-red-500/10 text-red-400 text-xs font-bold rounded-lg hover:bg-red-500/20">Cancelar</button>
-              ` : ''}
+              ${botoesAcao}
             </div>
           </div>
         `;
       });
     }
 
+    // Atualiza status e reflete em tempo real tanto para o gestor quanto para o portal do cliente
     function atualizarStatusAgendamento(id, novoStatus) {
       database.ref(`agendamentos/${id}`).update({ status: novoStatus });
     }
 
-    // --- LÓGICA DE GESTÃO DE SERVIÇOS ---
+    // --- GESTÃO DE SERVIÇOS ---
     function renderizarServicosGestor() {
       const container = document.getElementById('container-servicos-gestor');
       container.innerHTML = '';
@@ -704,7 +781,6 @@
         duracao: Number(document.getElementById('servico-duracao').value),
         img: document.getElementById('servico-img').value.trim() || 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'
       };
-
       if (id) {
         database.ref(`servicos/${id}`).update(dados).then(() => limparFormServico());
       } else {
@@ -736,7 +812,7 @@
       document.getElementById('servico-img').value = '';
     }
 
-    // --- LÓGICA DE GESTÃO DE BARBEIROS E HORAS EXTRAS ---
+    // --- GESTÃO DE BARBEIROS E HORAS EXTRAS ---
     function renderizarBarbeirosGestor() {
       const container = document.getElementById('container-barbeiros-gestor');
       container.innerHTML = '';
@@ -770,7 +846,6 @@
         foto: document.getElementById('barbeiro-foto').value.trim() || 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200',
         desc: document.getElementById('barbeiro-desc').value.trim()
       };
-
       if (id) {
         database.ref(`barbeiros/${id}`).update(dados).then(() => limparFormBarbeiro());
       } else {
@@ -812,7 +887,6 @@
       const data = document.getElementById('extra-data').value;
       const horas = Number(document.getElementById('extra-horas').value);
       const posicao = document.getElementById('extra-posicao').value;
-
       database.ref(`horasExtras/${barbeiroId}/${data}`).push({
         horas, posicao, criadoEm: new Date().toISOString()
       }).then(() => alert("Horas extras adicionadas com sucesso!"));
