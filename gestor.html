@@ -31,14 +31,12 @@
   <style>
     body { background-color: #050505; color: #f5f5f5; }
     .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    .fade-out { animation: fadeOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
-    @keyframes fadeOut { from { opacity: 1; transform: scale(0.97); } to { opacity: 0; transform: scale(0.97); } }
   </style>
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-white selection:text-black">
 
-  <!-- TELA 1: LOGIN / REGISTRO DE NOVO GESTOR -->
+  <!-- TELA 1: LOGIN / REGISTRO DE GESTOR -->
   <div id="screen-login-gestor" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-6 space-y-6 fade-in overflow-y-auto">
     <div class="max-w-sm w-full space-y-6">
       
@@ -58,7 +56,6 @@
           <button id="tab-register" onclick="alternarAbaAuth('register')" class="w-1/2 pb-2 border-b-2 border-transparent text-gray-500 hover:text-white">Criar Conta Gestor</button>
         </div>
 
-        <!-- FORM LOGIN GESTOR -->
         <form id="form-login-gestor" onsubmit="realizarLoginGestor(event)" class="space-y-3">
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">E-mail</label>
@@ -73,7 +70,6 @@
           </button>
         </form>
 
-        <!-- FORM REGISTRO NOVO GESTOR -->
         <form id="form-register-gestor" onsubmit="realizarCadastroGestor(event)" class="space-y-3 hidden">
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Nome da Barbearia / Gestor</label>
@@ -91,12 +87,11 @@
             Criar Conta e Assinar
           </button>
         </form>
-
       </div>
     </div>
   </div>
 
-  <!-- TELA 2: TELA DE BLOQUEIO IMEDIATO (REQUER ASSINATURA R$ 45/MÊS) -->
+  <!-- TELA 2: TELA DE BLOQUEIO / PAYWALL (REQUER ASSINATURA R$ 45/MÊS) -->
   <div id="screen-blocked-pro" class="fixed inset-0 bg-black z-50 hidden flex-col items-center justify-center p-6 text-center space-y-6">
     <div class="w-20 h-20 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center text-3xl">
       <i class="fa-solid fa-crown"></i>
@@ -104,7 +99,7 @@
 
     <div class="max-w-md space-y-2">
       <h2 class="text-xl font-extrabold text-white">Ative seu Plano PEGAS Gestor PRO</h2>
-      <p class="text-xs text-gray-400">Sua conta foi criada! Assine agora para liberar a gestão de horários, barbeiros e serviços por apenas <strong class="text-white">R$ 45,00/mês</strong>.</p>
+      <p class="text-xs text-gray-400">Assine agora para liberar a gestão completa da barbearia por apenas <strong class="text-white">R$ 45,00/mês</strong>.</p>
     </div>
 
     <div class="bg-pegas-card border border-pegas-border p-5 rounded-2xl max-w-md w-full text-left space-y-3">
@@ -123,21 +118,18 @@
     </div>
 
     <div class="flex flex-col space-y-3 w-full max-w-xs">
-      <!-- LINK DO ASAAS CONECTADO AO EMAIL DO GESTOR -->
       <a id="btn-pagar-asaas" href="#" target="_blank" class="w-full py-3.5 bg-white text-black font-extrabold text-xs rounded-xl hover:bg-gray-200 transition flex items-center justify-center space-x-2">
         <i class="fa-solid fa-qrcode"></i>
-        <span>Pagar R$ 45,00 no Asaas (Pix/Cartão)</span>
+        <span>Pagar R$ 45,00 no Asaas</span>
       </a>
-
-      <p class="text-[10px] text-gray-500">O acesso é liberado automaticamente após a confirmação do pagamento pelo Asaas.</p>
-
+      <p class="text-[10px] text-gray-500">O acesso é liberado automaticamente após a confirmação.</p>
       <button onclick="realizarLogoutGestor()" class="text-xs text-gray-400 hover:text-white pt-2">
         <i class="fa-solid fa-right-from-bracket mr-1"></i> Sair
       </button>
     </div>
   </div>
 
-  <!-- TELA 3: SELEÇÃO DE PROFISSIONAL (LIBERADO APÓS PAGAMENTO) -->
+  <!-- TELA 3: SELEÇÃO DE PROFISSIONAL -->
   <div id="screen-profiles" class="fixed inset-0 bg-black z-40 hidden flex-col items-center justify-center p-6 space-y-8 fade-in overflow-y-auto">
     <div class="flex flex-col items-center space-y-3">
       <div class="w-24 h-24 border-2 border-white/20 rounded-full flex items-center justify-center bg-black shadow-2xl overflow-hidden p-1">
@@ -157,7 +149,7 @@
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 max-w-2xl w-full" id="container-perfis-barbeiros"></div>
   </div>
 
-  <!-- TELA 4: DASHBOARD DO GESTOR -->
+  <!-- TELA 4: DASHBOARD OPERACIONAL DO GESTOR -->
   <div id="screen-dashboard" class="hidden flex-col min-h-screen">
     <header class="bg-pegas-card border-b border-pegas-border sticky top-0 z-30">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -172,11 +164,13 @@
         </div>
 
         <div class="flex items-center space-x-2 sm:space-x-4">
+          <button onclick="voltarParaPerfis()" class="text-xs text-gray-400 hover:text-white px-3 py-1.5 bg-black border border-pegas-border rounded-xl">
+            <i class="fa-solid fa-users mr-1"></i> Trocar Barbeiro
+          </button>
           <div class="flex items-center space-x-2 bg-black border border-pegas-border px-3 py-1.5 rounded-xl">
             <img id="header-user-foto" src="" class="w-6 h-6 rounded-full object-cover border border-white/30">
             <span id="header-user-nome" class="text-xs font-bold text-white">---</span>
           </div>
-
           <button onclick="realizarLogoutGestor()" class="text-xs text-gray-400 hover:text-white p-2" title="Sair">
             <i class="fa-solid fa-right-from-bracket"></i>
           </button>
@@ -185,15 +179,16 @@
     </header>
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      
       <div class="bg-pegas-card border border-pegas-border p-3 rounded-xl flex items-center justify-between text-xs">
         <div class="flex items-center space-x-2">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span class="text-gray-200 font-semibold">Assinatura Ativa</span>
+          <span class="text-gray-200 font-semibold">Assinatura Ativa (Gestor PRO)</span>
         </div>
         <span id="badge-vencimento" class="text-gray-400 text-[11px]">Vencimento: ---</span>
       </div>
 
-      <!-- PAINEL COMPLETO -->
+      <!-- ESTATÍSTICAS -->
       <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
           <div>
@@ -204,31 +199,40 @@
         </div>
         <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
           <div>
-            <p class="text-[10px] text-gray-400 uppercase font-semibold">Faturamento Mês Atual</p>
+            <p class="text-[10px] text-gray-400 uppercase font-semibold">Faturamento Mês</p>
             <p id="stat-faturamento" class="text-xl font-black text-white mt-1">R$ 0,00</p>
           </div>
           <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-wallet text-sm"></i></div>
         </div>
         <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
           <div>
-            <p class="text-[10px] text-gray-400 uppercase font-semibold">Confirmados (Geral)</p>
+            <p class="text-[10px] text-gray-400 uppercase font-semibold">Confirmados</p>
             <p id="stat-confirmados" class="text-xl font-black text-white mt-1">0</p>
           </div>
           <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-blue-400"><i class="fa-solid fa-circle-check text-sm"></i></div>
         </div>
         <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
           <div>
-            <p class="text-[10px] text-gray-400 uppercase font-semibold">Pendentes (Geral)</p>
+            <p class="text-[10px] text-gray-400 uppercase font-semibold">Pendentes</p>
             <p id="stat-pendentes" class="text-xl font-black text-white mt-1">0</p>
           </div>
           <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-amber-400"><i class="fa-solid fa-clock text-sm"></i></div>
         </div>
       </section>
 
-      <!-- AGENDAMENTOS -->
-      <section class="space-y-3">
-        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Agendamentos Ativos</h3>
-        <div id="lista-agendamentos-ativos" class="space-y-3"></div>
+      <!-- AGENDA E CONTROLO -->
+      <section class="space-y-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-pegas-card border border-pegas-border p-4 rounded-2xl">
+          <div>
+            <h3 class="text-sm font-extrabold text-white uppercase tracking-wider">Agenda Operacional</h3>
+            <p class="text-xs text-gray-400">Gerencie o status e horários dos clientes</p>
+          </div>
+          <div>
+            <input type="date" id="gestor-filtro-data" onchange="renderizarAgendamentosGestor()" class="bg-black border border-pegas-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white">
+          </div>
+        </div>
+
+        <div id="lista-agendamentos-gestor" class="space-y-3"></div>
       </section>
     </main>
   </div>
@@ -239,16 +243,16 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDoEw0fz9a8NvNrMq0jx_tNNQQeny74_4c",
-  authDomain: "pegas-barbearia-d664a.firebaseapp.com",
-  databaseURL: "https://pegas-barbearia-d664a-default-rtdb.firebaseio.com",
-  projectId: "pegas-barbearia-d664a",
-  storageBucket: "pegas-barbearia-d664a.firebasestorage.app",
-  messagingSenderId: "736639531485",
-  appId: "1:736639531485:web:0daaab6391682845859e34",
-  measurementId: "G-R7GGDC95QY"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyDoEw0fz9a8NvNrMq0jx_tNNQQeny74_4c",
+      authDomain: "pegas-barbearia-d664a.firebaseapp.com",
+      databaseURL: "https://pegas-barbearia-d664a-default-rtdb.firebaseio.com",
+      projectId: "pegas-barbearia-d664a",
+      storageBucket: "pegas-barbearia-d664a.firebasestorage.app",
+      messagingSenderId: "736639531485",
+      appId: "1:736639531485:web:0daaab6391682845859e34",
+      measurementId: "G-R7GGDC95QY"
+    };
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
@@ -259,8 +263,9 @@ const firebaseConfig = {
     let barbeiroLogado = null;
     let agendamentosLista = [];
 
-    // SEU LINK DE PAGAMENTO RECORRENTE DO ASAAS
     const LINK_ASAAS_BASE = "https://www.asaas.com/000/c/q7r828t12ir32220";
+
+    document.getElementById('gestor-filtro-data').value = new Date().toISOString().split('T')[0];
 
     auth.onAuthStateChanged((user) => {
       if (user) {
@@ -300,12 +305,11 @@ const firebaseConfig = {
       const senha = document.getElementById('gestor-reg-senha').value;
 
       auth.createUserWithEmailAndPassword(email, senha).then((cred) => {
-        // GRAVA O NOVO GESTOR SEM ASSINATURA (REQUER PAGAMENTO IMEDIATO)
         database.ref(`assinaturasGestores/${cred.user.uid}`).set({
           nomeBarbearia: nome,
           email: email,
           planoPro: false,
-          vencimento: "2000-01-01", // Data retroativa para exigir assinatura
+          vencimento: "2000-01-01",
           criadoEm: new Date().toISOString()
         });
       }).catch(err => alert("Erro ao criar conta: " + err.message));
@@ -313,20 +317,17 @@ const firebaseConfig = {
 
     function realizarLogoutGestor() { auth.signOut(); }
 
-    // ESCUTA EM TEMPO REAL: LIBERA A TELA SOZINHO SE O PAGAMENTO FOR CONFIRMADO VIA WEBHOOK
     function escutarAssinaturaGestor(uid) {
       database.ref(`assinaturasGestores/${uid}`).on('value', (snapshot) => {
         const dados = snapshot.val();
         const hojeStr = new Date().toISOString().split('T')[0];
 
         if (!dados || !dados.vencimento || dados.vencimento < hojeStr) {
-          // BLOQUEADO: Redireciona para o Asaas passando o e-mail do gestor
           esconderTodasTelas();
           document.getElementById('btn-pagar-asaas').href = `${LINK_ASAAS_BASE}?email=${encodeURIComponent(gestorLogado.email)}`;
           document.getElementById('screen-blocked-pro').classList.remove('hidden');
           document.getElementById('screen-blocked-pro').classList.add('flex');
         } else {
-          // LIBERADO (ASSINATURA PAGA)
           document.getElementById('badge-vencimento').innerText = `Vencimento: ${dados.vencimento.split('-').reverse().join('/')}`;
           esconderTodasTelas();
           document.getElementById('screen-profiles').classList.remove('hidden');
@@ -358,7 +359,7 @@ const firebaseConfig = {
       barbeirosLista.forEach(b => {
         container.innerHTML += `
           <div onclick="logarBarbeiro('${b.id}')" class="cursor-pointer bg-pegas-card border border-pegas-border hover:border-white p-4 rounded-2xl flex flex-col items-center space-y-3 transition hover:scale-105">
-            <img src="${b.foto}" alt="${b.nome}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-white/20">
+            <img src="${b.foto}" alt="${b.nome}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-white/20" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
             <span class="text-xs font-bold text-white text-center line-clamp-1">${b.nome}</span>
           </div>
         `;
@@ -368,37 +369,91 @@ const firebaseConfig = {
     function logarBarbeiro(id) {
       barbeiroLogado = barbeirosLista.find(b => b.id === id);
       esconderTodasTelas();
-      document.getElementById('header-user-foto').src = barbeiroLogado.foto;
+      document.getElementById('header-user-foto').src = barbeiroLogado.foto || '';
       document.getElementById('header-user-nome').innerText = barbeiroLogado.nome;
       document.getElementById('screen-dashboard').classList.remove('hidden');
       document.getElementById('screen-dashboard').classList.add('flex');
-      iniciarEscutasFirebase();
+      iniciarEscutasAgendamentos();
     }
 
-    function iniciarEscutasFirebase() {
+    function voltarParaPerfis() {
+      esconderTodasTelas();
+      document.getElementById('screen-profiles').classList.remove('hidden');
+      document.getElementById('screen-profiles').classList.add('flex');
+    }
+
+    function iniciarEscutasAgendamentos() {
       database.ref('agendamentos').on('value', (snapshot) => {
         const dados = snapshot.val();
         agendamentosLista = [];
         for (let id in dados) { agendamentosLista.push({ id: id, ...dados[id] }); }
-        renderizarAgendamentos();
+        renderizarAgendamentosGestor();
       });
     }
 
-    function renderizarAgendamentos() {
-      const containerAtivos = document.getElementById('lista-agendamentos-ativos');
-      containerAtivos.innerHTML = '';
-      const filtrados = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome && a.status !== 'Cancelado');
+    function renderizarAgendamentosGestor() {
+      const container = document.getElementById('lista-agendamentos-gestor');
+      const dataFiltro = document.getElementById('gestor-filtro-data').value;
+      container.innerHTML = '';
+
+      if (!barbeiroLogado) return;
+
+      const filtrados = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome && a.data === dataFiltro && a.status !== 'Cancelado');
       
+      // Atualiza Estatísticas do Dia
+      let totalHoje = filtrados.length;
+      let confirmados = filtrados.filter(a => a.status === 'Confirmado').length;
+      let pendentes = filtrados.filter(a => a.status === 'Pendente').length;
+      let faturamentoMes = 0;
+
+      agendamentosLista.forEach(a => {
+        if (a.barbeiro === barbeiroLogado.nome && a.status === 'Concluído') {
+          faturamentoMes += Number(a.valor || 0);
+        }
+      });
+
+      document.getElementById('stat-total').innerText = totalHoje;
+      document.getElementById('stat-confirmados').innerText = confirmados;
+      document.getElementById('stat-pendentes').innerText = pendentes;
+      document.getElementById('stat-faturamento').innerText = `R$ ${faturamentoMes.toFixed(2)}`;
+
+      if (filtrados.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-500 text-center py-8">Nenhum agendamento para esta data.</p>`;
+        return;
+      }
+
       filtrados.forEach(item => {
-        containerAtivos.innerHTML += `
+        let statusBadge = item.status === 'Confirmado' 
+          ? `<span class="px-2 py-0.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[9px] font-bold rounded-full">Confirmado</span>`
+          : item.status === 'Pendente'
+          ? `<span class="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[9px] font-bold rounded-full">Pendente</span>`
+          : `<span class="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold rounded-full">Concluído</span>`;
+
+        container.innerHTML += `
           <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
-            <div>
-              <h4 class="font-bold text-white text-sm">${item.cliente}</h4>
-              <p class="text-xs text-gray-400">${item.serviço} • R$ ${item.valor},00</p>
+            <div class="space-y-1">
+              <div class="flex items-center space-x-2">
+                <h4 class="font-bold text-white text-sm">${item.cliente} (${item.telefone || 'Sem tel'})</h4>
+                ${statusBadge}
+              </div>
+              <p class="text-xs text-gray-400"><strong class="text-white">${item.hora}</strong> • ${item.serviço} • R$ ${item.valor},00</p>
+            </div>
+
+            <div class="flex items-center space-x-2">
+              ${item.status === 'Pendente' ? `
+                <button onclick="atualizarStatusAgendamento('${item.id}', 'Confirmado')" class="px-3 py-1.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold rounded-lg hover:bg-blue-500/20">Confirmar</button>
+              ` : ''}
+              ${item.status !== 'Concluído' ? `
+                <button onclick="atualizarStatusAgendamento('${item.id}', 'Concluído')" class="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold rounded-lg hover:bg-emerald-500/20">Concluir</button>
+              ` : ''}
             </div>
           </div>
         `;
       });
+    }
+
+    function atualizarStatusAgendamento(id, novoStatus) {
+      database.ref(`agendamentos/${id}`).update({ status: novoStatus });
     }
   </script>
 </body>
