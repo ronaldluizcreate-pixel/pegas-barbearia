@@ -39,7 +39,7 @@
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-white selection:text-black">
 
-  <!-- TELA 1: LOGIN / REGISTROw DE GESTOR -->
+  <!-- TELA 1: LOGIN / REGISTRO DE GESTOR -->
   <div id="screen-login-gestor" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-4 sm:p-6 fade-in overflow-y-auto">
     <div class="max-w-sm w-full space-y-6">
       <div class="flex flex-col items-center space-y-3">
@@ -149,7 +149,7 @@
   <!-- TELA 4: DASHBOARD COMPLETO DO GESTOR -->
   <div id="screen-dashboard" class="hidden flex-col min-h-screen">
     
-    <!-- HEADER LIMPO COM O BOTÃO PERFIL DROPDOWN -->
+    <!-- HEADER LIMPO COM O DROPDOWN DO PERFIL -->
     <header class="bg-pegas-card border-b border-pegas-border sticky top-0 z-30">
       <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
         <div class="flex items-center space-x-2 sm:space-x-3">
@@ -162,7 +162,7 @@
           </div>
         </div>
 
-        <!-- BOTÃO PERFIL DO BARBEIRO DROPDOWN -->
+        <!-- DROPDOWN PERFIL SELECIONADO -->
         <div class="relative">
           <button onclick="toggleMenuPerfil()" type="button" class="flex items-center space-x-2 bg-black border border-pegas-border hover:border-gray-500 px-2.5 py-1.5 rounded-xl transition active:scale-95">
             <img id="header-user-foto" src="" class="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover border border-white/30" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
@@ -170,15 +170,15 @@
             <i class="fa-solid fa-chevron-down text-[10px] text-gray-400"></i>
           </button>
 
-          <!-- MENU DROPDOWN OCULTO -->
-          <div id="dropdown-menu-perfil" class="hidden absolute right-0 mt-2 w-56 bg-pegas-card border border-pegas-border rounded-2xl shadow-2xl p-2 z-50 space-y-1 fade-in">
+          <!-- MENU DROPDOWN -->
+          <div id="dropdown-menu-perfil" class="hidden absolute right-0 mt-2 w-52 bg-pegas-card border border-pegas-border rounded-2xl shadow-2xl p-2 z-50 space-y-1 fade-in">
+            <button onclick="abrirModalEditarPerfilAtual(); toggleMenuPerfil();" class="w-full text-left px-3 py-2 text-xs font-semibold text-gray-200 hover:text-white hover:bg-white/5 rounded-xl flex items-center space-x-2 transition">
+              <i class="fa-solid fa-user-pen w-4 text-gray-400"></i>
+              <span>Editar Perfil</span>
+            </button>
             <button onclick="abrirModalServicos(); toggleMenuPerfil();" class="w-full text-left px-3 py-2 text-xs font-semibold text-gray-200 hover:text-white hover:bg-white/5 rounded-xl flex items-center space-x-2 transition">
               <i class="fa-solid fa-scissors w-4 text-gray-400"></i>
               <span>Gerenciar Serviços</span>
-            </button>
-            <button onclick="abrirModalBarbeiros(); toggleMenuPerfil();" class="w-full text-left px-3 py-2 text-xs font-semibold text-gray-200 hover:text-white hover:bg-white/5 rounded-xl flex items-center space-x-2 transition">
-              <i class="fa-solid fa-user-gear w-4 text-gray-400"></i>
-              <span>Barbeiros & Horas Extras</span>
             </button>
             <div class="border-t border-pegas-border my-1"></div>
             <button onclick="voltarParaPerfis(); toggleMenuPerfil();" class="w-full text-left px-3 py-2 text-xs font-semibold text-gray-200 hover:text-white hover:bg-white/5 rounded-xl flex items-center space-x-2 transition">
@@ -196,7 +196,7 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5 sm:space-y-6">
       
-      <!-- MÉTRICAS NO INÍCIO ABSOLUTO DO PAINEL -->
+      <!-- MÉTRICAS -->
       <section class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         <div class="bg-pegas-card border border-pegas-border p-3.5 sm:p-4 rounded-xl flex items-center justify-between">
           <div>
@@ -264,7 +264,7 @@
       </section>
     </main>
 
-    <!-- RODAPÉ: STATUS DA ASSINATURA ATIVA DO GESTOR -->
+    <!-- RODAPÉ: STATUS DA ASSINATURA -->
     <footer class="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 pb-6 pt-2">
       <div class="bg-pegas-card border border-pegas-border p-3 rounded-xl flex items-center justify-between text-xs">
         <div class="flex items-center space-x-2">
@@ -276,7 +276,7 @@
     </footer>
   </div>
 
-  <!-- POP-UP MODAL: AGENDAMENTOS DO DIA SELECIONADO NO CALENDÁRIO -->
+  <!-- POP-UP MODAL: AGENDAMENTOS DO DIA SELECIONADO NO CALENDÁRIO + BOTAO DE HORA EXTRA -->
   <div id="modal-dia-calendario" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3 sm:p-4 fade-in">
     <div class="bg-pegas-card border border-pegas-border w-full max-w-lg rounded-2xl p-4 sm:p-6 space-y-4 max-h-[85vh] flex flex-col">
       <div class="flex items-center justify-between border-b border-pegas-border pb-3 flex-shrink-0">
@@ -284,11 +284,95 @@
           <h3 id="modal-dia-titulo" class="font-black text-white text-sm sm:text-base">Agendamentos do Dia</h3>
           <p class="text-[10px] text-gray-400">Gerencie os cortes marcados para esta data</p>
         </div>
-        <button onclick="fecharModalDia()" class="text-gray-400 hover:text-white p-2">
+        <div class="flex items-center space-x-2">
+          <button onclick="abrirModalHoraExtraComData()" class="px-2.5 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold rounded-xl hover:bg-emerald-500/20 flex items-center space-x-1">
+            <i class="fa-solid fa-bolt text-xs"></i>
+            <span>+ Hora Extra</span>
+          </button>
+          <button onclick="fecharModalDia()" class="text-gray-400 hover:text-white p-1">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+      </div>
+      <div id="modal-dia-lista" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div>
+    </div>
+  </div>
+
+  <!-- POP-UP MODAL: EDITAR APENAS O PERFIL DO BARBEIRO ATUAL -->
+  <div id="modal-editar-perfil-atual" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3 sm:p-4 fade-in">
+    <div class="bg-pegas-card border border-pegas-border w-full max-w-md rounded-2xl p-4 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between border-b border-pegas-border pb-3">
+        <h3 class="font-extrabold text-white text-sm sm:text-base uppercase tracking-wider">Editar Meu Perfil</h3>
+        <button onclick="fecharModalEditarPerfilAtual()" class="text-gray-400 hover:text-white p-1">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
-      <div id="modal-dia-lista" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div>
+
+      <form onsubmit="salvarPerfilAtualFirebase(event)" class="space-y-3">
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Nome Profissional</label>
+          <input type="text" id="edit-barbeiro-nome" disabled class="w-full bg-black/50 border border-pegas-border rounded-xl p-2.5 text-xs text-gray-400 cursor-not-allowed">
+        </div>
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Hora de Início (Ex: 8 para 08:00)</label>
+          <input type="number" id="edit-barbeiro-inicio" required min="0" max="23" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Jornada (Horas de Trabalho)</label>
+          <input type="number" id="edit-barbeiro-jornada" required min="1" max="18" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">TMC - Tempo Médio Corte (minutos)</label>
+          <input type="number" id="edit-barbeiro-tmc" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">URL Foto Perfil</label>
+          <input type="url" id="edit-barbeiro-foto" placeholder="https://..." class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Biografia / Descrição</label>
+          <input type="text" id="edit-barbeiro-desc" placeholder="Especialista em degrade" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+        </div>
+
+        <div class="flex justify-end space-x-2 pt-3 border-t border-pegas-border">
+          <button type="button" onclick="fecharModalEditarPerfilAtual()" class="px-4 py-2 bg-black border border-pegas-border text-gray-400 text-xs font-bold rounded-xl hover:text-white">Cancelar</button>
+          <button type="submit" class="px-5 py-2 bg-white text-black text-xs font-extrabold uppercase rounded-xl hover:bg-gray-200">Salvar Alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- POP-UP MODAL: LANÇAR HORA EXTRA PARA A DATA SELECIONADA -->
+  <div id="modal-hora-extra-dia" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] hidden items-center justify-center p-3 sm:p-4 fade-in">
+    <div class="bg-pegas-card border border-pegas-border w-full max-w-sm rounded-2xl p-4 sm:p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-pegas-border pb-2.5">
+        <div>
+          <h3 class="font-extrabold text-white text-sm uppercase tracking-wider">Lançar Turno Extra</h3>
+          <p id="subtitulo-extra-data" class="text-[10px] text-gray-400">Data: ---</p>
+        </div>
+        <button onclick="fecharModalHoraExtra()" class="text-gray-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form onsubmit="salvarHoraExtraFirebase(event)" class="space-y-3">
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Quantidade de Horas Extras</label>
+          <input type="number" id="extra-horas" required min="1" max="6" placeholder="1" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Posição do Turno Extra</label>
+          <select id="extra-posicao" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+            <option value="antes">Antes do Expediente (Cedo)</option>
+            <option value="depois">Após o Expediente (Tarde/Noite)</option>
+          </select>
+        </div>
+
+        <div class="flex justify-end space-x-2 pt-2 border-t border-pegas-border">
+          <button type="button" onclick="fecharModalHoraExtra()" class="px-3 py-2 bg-black border border-pegas-border text-gray-400 text-xs font-bold rounded-xl hover:text-white">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-emerald-500 text-black text-xs font-extrabold uppercase rounded-xl hover:bg-emerald-400">Salvar Extra</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -329,81 +413,6 @@
       <div class="space-y-3 pt-2">
         <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Serviços Cadastrados</h4>
         <div id="container-servicos-gestor" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- POP-UP MODAL: BARBEIROS E HORAS EXTRAS -->
-  <div id="modal-barbeiros" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3 sm:p-4 fade-in">
-    <div class="bg-pegas-card border border-pegas-border w-full max-w-2xl rounded-2xl p-4 sm:p-6 space-y-5 max-h-[90vh] overflow-y-auto custom-scrollbar">
-      <div class="flex items-center justify-between border-b border-pegas-border pb-3">
-        <h3 class="font-extrabold text-white text-sm sm:text-base uppercase tracking-wider">Barbeiros & Horas Extras</h3>
-        <button onclick="fecharModalBarbeiros()" class="text-gray-400 hover:text-white p-2">
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
-      </div>
-
-      <!-- FORM BARBEIRO -->
-      <form onsubmit="salvarBarbeiroFirebase(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-black/50 border border-pegas-border p-4 rounded-xl space-y-0">
-        <input type="hidden" id="barbeiro-id">
-        <div>
-          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Nome do Barbeiro</label>
-          <input type="text" id="barbeiro-nome" required placeholder="Ex: Carlos Barber" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-        </div>
-        <div>
-          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Hora de Início (Ex: 8)</label>
-          <input type="number" id="barbeiro-inicio" required min="0" max="23" placeholder="8" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-        </div>
-        <div>
-          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Jornada (Horas)</label>
-          <input type="number" id="barbeiro-jornada" required min="1" max="18" placeholder="10" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-        </div>
-        <div>
-          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">TMC (minutos)</label>
-          <input type="number" id="barbeiro-tmc" required placeholder="30" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-        </div>
-        <div class="sm:col-span-2">
-          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">URL Foto Perfil</label>
-          <input type="url" id="barbeiro-foto" placeholder="https://..." class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-        </div>
-        <div class="sm:col-span-2 flex justify-end space-x-2 pt-2">
-          <button type="button" onclick="limparFormBarbeiro()" class="px-3 py-2 bg-black border border-pegas-border text-gray-400 text-xs font-bold rounded-xl hover:text-white">Limpar</button>
-          <button type="submit" class="px-5 py-2 bg-white text-black text-xs font-extrabold uppercase rounded-xl hover:bg-gray-200">Salvar Barbeiro</button>
-        </div>
-      </form>
-
-      <!-- LANÇAR HORAS EXTRAS -->
-      <form onsubmit="salvarHoraExtraFirebase(event)" class="bg-black/50 border border-pegas-border p-4 rounded-xl space-y-3">
-        <h4 class="text-xs font-extrabold text-white uppercase tracking-wider">Lançar Turno Extra</h4>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Barbeiro</label>
-            <select id="extra-barbeiro-select" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none"></select>
-          </div>
-          <div>
-            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Data</label>
-            <input type="date" id="extra-data" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-          </div>
-          <div>
-            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Qtd. Horas</label>
-            <input type="number" id="extra-horas" required min="1" max="6" placeholder="1" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-          </div>
-          <div>
-            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Posição</label>
-            <select id="extra-posicao" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-              <option value="antes">Antes do Expediente</option>
-              <option value="depois">Após o Expediente</option>
-            </select>
-          </div>
-        </div>
-        <div class="flex justify-end pt-2">
-          <button type="submit" class="px-5 py-2 bg-emerald-500 text-black text-xs font-extrabold uppercase rounded-xl hover:bg-emerald-400">Adicionar Extra</button>
-        </div>
-      </form>
-
-      <div class="space-y-3 pt-2">
-        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Equipe de Barbeiros</h4>
-        <div id="container-barbeiros-gestor" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
       </div>
     </div>
   </div>
@@ -452,13 +461,12 @@
       }
     });
 
-    // CONTROLE DE MENU DROPDOWN PERFIL
+    // MENU PERFIL DROPDOWN
     function toggleMenuPerfil() {
       const menu = document.getElementById('dropdown-menu-perfil');
       menu.classList.toggle('hidden');
     }
 
-    // FECHA MENU DROPDOWN AO CLICAR FORA
     document.addEventListener('click', function(e) {
       const dropdown = document.getElementById('dropdown-menu-perfil');
       const btn = dropdown?.previousElementSibling;
@@ -467,11 +475,74 @@
       }
     });
 
-    // POP-UPS MODAIS DE SERVIÇOS E BARBEIROS
+    // MODAL DE EDIÇÃO DO PERFIL SELECIONADO
+    function abrirModalEditarPerfilAtual() {
+      if (!barbeiroLogado) return;
+      document.getElementById('edit-barbeiro-nome').value = barbeiroLogado.nome;
+      document.getElementById('edit-barbeiro-inicio').value = barbeiroLogado.inicio || 8;
+      document.getElementById('edit-barbeiro-jornada').value = barbeiroLogado.jornada || 10;
+      document.getElementById('edit-barbeiro-tmc').value = barbeiroLogado.tmc || 30;
+      document.getElementById('edit-barbeiro-foto').value = barbeiroLogado.foto || '';
+      document.getElementById('edit-barbeiro-desc').value = barbeiroLogado.desc || '';
+
+      document.getElementById('modal-editar-perfil-atual').classList.remove('hidden');
+      document.getElementById('modal-editar-perfil-atual').classList.add('flex');
+    }
+
+    function fecharModalEditarPerfilAtual() {
+      document.getElementById('modal-editar-perfil-atual').classList.add('hidden');
+    }
+
+    function salvarPerfilAtualFirebase(e) {
+      e.preventDefault();
+      if (!barbeiroLogado) return;
+
+      const dados = {
+        inicio: Number(document.getElementById('edit-barbeiro-inicio').value),
+        jornada: Number(document.getElementById('edit-barbeiro-jornada').value),
+        tmc: Number(document.getElementById('edit-barbeiro-tmc').value),
+        foto: document.getElementById('edit-barbeiro-foto').value.trim() || 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200',
+        desc: document.getElementById('edit-barbeiro-desc').value.trim()
+      };
+
+      database.ref(`barbeiros/${barbeiroLogado.id}`).update(dados).then(() => {
+        barbeiroLogado = { ...barbeiroLogado, ...dados };
+        document.getElementById('header-user-foto').src = barbeiroLogado.foto;
+        alert("Perfil atualizado com sucesso!");
+        fecharModalEditarPerfilAtual();
+      });
+    }
+
+    // MODAL HORA EXTRA
+    function abrirModalHoraExtraComData() {
+      if (!diaAbertoModalStr) return;
+      const partes = diaAbertoModalStr.split('-');
+      document.getElementById('subtitulo-extra-data').innerText = `Data: ${partes[2]}/${partes[1]}/${partes[0]}`;
+      document.getElementById('modal-hora-extra-dia').classList.remove('hidden');
+      document.getElementById('modal-hora-extra-dia').classList.add('flex');
+    }
+
+    function fecharModalHoraExtra() {
+      document.getElementById('modal-hora-extra-dia').classList.add('hidden');
+    }
+
+    function salvarHoraExtraFirebase(e) {
+      e.preventDefault();
+      if (!barbeiroLogado || !diaAbertoModalStr) return;
+
+      const horas = Number(document.getElementById('extra-horas').value);
+      const posicao = document.getElementById('extra-posicao').value;
+
+      database.ref(`horasExtras/${barbeiroLogado.id}/${diaAbertoModalStr}`).push({
+        horas, posicao, criadoEm: new Date().toISOString()
+      }).then(() => {
+        alert("Horas extras adicionadas com sucesso!");
+        fecharModalHoraExtra();
+      });
+    }
+
     function abrirModalServicos() { document.getElementById('modal-servicos').classList.remove('hidden'); document.getElementById('modal-servicos').classList.add('flex'); }
     function fecharModalServicos() { document.getElementById('modal-servicos').classList.add('hidden'); }
-    function abrirModalBarbeiros() { document.getElementById('modal-barbeiros').classList.remove('hidden'); document.getElementById('modal-barbeiros').classList.add('flex'); }
-    function fecharModalBarbeiros() { document.getElementById('modal-barbeiros').classList.add('hidden'); }
 
     function alternarAbaAuth(aba) {
       if (aba === 'login') {
@@ -552,14 +623,10 @@
       database.ref('barbeiros').on('value', (snapshot) => {
         const dados = snapshot.val();
         barbeirosLista = [];
-        const selectExtra = document.getElementById('extra-barbeiro-select');
-        selectExtra.innerHTML = '';
         for (let id in dados) { 
           barbeirosLista.push({ id: id, ...dados[id] });
-          selectExtra.innerHTML += `<option value="${id}">${dados[id].nome}</option>`;
         }
         renderizarPerfis();
-        renderizarBarbeirosGestor();
       });
     }
 
@@ -682,7 +749,6 @@
       document.getElementById('modal-dia-calendario').classList.add('hidden');
     }
 
-    // FORMATAR NOME DO CLIENTE: PRIMEIRO E ÚLTIMO NOME APENAS
     function formatarPrimeiroUltimoNome(nomeCompleto) {
       if (!nomeCompleto) return 'Cliente';
       const partes = nomeCompleto.trim().split(/\s+/);
@@ -690,7 +756,6 @@
       return `${partes[0]} ${partes[partes.length - 1]}`;
     }
 
-    // BOTÃO WHATSAPP LINK
     function gerarBotaoWhatsapp(telefone) {
       if (!telefone) return '';
       const numLimpo = telefone.replace(/\D/g, '');
@@ -864,7 +929,7 @@
       database.ref(`agendamentos/${id}`).update({ status: novoStatus });
     }
 
-    // GESTOES AUXILIARES DE SERVIÇOS E BARBEIROS
+    // GESTÃO DE SERVIÇOS
     function renderizarServicosGestor() {
       const container = document.getElementById('container-servicos-gestor');
       container.innerHTML = '';
@@ -922,85 +987,6 @@
       document.getElementById('servico-preco').value = '';
       document.getElementById('servico-duracao').value = '';
       document.getElementById('servico-img').value = '';
-    }
-
-    function renderizarBarbeirosGestor() {
-      const container = document.getElementById('container-barbeiros-gestor');
-      container.innerHTML = '';
-      barbeirosLista.forEach(b => {
-        container.innerHTML += `
-          <div class="bg-black border border-pegas-border p-3.5 rounded-xl flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-              <img src="${b.foto}" class="w-9 h-9 rounded-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
-              <div>
-                <h4 class="font-bold text-white text-xs sm:text-sm">${b.nome}</h4>
-                <p class="text-[10px] text-gray-400">Início: ${b.inicio}h • Jornada: ${b.jornada}h • TMC: ${b.tmc}m</p>
-              </div>
-            </div>
-            <div class="flex space-x-2">
-              <button onclick="editarBarbeiro('${b.id}')" class="text-xs text-gray-300 hover:text-white p-1.5"><i class="fa-solid fa-pen-to-square"></i></button>
-              <button onclick="excluirBarbeiro('${b.id}')" class="text-xs text-red-400 hover:text-red-300 p-1.5"><i class="fa-solid fa-trash"></i></button>
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    function salvarBarbeiroFirebase(e) {
-      e.preventDefault();
-      const id = document.getElementById('barbeiro-id').value;
-      const dados = {
-        nome: document.getElementById('barbeiro-nome').value.trim(),
-        inicio: Number(document.getElementById('barbeiro-inicio').value),
-        jornada: Number(document.getElementById('barbeiro-jornada').value),
-        tmc: Number(document.getElementById('barbeiro-tmc').value),
-        foto: document.getElementById('barbeiro-foto').value.trim() || 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200',
-        desc: document.getElementById('barbeiro-desc').value.trim()
-      };
-      if (id) {
-        database.ref(`barbeiros/${id}`).update(dados).then(() => limparFormBarbeiro());
-      } else {
-        database.ref('barbeiros').push(dados).then(() => limparFormBarbeiro());
-      }
-    }
-
-    function editarBarbeiro(id) {
-      const b = barbeirosLista.find(item => item.id === id);
-      if (!b) return;
-      document.getElementById('barbeiro-id').value = b.id;
-      document.getElementById('barbeiro-nome').value = b.nome;
-      document.getElementById('barbeiro-inicio').value = b.inicio;
-      document.getElementById('barbeiro-jornada').value = b.jornada;
-      document.getElementById('barbeiro-tmc').value = b.tmc;
-      document.getElementById('barbeiro-foto').value = b.foto || '';
-      document.getElementById('barbeiro-desc').value = b.desc || '';
-    }
-
-    function excluirBarbeiro(id) {
-      if (confirm("Deseja realmente remover este barbeiro?")) {
-        database.ref(`barbeiros/${id}`).remove();
-      }
-    }
-
-    function limparFormBarbeiro() {
-      document.getElementById('barbeiro-id').value = '';
-      document.getElementById('barbeiro-nome').value = '';
-      document.getElementById('barbeiro-inicio').value = '';
-      document.getElementById('barbeiro-jornada').value = '';
-      document.getElementById('barbeiro-tmc').value = '';
-      document.getElementById('barbeiro-foto').value = '';
-      document.getElementById('barbeiro-desc').value = '';
-    }
-
-    function salvarHoraExtraFirebase(e) {
-      e.preventDefault();
-      const barbeiroId = document.getElementById('extra-barbeiro-select').value;
-      const data = document.getElementById('extra-data').value;
-      const horas = Number(document.getElementById('extra-horas').value);
-      const posicao = document.getElementById('extra-posicao').value;
-      database.ref(`horasExtras/${barbeiroId}/${data}`).push({
-        horas, posicao, criadoEm: new Date().toISOString()
-      }).then(() => alert("Horas extras adicionadas com sucesso!"));
     }
   </script>
 </body>
