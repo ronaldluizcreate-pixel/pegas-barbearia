@@ -30,8 +30,8 @@
   </script>
   <style>
     body { background-color: #050505; color: #f5f5f5; touch-action: manipulation; }
-    .fade-in { animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    @keyframes fadeIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+    .fade-in { animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
     .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #0a0a0a; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
@@ -39,7 +39,7 @@
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-white selection:text-black">
 
-  <!-- TELA 1: LOGIN / REGISTROW DE GESTOR -->
+  <!-- TELA 1: LOGIN / REGISTRO DE GESTOR -->
   <div id="screen-login-gestor" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-4 sm:p-6 fade-in overflow-y-auto">
     <div class="max-w-sm w-full space-y-6">
       <div class="flex flex-col items-center space-y-3">
@@ -148,6 +148,8 @@
 
   <!-- TELA 4: DASHBOARD COMPLETO DO GESTOR -->
   <div id="screen-dashboard" class="hidden flex-col min-h-screen">
+    
+    <!-- HEADER LIMPO COM O BOTÃO PERFIL DROPDOWN -->
     <header class="bg-pegas-card border-b border-pegas-border sticky top-0 z-30">
       <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
         <div class="flex items-center space-x-2 sm:space-x-3">
@@ -160,37 +162,110 @@
           </div>
         </div>
 
-        <div class="flex items-center space-x-2 sm:space-x-3">
-          <button onclick="voltarParaPerfis()" class="text-[11px] sm:text-xs text-gray-300 hover:text-white px-2.5 py-1.5 bg-black border border-pegas-border rounded-xl flex items-center space-x-1">
-            <i class="fa-solid fa-users text-xs"></i> <span>Trocar</span>
+        <!-- BOTÃO PERFIL DO BARBEIRO DROPDOWN -->
+        <div class="relative">
+          <button onclick="toggleMenuPerfil()" type="button" class="flex items-center space-x-2 bg-black border border-pegas-border hover:border-gray-500 px-2.5 py-1.5 rounded-xl transition active:scale-95">
+            <img id="header-user-foto" src="" class="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover border border-white/30" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
+            <span id="header-user-nome" class="text-xs font-bold text-white max-w-[90px] sm:max-w-none truncate">---</span>
+            <i class="fa-solid fa-chevron-down text-[10px] text-gray-400"></i>
           </button>
-          <div class="flex items-center space-x-2 bg-black border border-pegas-border px-2.5 py-1.5 rounded-xl">
-            <img id="header-user-foto" src="" class="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover border border-white/30" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
-            <span id="header-user-nome" class="text-xs font-bold text-white max-w-[80px] sm:max-w-none truncate">---</span>
+
+          <!-- MENU DROPDOWN OCULTO -->
+          <div id="dropdown-menu-perfil" class="hidden absolute right-0 mt-2 w-56 bg-pegas-card border border-pegas-border rounded-2xl shadow-2xl p-2 z-50 space-y-1 fade-in">
+            <button onclick="abrirModalServicos(); toggleMenuPerfil();" class="w-full text-left px-3 py-2 text-xs font-semibold text-gray-200 hover:text-white hover:bg-white/5 rounded-xl flex items-center space-x-2 transition">
+              <i class="fa-solid fa-scissors w-4 text-gray-400"></i>
+              <span>Gerenciar Serviços</span>
+            </button>
+            <button onclick="abrirModalBarbeiros(); toggleMenuPerfil();" class="w-full text-left px-3 py-2 text-xs font-semibold text-gray-200 hover:text-white hover:bg-white/5 rounded-xl flex items-center space-x-2 transition">
+              <i class="fa-solid fa-user-gear w-4 text-gray-400"></i>
+              <span>Barbeiros & Horas Extras</span>
+            </button>
+            <div class="border-t border-pegas-border my-1"></div>
+            <button onclick="voltarParaPerfis(); toggleMenuPerfil();" class="w-full text-left px-3 py-2 text-xs font-semibold text-gray-200 hover:text-white hover:bg-white/5 rounded-xl flex items-center space-x-2 transition">
+              <i class="fa-solid fa-users w-4 text-gray-400"></i>
+              <span>Trocar Barbeiro</span>
+            </button>
+            <button onclick="realizarLogoutGestor()" class="w-full text-left px-3 py-2 text-xs font-semibold text-red-400 hover:bg-red-500/10 rounded-xl flex items-center space-x-2 transition">
+              <i class="fa-solid fa-right-from-bracket w-4 text-red-400"></i>
+              <span>Sair da Conta</span>
+            </button>
           </div>
-          <button onclick="realizarLogoutGestor()" class="text-xs text-gray-400 hover:text-white p-2" title="Sair do Gestor">
-            <i class="fa-solid fa-right-from-bracket"></i>
-          </button>
         </div>
       </div>
     </header>
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5 sm:space-y-6">
       
-      <!-- NAVEGAÇÃO DE ABAS -->
-      <div class="flex border-b border-pegas-border space-x-4 text-xs font-bold overflow-x-auto custom-scrollbar whitespace-nowrap pb-1">
-        <button id="tab-nav-agendamentos" onclick="mudarAbaGestor('agendamentos')" class="pb-2.5 border-b-2 border-white text-white flex-shrink-0">
-          <i class="fa-solid fa-calendar-days mr-1.5"></i> Agendamentos & Agenda
-        </button>
-        <button id="tab-nav-servicos" onclick="mudarAbaGestor('servicos')" class="pb-2.5 border-b-2 border-transparent text-gray-500 hover:text-white flex-shrink-0">
-          <i class="fa-solid fa-scissors mr-1.5"></i> Gerenciar Serviços
-        </button>
-        <button id="tab-nav-barbeiros" onclick="mudarAbaGestor('barbeiros')" class="pb-2.5 border-b-2 border-transparent text-gray-500 hover:text-white flex-shrink-0">
-          <i class="fa-solid fa-user-gear mr-1.5"></i> Barbeiros & Horas Extras
-        </button>
-      </div>
+      <!-- MÉTRICAS NO INÍCIO ABSOLUTO DO PAINEL -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+        <div class="bg-pegas-card border border-pegas-border p-3.5 sm:p-4 rounded-xl flex items-center justify-between">
+          <div>
+            <p class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-bold">Atendimentos Hoje</p>
+            <p id="stat-total" class="text-lg sm:text-xl font-black text-white mt-0.5">0</p>
+          </div>
+          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white"><i class="fa-solid fa-calendar-check text-xs sm:text-sm"></i></div>
+        </div>
+        <div class="bg-pegas-card border border-pegas-border p-3.5 sm:p-4 rounded-xl flex items-center justify-between">
+          <div>
+            <p class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-bold">FATURAMENTO (<span id="rotulo-mes-faturamento">---</span>)</p>
+            <p id="stat-faturamento" class="text-lg sm:text-xl font-black text-white mt-0.5">R$ 0,00</p>
+          </div>
+          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-wallet text-xs sm:text-sm"></i></div>
+        </div>
+        <div class="bg-pegas-card border border-pegas-border p-3.5 sm:p-4 rounded-xl flex items-center justify-between">
+          <div>
+            <p class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-bold">Confirmados Hoje</p>
+            <p id="stat-confirmados" class="text-lg sm:text-xl font-black text-white mt-0.5">0</p>
+          </div>
+          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-blue-400"><i class="fa-solid fa-circle-check text-xs sm:text-sm"></i></div>
+        </div>
+        <div class="bg-pegas-card border border-pegas-border p-3.5 sm:p-4 rounded-xl flex items-center justify-between">
+          <div>
+            <p class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-bold">Pendentes Hoje</p>
+            <p id="stat-pendentes" class="text-lg sm:text-xl font-black text-white mt-0.5">0</p>
+          </div>
+          <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-amber-400"><i class="fa-solid fa-clock text-xs sm:text-sm"></i></div>
+        </div>
+      </section>
 
-      <!-- STATUS DA ASSINATURA -->
+      <!-- CALENDÁRIO VISUAL DE DIAS DO MÊS -->
+      <section class="bg-pegas-card border border-pegas-border p-3.5 sm:p-5 rounded-2xl space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 id="label-mes-ano-calendario" class="text-xs font-extrabold text-white uppercase tracking-wider">Calendário</h3>
+          <div class="flex items-center space-x-2">
+            <button onclick="mudarMesCalendario(-1)" class="px-2.5 py-1 bg-black border border-pegas-border text-white text-xs rounded-lg active:scale-95 transition"><i class="fa-solid fa-chevron-left"></i></button>
+            <button onclick="mudarMesCalendario(1)" class="px-2.5 py-1 bg-black border border-pegas-border text-white text-xs rounded-lg active:scale-95 transition"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="container-calendario-dias" class="grid grid-cols-7 gap-1.5 sm:gap-2 pt-1"></div>
+      </section>
+
+      <!-- FILTROS DE STATUS E LISTAGEM PRINCIPAL GLOBAL -->
+      <section class="bg-pegas-card border border-pegas-border p-3.5 sm:p-4 rounded-2xl space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-xs font-extrabold text-white uppercase tracking-wider">Agendamentos Gerais</h3>
+            <p class="text-[10px] text-gray-400">Lista geral independente do calendário</p>
+          </div>
+          <select id="gestor-filtro-status" onchange="renderizarAgendamentosGestor()" class="bg-black border border-pegas-border rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none">
+            <option value="Ativos">Ativos (Pend. e Conf.)</option>
+            <option value="Todos">Todos os Status</option>
+            <option value="Pendente">Apenas Pendentes</option>
+            <option value="Confirmado">Apenas Confirmados</option>
+            <option value="Concluído">Apenas Concluídos</option>
+            <option value="Cancelado">Apenas Cancelados</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- LISTA DE AGENDAMENTOS PRINCIPAL -->
+      <section class="space-y-3">
+        <div id="lista-agendamentos-gestor" class="space-y-3"></div>
+      </section>
+    </main>
+
+    <!-- RODAPÉ: STATUS DA ASSINATURA ATIVA DO GESTOR -->
+    <footer class="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 pb-6 pt-2">
       <div class="bg-pegas-card border border-pegas-border p-3 rounded-xl flex items-center justify-between text-xs">
         <div class="flex items-center space-x-2">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -198,187 +273,10 @@
         </div>
         <span id="badge-vencimento" class="text-gray-400 text-[10px] sm:text-[11px]">Vencimento: ---</span>
       </div>
-
-      <!-- ABA 1: AGENDAMENTOS & AGENDA -->
-      <div id="gestor-sec-agendamentos" class="space-y-5 sm:space-y-6">
-        
-        <!-- MÉTRICAS DE FATURAMENTO E HOJE -->
-        <section class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-          <div class="bg-pegas-card border border-pegas-border p-3.5 sm:p-4 rounded-xl flex items-center justify-between">
-            <div>
-              <p class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-bold">Atendimentos Hoje</p>
-              <p id="stat-total" class="text-lg sm:text-xl font-black text-white mt-0.5">0</p>
-            </div>
-            <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white"><i class="fa-solid fa-calendar-check text-xs sm:text-sm"></i></div>
-          </div>
-          <div class="bg-pegas-card border border-pegas-border p-3.5 sm:p-4 rounded-xl flex items-center justify-between">
-            <div>
-              <p class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-bold">FATURAMENTO (<span id="rotulo-mes-faturamento">---</span>)</p>
-              <p id="stat-faturamento" class="text-lg sm:text-xl font-black text-white mt-0.5">R$ 0,00</p>
-            </div>
-            <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-wallet text-xs sm:text-sm"></i></div>
-          </div>
-          <div class="bg-pegas-card border border-pegas-border p-3.5 sm:p-4 rounded-xl flex items-center justify-between">
-            <div>
-              <p class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-bold">Confirmados Hoje</p>
-              <p id="stat-confirmados" class="text-lg sm:text-xl font-black text-white mt-0.5">0</p>
-            </div>
-            <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-blue-400"><i class="fa-solid fa-circle-check text-xs sm:text-sm"></i></div>
-          </div>
-          <div class="bg-pegas-card border border-pegas-border p-3.5 sm:p-4 rounded-xl flex items-center justify-between">
-            <div>
-              <p class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-bold">Pendentes Hoje</p>
-              <p id="stat-pendentes" class="text-lg sm:text-xl font-black text-white mt-0.5">0</p>
-            </div>
-            <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-amber-400"><i class="fa-solid fa-clock text-xs sm:text-sm"></i></div>
-          </div>
-        </section>
-
-        <!-- CALENDÁRIO VISUAL DE DIAS DO MÊS -->
-        <section class="bg-pegas-card border border-pegas-border p-3.5 sm:p-5 rounded-2xl space-y-3">
-          <div class="flex items-center justify-between">
-            <h3 id="label-mes-ano-calendario" class="text-xs font-extrabold text-white uppercase tracking-wider">Calendário</h3>
-            <div class="flex items-center space-x-2">
-              <button onclick="mudarMesCalendario(-1)" class="px-2.5 py-1 bg-black border border-pegas-border text-white text-xs rounded-lg active:scale-95 transition"><i class="fa-solid fa-chevron-left"></i></button>
-              <button onclick="mudarMesCalendario(1)" class="px-2.5 py-1 bg-black border border-pegas-border text-white text-xs rounded-lg active:scale-95 transition"><i class="fa-solid fa-chevron-right"></i></button>
-            </div>
-          </div>
-          <div id="container-calendario-dias" class="grid grid-cols-7 gap-1.5 sm:gap-2 pt-1"></div>
-        </section>
-
-        <!-- FILTROS DE STATUS E LISTAGEM PRINCIPAL -->
-        <section class="bg-pegas-card border border-pegas-border p-3.5 sm:p-4 rounded-2xl space-y-3">
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="text-xs font-extrabold text-white uppercase tracking-wider">Todos os Agendamentos</h3>
-              <p class="text-[10px] text-gray-400">Lista geral independente do calendário</p>
-            </div>
-            <select id="gestor-filtro-status" onchange="renderizarAgendamentosGestor()" class="bg-black border border-pegas-border rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none">
-              <option value="Ativos">Ativos (Pend. e Conf.)</option>
-              <option value="Todos">Todos os Status</option>
-              <option value="Pendente">Apenas Pendentes</option>
-              <option value="Confirmado">Apenas Confirmados</option>
-              <option value="Concluído">Apenas Concluídos</option>
-              <option value="Cancelado">Apenas Cancelados</option>
-            </select>
-          </div>
-        </section>
-
-        <!-- LISTA DE AGENDAMENTOS PRINCIPAL -->
-        <section class="space-y-3">
-          <div id="lista-agendamentos-gestor" class="space-y-3"></div>
-        </section>
-      </div>
-
-      <!-- ABA 2: GERENCIAR SERVIÇOS -->
-      <div id="gestor-sec-servicos" class="space-y-6 hidden">
-        <div class="bg-pegas-card border border-pegas-border p-4 sm:p-5 rounded-2xl space-y-4">
-          <h3 class="text-sm font-extrabold text-white uppercase tracking-wider">Cadastrar / Modificar Serviço</h3>
-          <form onsubmit="salvarServicoFirebase(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <input type="hidden" id="servico-id">
-            <div>
-              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Nome do Serviço</label>
-              <input type="text" id="servico-nome" required placeholder="Ex: Cabelo + Barba" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-            </div>
-            <div>
-              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Preço (R$)</label>
-              <input type="number" id="servico-preco" required placeholder="45" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-            </div>
-            <div>
-              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Duração (minutos)</label>
-              <input type="number" id="servico-duracao" required placeholder="30" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-            </div>
-            <div>
-              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">URL Imagem (Opcional)</label>
-              <input type="url" id="servico-img" placeholder="https://..." class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-            </div>
-            <div class="sm:col-span-2 lg:col-span-4 flex justify-end space-x-2 pt-2">
-              <button type="button" onclick="limparFormServico()" class="px-4 py-2 bg-black border border-pegas-border text-gray-400 text-xs font-bold rounded-xl hover:text-white">Cancelar</button>
-              <button type="submit" class="px-6 py-2 bg-white text-black text-xs font-extrabold uppercase rounded-xl hover:bg-gray-200">Salvar Serviço</button>
-            </div>
-          </form>
-        </div>
-        <div class="space-y-3">
-          <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Serviços Ativos</h3>
-          <div id="container-servicos-gestor" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
-        </div>
-      </div>
-
-      <!-- ABA 3: BARBEIROS E HORAS EXTRAS -->
-      <div id="gestor-sec-barbeiros" class="space-y-6 hidden">
-        <div class="bg-pegas-card border border-pegas-border p-4 sm:p-5 rounded-2xl space-y-4">
-          <h3 class="text-sm font-extrabold text-white uppercase tracking-wider">Cadastrar / Editar Barbeiro</h3>
-          <form onsubmit="salvarBarbeiroFirebase(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            <input type="hidden" id="barbeiro-id">
-            <div>
-              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Nome do Barbeiro</label>
-              <input type="text" id="barbeiro-nome" required placeholder="Ex: Carlos Barber" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-            </div>
-            <div>
-              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Hora de Início (Ex: 8)</label>
-              <input type="number" id="barbeiro-inicio" required min="0" max="23" placeholder="8" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-            </div>
-            <div>
-              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Jornada (Horas)</label>
-              <input type="number" id="barbeiro-jornada" required min="1" max="18" placeholder="10" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-            </div>
-            <div>
-              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">TMC (minutos)</label>
-              <input type="number" id="barbeiro-tmc" required placeholder="30" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-            </div>
-            <div>
-              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">URL Foto Perfil</label>
-              <input type="url" id="barbeiro-foto" placeholder="https://..." class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-            </div>
-            <div>
-              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Descrição / Biografia</label>
-              <input type="text" id="barbeiro-desc" placeholder="Especialista em degrade" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-            </div>
-            <div class="sm:col-span-2 lg:col-span-3 flex justify-end space-x-2 pt-2">
-              <button type="button" onclick="limparFormBarbeiro()" class="px-4 py-2 bg-black border border-pegas-border text-gray-400 text-xs font-bold rounded-xl hover:text-white">Cancelar</button>
-              <button type="submit" class="px-6 py-2 bg-white text-black text-xs font-extrabold uppercase rounded-xl hover:bg-gray-200">Salvar Barbeiro</button>
-            </div>
-          </form>
-        </div>
-
-        <div class="bg-pegas-card border border-pegas-border p-4 sm:p-5 rounded-2xl space-y-4">
-          <h3 class="text-sm font-extrabold text-white uppercase tracking-wider">Lançar Horas Extras de Atendimento</h3>
-          <form onsubmit="salvarHoraExtraFirebase(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <div>
-              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Barbeiro</label>
-              <select id="extra-barbeiro-select" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none"></select>
-            </div>
-            <div>
-              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Data</label>
-              <input type="date" id="extra-data" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-            </div>
-            <div>
-              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Quantidade de Horas</label>
-              <input type="number" id="extra-horas" required min="1" max="6" placeholder="1" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-            </div>
-            <div>
-              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Posição do Turno</label>
-              <select id="extra-posicao" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
-                <option value="antes">Antes do Expediente (Cedo)</option>
-                <option value="depois">Após o Expediente (Tarde/Noite)</option>
-              </select>
-            </div>
-            <div class="sm:col-span-2 lg:col-span-4 flex justify-end pt-2">
-              <button type="submit" class="px-6 py-2 bg-emerald-500 text-black text-xs font-extrabold uppercase rounded-xl hover:bg-emerald-400">Adicionar Horas Extras</button>
-            </div>
-          </form>
-        </div>
-
-        <div class="space-y-3">
-          <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Equipe de Barbeiros</h3>
-          <div id="container-barbeiros-gestor" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
-        </div>
-      </div>
-
-    </main>
+    </footer>
   </div>
 
-  <!-- MODAL POP-UP: AGENDAMENTOS DO DIA SELECIONADO NO CALENDÁRIO -->
+  <!-- POP-UP MODAL: AGENDAMENTOS DO DIA SELECIONADO NO CALENDÁRIO -->
   <div id="modal-dia-calendario" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3 sm:p-4 fade-in">
     <div class="bg-pegas-card border border-pegas-border w-full max-w-lg rounded-2xl p-4 sm:p-6 space-y-4 max-h-[85vh] flex flex-col">
       <div class="flex items-center justify-between border-b border-pegas-border pb-3 flex-shrink-0">
@@ -390,8 +288,123 @@
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
-
       <div id="modal-dia-lista" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div>
+    </div>
+  </div>
+
+  <!-- POP-UP MODAL: GERENCIAR SERVIÇOS -->
+  <div id="modal-servicos" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3 sm:p-4 fade-in">
+    <div class="bg-pegas-card border border-pegas-border w-full max-w-2xl rounded-2xl p-4 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between border-b border-pegas-border pb-3">
+        <h3 class="font-extrabold text-white text-sm sm:text-base uppercase tracking-wider">Gerenciar Serviços</h3>
+        <button onclick="fecharModalServicos()" class="text-gray-400 hover:text-white p-2">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form onsubmit="salvarServicoFirebase(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-black/50 border border-pegas-border p-4 rounded-xl">
+        <input type="hidden" id="servico-id">
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Nome do Serviço</label>
+          <input type="text" id="servico-nome" required placeholder="Ex: Cabelo + Barba" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Preço (R$)</label>
+          <input type="number" id="servico-preco" required placeholder="45" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Duração (minutos)</label>
+          <input type="number" id="servico-duracao" required placeholder="30" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">URL Imagem (Opcional)</label>
+          <input type="url" id="servico-img" placeholder="https://..." class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+        </div>
+        <div class="sm:col-span-2 flex justify-end space-x-2 pt-2">
+          <button type="button" onclick="limparFormServico()" class="px-3 py-2 bg-black border border-pegas-border text-gray-400 text-xs font-bold rounded-xl hover:text-white">Limpar</button>
+          <button type="submit" class="px-5 py-2 bg-white text-black text-xs font-extrabold uppercase rounded-xl hover:bg-gray-200">Salvar Serviço</button>
+        </div>
+      </form>
+
+      <div class="space-y-3 pt-2">
+        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Serviços Cadastrados</h4>
+        <div id="container-servicos-gestor" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POP-UP MODAL: BARBEIROS E HORAS EXTRAS -->
+  <div id="modal-barbeiros" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3 sm:p-4 fade-in">
+    <div class="bg-pegas-card border border-pegas-border w-full max-w-2xl rounded-2xl p-4 sm:p-6 space-y-5 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between border-b border-pegas-border pb-3">
+        <h3 class="font-extrabold text-white text-sm sm:text-base uppercase tracking-wider">Barbeiros & Horas Extras</h3>
+        <button onclick="fecharModalBarbeiros()" class="text-gray-400 hover:text-white p-2">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- FORM BARBEIRO -->
+      <form onsubmit="salvarBarbeiroFirebase(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-black/50 border border-pegas-border p-4 rounded-xl space-y-0">
+        <input type="hidden" id="barbeiro-id">
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Nome do Barbeiro</label>
+          <input type="text" id="barbeiro-nome" required placeholder="Ex: Carlos Barber" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Hora de Início (Ex: 8)</label>
+          <input type="number" id="barbeiro-inicio" required min="0" max="23" placeholder="8" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Jornada (Horas)</label>
+          <input type="number" id="barbeiro-jornada" required min="1" max="18" placeholder="10" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">TMC (minutos)</label>
+          <input type="number" id="barbeiro-tmc" required placeholder="30" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+        </div>
+        <div class="sm:col-span-2">
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">URL Foto Perfil</label>
+          <input type="url" id="barbeiro-foto" placeholder="https://..." class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+        </div>
+        <div class="sm:col-span-2 flex justify-end space-x-2 pt-2">
+          <button type="button" onclick="limparFormBarbeiro()" class="px-3 py-2 bg-black border border-pegas-border text-gray-400 text-xs font-bold rounded-xl hover:text-white">Limpar</button>
+          <button type="submit" class="px-5 py-2 bg-white text-black text-xs font-extrabold uppercase rounded-xl hover:bg-gray-200">Salvar Barbeiro</button>
+        </div>
+      </form>
+
+      <!-- LANÇAR HORAS EXTRAS -->
+      <form onsubmit="salvarHoraExtraFirebase(event)" class="bg-black/50 border border-pegas-border p-4 rounded-xl space-y-3">
+        <h4 class="text-xs font-extrabold text-white uppercase tracking-wider">Lançar Turno Extra</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Barbeiro</label>
+            <select id="extra-barbeiro-select" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none"></select>
+          </div>
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Data</label>
+            <input type="date" id="extra-data" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+          </div>
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Qtd. Horas</label>
+            <input type="number" id="extra-horas" required min="1" max="6" placeholder="1" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+          </div>
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Posição</label>
+            <select id="extra-posicao" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
+              <option value="antes">Antes do Expediente</option>
+              <option value="depois">Após o Expediente</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex justify-end pt-2">
+          <button type="submit" class="px-5 py-2 bg-emerald-500 text-black text-xs font-extrabold uppercase rounded-xl hover:bg-emerald-400">Adicionar Extra</button>
+        </div>
+      </form>
+
+      <div class="space-y-3 pt-2">
+        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Equipe de Barbeiros</h4>
+        <div id="container-barbeiros-gestor" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+      </div>
     </div>
   </div>
 
@@ -426,7 +439,6 @@
 
     const LINK_ASAAS_BASE = "https://www.asaas.com/000/c/q7r828t12ir32220";
 
-    // Mês atual do calendário
     let dataCalendarioAtual = new Date();
     let diaAbertoModalStr = null;
 
@@ -439,6 +451,27 @@
         document.getElementById('screen-login-gestor').classList.remove('hidden');
       }
     });
+
+    // CONTROLE DE MENU DROPDOWN PERFIL
+    function toggleMenuPerfil() {
+      const menu = document.getElementById('dropdown-menu-perfil');
+      menu.classList.toggle('hidden');
+    }
+
+    // FECHA MENU DROPDOWN AO CLICAR FORA
+    document.addEventListener('click', function(e) {
+      const dropdown = document.getElementById('dropdown-menu-perfil');
+      const btn = dropdown?.previousElementSibling;
+      if (dropdown && !dropdown.contains(e.target) && !btn?.contains(e.target)) {
+        dropdown.classList.add('hidden');
+      }
+    });
+
+    // POP-UPS MODAIS DE SERVIÇOS E BARBEIROS
+    function abrirModalServicos() { document.getElementById('modal-servicos').classList.remove('hidden'); document.getElementById('modal-servicos').classList.add('flex'); }
+    function fecharModalServicos() { document.getElementById('modal-servicos').classList.add('hidden'); }
+    function abrirModalBarbeiros() { document.getElementById('modal-barbeiros').classList.remove('hidden'); document.getElementById('modal-barbeiros').classList.add('flex'); }
+    function fecharModalBarbeiros() { document.getElementById('modal-barbeiros').classList.add('hidden'); }
 
     function alternarAbaAuth(aba) {
       if (aba === 'login') {
@@ -515,27 +548,6 @@
       document.getElementById('screen-dashboard').classList.add('hidden');
     }
 
-    function mudarAbaGestor(aba) {
-      document.getElementById('gestor-sec-agendamentos').classList.add('hidden');
-      document.getElementById('gestor-sec-servicos').classList.add('hidden');
-      document.getElementById('gestor-sec-barbeiros').classList.add('hidden');
-
-      document.getElementById('tab-nav-agendamentos').className = "pb-2.5 border-b-2 border-transparent text-gray-500 hover:text-white flex-shrink-0";
-      document.getElementById('tab-nav-servicos').className = "pb-2.5 border-b-2 border-transparent text-gray-500 hover:text-white flex-shrink-0";
-      document.getElementById('tab-nav-barbeiros').className = "pb-2.5 border-b-2 border-transparent text-gray-500 hover:text-white flex-shrink-0";
-
-      if (aba === 'agendamentos') {
-        document.getElementById('gestor-sec-agendamentos').classList.remove('hidden');
-        document.getElementById('tab-nav-agendamentos').className = "pb-2.5 border-b-2 border-white text-white flex-shrink-0";
-      } else if (aba === 'servicos') {
-        document.getElementById('gestor-sec-servicos').classList.remove('hidden');
-        document.getElementById('tab-nav-servicos').className = "pb-2.5 border-b-2 border-white text-white flex-shrink-0";
-      } else {
-        document.getElementById('gestor-sec-barbeiros').classList.remove('hidden');
-        document.getElementById('tab-nav-barbeiros').className = "pb-2.5 border-b-2 border-white text-white flex-shrink-0";
-      }
-    }
-
     function escutarBarbeirosFirebase() {
       database.ref('barbeiros').on('value', (snapshot) => {
         const dados = snapshot.val();
@@ -602,7 +614,6 @@
       });
     }
 
-    // --- MUDAR MÊS DO CALENDÁRIO & RECALCULAR FATURAMENTO ---
     function mudarMesCalendario(direcao) {
       dataCalendarioAtual.setMonth(dataCalendarioAtual.getMonth() + direcao);
       renderizarCalendarioGestor();
@@ -619,7 +630,6 @@
       const ano = dataCalendarioAtual.getFullYear();
       const mes = dataCalendarioAtual.getMonth();
 
-      // Atualiza rótulo do calendário e rótulo do faturamento na mesma fonte
       const mesAbrev = nomesMesesAbrev[mes];
       labelMesAno.innerText = `${mesAbrev} ${ano}`;
       document.getElementById('rotulo-mes-faturamento').innerText = `${mesAbrev} ${ano}`;
@@ -658,7 +668,6 @@
       }
     }
 
-    // --- POP-UP MODAL PARA VER E GERENCIAR AGENDAMENTOS DO DIA ---
     function abrirModalDia(dataIsoStr) {
       diaAbertoModalStr = dataIsoStr;
       const partes = dataIsoStr.split('-');
@@ -671,6 +680,27 @@
     function fecharModalDia() {
       diaAbertoModalStr = null;
       document.getElementById('modal-dia-calendario').classList.add('hidden');
+    }
+
+    // FORMATAR NOME DO CLIENTE: PRIMEIRO E ÚLTIMO NOME APENAS
+    function formatarPrimeiroUltimoNome(nomeCompleto) {
+      if (!nomeCompleto) return 'Cliente';
+      const partes = nomeCompleto.trim().split(/\s+/);
+      if (partes.length === 1) return partes[0];
+      return `${partes[0]} ${partes[partes.length - 1]}`;
+    }
+
+    // BOTÃO WHATSAPP LINK
+    function gerarBotaoWhatsapp(telefone) {
+      if (!telefone) return '';
+      const numLimpo = telefone.replace(/\D/g, '');
+      if (!numLimpo) return '';
+      const numComPais = numLimpo.startsWith('55') ? numLimpo : `55${numLimpo}`;
+      return `
+        <a href="https://wa.me/${numComPais}" target="_blank" title="Abrir WhatsApp" class="w-7 h-7 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-lg flex items-center justify-center hover:bg-emerald-500/20 transition">
+          <i class="fa-brands fa-whatsapp text-sm"></i>
+        </a>
+      `;
     }
 
     function renderizarListaModalDia(dataIsoStr) {
@@ -714,11 +744,15 @@
           botoesAcao = `<span class="text-[10px] text-emerald-400 font-bold">Concluído</span>`;
         }
 
+        const nomeFormatado = formatarPrimeiroUltimoNome(item.cliente);
+        const btnWhats = gerarBotaoWhatsapp(item.telefone);
+
         container.innerHTML += `
           <div class="bg-black border border-pegas-border p-3.5 rounded-xl flex items-center justify-between">
             <div class="space-y-1">
               <div class="flex items-center space-x-2">
-                <h4 class="font-bold text-white text-xs sm:text-sm">${item.cliente}</h4>
+                <h4 class="font-bold text-white text-xs sm:text-sm">${nomeFormatado}</h4>
+                ${btnWhats}
                 ${statusBadge}
               </div>
               <p class="text-[11px] text-gray-400"><strong class="text-white">${item.hora}</strong> • ${item.serviço} • R$ ${item.valor},00</p>
@@ -731,7 +765,6 @@
       });
     }
 
-    // --- RENDERIZAR ESTATÍSTICAS E LISTA PRINCIPAL GLOBAL ---
     function renderizarAgendamentosGestor() {
       const container = document.getElementById('lista-agendamentos-gestor');
       const statusFiltro = document.getElementById('gestor-filtro-status').value;
@@ -741,16 +774,14 @@
 
       const hojeIso = new Date().toISOString().split('T')[0];
 
-      // Métricas do dia atual (Hoje)
       const doDiaGeral = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome && a.data === hojeIso && a.status !== 'Cancelado');
       document.getElementById('stat-total').innerText = doDiaGeral.length;
       document.getElementById('stat-confirmados').innerText = doDiaGeral.filter(a => a.status === 'Confirmado').length;
       document.getElementById('stat-pendentes').innerText = doDiaGeral.filter(a => a.status === 'Pendente').length;
 
-      // Faturamento somado EXCLUSIVO do mês que está sendo exibido no calendário
       const anoCal = dataCalendarioAtual.getFullYear();
       const mesCal = String(dataCalendarioAtual.getMonth() + 1).padStart(2, '0');
-      const prefixoMesAnoCal = `${anoCal}-${mesCal}`; // ex: "2026-10"
+      const prefixoMesAnoCal = `${anoCal}-${mesCal}`;
 
       let faturamentoMesCalculado = 0;
       agendamentosLista.forEach(a => {
@@ -762,7 +793,6 @@
       });
       document.getElementById('stat-faturamento').innerText = `R$ ${faturamentoMesCalculado.toFixed(2)}`;
 
-      // Filtragem da Lista Principal (Sem amarração com a data do calendário)
       let listagem = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome);
 
       if (statusFiltro === 'Ativos') {
@@ -771,7 +801,6 @@
         listagem = listagem.filter(a => a.status === statusFiltro);
       }
 
-      // Ordena por data e hora decrescente
       listagem.sort((a, b) => new Date(`${b.data}T${b.hora || '00:00'}`) - new Date(`${a.data}T${a.hora || '00:00'}`));
 
       if (listagem.length === 0) {
@@ -810,12 +839,15 @@
         }
 
         const dataFmt = item.data ? item.data.split('-').reverse().join('/') : '---';
+        const nomeFormatado = formatarPrimeiroUltimoNome(item.cliente);
+        const btnWhats = gerarBotaoWhatsapp(item.telefone);
 
         container.innerHTML += `
           <div class="bg-pegas-card border border-pegas-border p-3.5 sm:p-4 rounded-xl flex items-center justify-between">
             <div class="space-y-1">
               <div class="flex items-center space-x-2">
-                <h4 class="font-bold text-white text-xs sm:text-sm">${item.cliente} (${item.telefone || 'Sem tel'})</h4>
+                <h4 class="font-bold text-white text-xs sm:text-sm">${nomeFormatado}</h4>
+                ${btnWhats}
                 ${statusBadge}
               </div>
               <p class="text-xs text-gray-400"><strong class="text-white">${dataFmt} às ${item.hora}</strong> • ${item.serviço} • R$ ${item.valor},00</p>
@@ -832,15 +864,15 @@
       database.ref(`agendamentos/${id}`).update({ status: novoStatus });
     }
 
-    // --- GESTÃO DE SERVIÇOS ---
+    // GESTOES AUXILIARES DE SERVIÇOS E BARBEIROS
     function renderizarServicosGestor() {
       const container = document.getElementById('container-servicos-gestor');
       container.innerHTML = '';
       servicosLista.forEach(s => {
         container.innerHTML += `
-          <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
+          <div class="bg-black border border-pegas-border p-3.5 rounded-xl flex items-center justify-between">
             <div>
-              <h4 class="font-bold text-white text-sm">${s.nome}</h4>
+              <h4 class="font-bold text-white text-xs sm:text-sm">${s.nome}</h4>
               <p class="text-xs text-gray-400">R$ ${s.preco},00 • ${s.duracao} min</p>
             </div>
             <div class="flex space-x-2">
@@ -892,17 +924,16 @@
       document.getElementById('servico-img').value = '';
     }
 
-    // --- GESTÃO DE BARBEIROS E HORAS EXTRAS ---
     function renderizarBarbeirosGestor() {
       const container = document.getElementById('container-barbeiros-gestor');
       container.innerHTML = '';
       barbeirosLista.forEach(b => {
         container.innerHTML += `
-          <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
+          <div class="bg-black border border-pegas-border p-3.5 rounded-xl flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <img src="${b.foto}" class="w-10 h-10 rounded-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
+              <img src="${b.foto}" class="w-9 h-9 rounded-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
               <div>
-                <h4 class="font-bold text-white text-sm">${b.nome}</h4>
+                <h4 class="font-bold text-white text-xs sm:text-sm">${b.nome}</h4>
                 <p class="text-[10px] text-gray-400">Início: ${b.inicio}h • Jornada: ${b.jornada}h • TMC: ${b.tmc}m</p>
               </div>
             </div>
