@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PEGAS BARBEARIA - Portal do Cliente</title>
+  <title>BARBEARIA ARAUJO - Portal do Cliente</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,6 +42,13 @@
       from { transform: translateY(100%); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
+    .drawer-slide-in {
+      animation: slideInLeft 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes slideInLeft {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(0); }
+    }
     .scrollbar-none::-webkit-scrollbar { display: none; }
     .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
@@ -55,11 +62,11 @@
       <!-- LOGO -->
       <div class="flex flex-col items-center space-y-3">
         <div class="w-20 h-20 border-2 border-white/20 rounded-full flex items-center justify-center bg-black shadow-2xl p-1 overflow-hidden">
-          <img src="icon.png" alt="Pegas Barbearia" class="w-full h-full object-contain" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
+          <img src="icon.png" alt="Barbearia Araujo" class="w-full h-full object-contain" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
         </div>
         <div class="text-center">
-          <h1 class="text-2xl font-black tracking-[0.2em] text-white leading-none">PEGAS</h1>
-          <p class="text-[9px] tracking-[0.35em] text-gray-400 uppercase font-semibold mt-1">PORTAL DO CLIENTE</p>
+          <h1 class="text-xl sm:text-2xl font-black tracking-[0.18em] text-white leading-none uppercase">BARBEARIA ARAUJO</h1>
+          <p class="text-[9px] tracking-[0.35em] text-gray-400 uppercase font-semibold mt-1.5">PORTAL DO CLIENTE</p>
         </div>
       </div>
 
@@ -120,18 +127,22 @@
     
     <header class="bg-pegas-card border-b border-pegas-border sticky top-0 z-30">
       <div class="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="w-9 h-9 border border-white/20 rounded-full flex items-center justify-center bg-black overflow-hidden p-0.5">
-            <img src="icon.png" alt="Pegas Barbearia" class="w-full h-full object-contain" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
+        <!-- BOTÃO PERFIL DO CLIENTE (ABRE PAINEL LATERAL) -->
+        <button type="button" onclick="abrirPainelPerfil()" class="flex items-center space-x-3 text-left group py-1 pr-3 rounded-xl hover:bg-white/5 transition">
+          <div class="relative w-10 h-10 border border-white/25 group-hover:border-white rounded-full flex items-center justify-center bg-black overflow-hidden transition">
+            <img id="header-client-foto" src="icon.png" alt="Perfil" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
           </div>
           <div>
-            <h1 id="user-display-name" class="text-xs font-bold text-white">Olá, Cliente</h1>
-            <p class="text-[9px] text-gray-400 uppercase tracking-widest font-semibold">PEGAS BARBEARIA</p>
+            <div class="flex items-center space-x-1.5">
+              <h1 id="user-display-name" class="text-xs sm:text-sm font-bold text-white leading-tight">---</h1>
+              <i class="fa-solid fa-chevron-right text-[9px] text-gray-500 group-hover:text-white transition"></i>
+            </div>
+            <p class="text-[9px] text-gray-400 uppercase tracking-widest font-semibold mt-0.5">BARBEARIA ARAUJO</p>
           </div>
-        </div>
+        </button>
 
-        <button onclick="realizarLogout()" class="text-xs text-gray-400 hover:text-white p-2" title="Sair da Conta">
-          <i class="fa-solid fa-right-from-bracket"></i>
+        <button onclick="abrirPainelPerfil()" class="text-xs text-gray-400 hover:text-white p-2 rounded-xl hover:bg-white/5 transition" title="Meu Perfil">
+          <i class="fa-solid fa-bars text-base"></i>
         </button>
       </div>
     </header>
@@ -170,6 +181,86 @@
         </button>
       </div>
     </nav>
+  </div>
+
+  <!-- PAINEL LATERAL (DRAWER) DO PERFIL DO CLIENTE -->
+  <div id="drawer-perfil-overlay" onclick="fecharPainelPerfil()" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden">
+    <aside onclick="event.stopPropagation()" class="w-full max-w-xs sm:max-w-sm bg-pegas-card border-r border-pegas-border h-full flex flex-col justify-between p-5 overflow-y-auto drawer-slide-in">
+      <div class="space-y-5">
+        <!-- CABEÇALHO DO DRAWER -->
+        <div class="flex items-center justify-between border-b border-pegas-border pb-3">
+          <div>
+            <h3 class="text-xs font-black uppercase tracking-widest text-white">Meu Perfil</h3>
+            <p class="text-[10px] text-gray-400">Barbearia Araujo</p>
+          </div>
+          <button type="button" onclick="fecharPainelPerfil()" class="w-8 h-8 rounded-xl bg-black border border-pegas-border text-gray-400 hover:text-white flex items-center justify-center">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+
+        <!-- FOTO DO PERFIL + UPLOAD DO DISPOSITIVO -->
+        <div class="flex flex-col items-center space-y-2.5 pt-1">
+          <div class="relative">
+            <img id="drawer-preview-foto" src="icon.png" alt="Foto do Cliente" class="w-20 h-20 rounded-full object-cover border-2 border-white/25 bg-black" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
+            <label title="Alterar foto" class="cursor-pointer absolute bottom-0 right-0 w-7 h-7 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:bg-gray-200 transition">
+              <i class="fa-solid fa-camera text-xs"></i>
+              <input type="file" accept="image/*" onchange="processarFotoCliente(event)" class="hidden">
+            </label>
+          </div>
+          <label class="cursor-pointer text-[11px] font-bold text-gray-300 hover:text-white transition">
+            Alterar foto de perfil
+            <input type="file" accept="image/*" onchange="processarFotoCliente(event)" class="hidden">
+          </label>
+          <input type="hidden" id="perfil-foto-base64">
+        </div>
+
+        <!-- CARTÃO PREPARADO PARA SISTEMA DE PONTOS -->
+        <div class="bg-black border border-pegas-border rounded-2xl p-3.5 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center">
+              <i class="fa-solid fa-star text-sm"></i>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Programa de Fidelidade</p>
+              <p id="perfil-pontos-valor" class="text-sm font-black text-white">0 pontos</p>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 bg-white/5 border border-white/10 text-gray-400 text-[9px] font-bold uppercase rounded-full">Em breve</span>
+        </div>
+
+        <!-- FORMULÁRIO DE EDIÇÃO DE DADOS DO CLIENTE -->
+        <form id="form-editar-perfil-cliente" onsubmit="salvarPerfilCliente(event)" class="space-y-3">
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Nome Completo</label>
+            <input type="text" id="perfil-edit-nome" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+          </div>
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">WhatsApp / Telefone</label>
+            <input type="tel" id="perfil-edit-telefone" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+          </div>
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Data de Nascimento</label>
+            <input type="date" id="perfil-edit-nascimento" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+          </div>
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">E-mail da Conta</label>
+            <input type="email" id="perfil-edit-email" disabled class="w-full bg-black/50 border border-pegas-border rounded-xl p-2.5 text-xs text-gray-500 cursor-not-allowed">
+          </div>
+
+          <button type="submit" id="btn-salvar-perfil-cliente" class="w-full py-3 bg-white text-black font-black text-xs uppercase tracking-wider rounded-xl hover:bg-gray-200 transition mt-2">
+            Salvar Alterações
+          </button>
+        </form>
+      </div>
+
+      <!-- BOTÃO SAIR DA CONTA NO RODAPÉ DO PAINEL -->
+      <div class="pt-5 mt-5 border-t border-pegas-border">
+        <button type="button" onclick="realizarLogout()" class="w-full py-2.5 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 font-bold text-xs rounded-xl flex items-center justify-center space-x-2 transition">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Sair da Conta</span>
+        </button>
+      </div>
+    </aside>
   </div>
 
   <!-- MODAL: SELEÇÃO DE PROFISSIONAL -->
@@ -262,6 +353,8 @@
     const auth = firebase.auth();
     const database = firebase.database();
 
+    const FOTO_PADRAO_CLIENTE = "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200";
+
     let clienteAtual = null;
     let servicosLista = [];
     let barbeirosLista = [];
@@ -284,25 +377,126 @@
       return `${diasSemana[dataObj.getDay()]}, ${dataObj.getDate()} de ${meses[dataObj.getMonth()]} de ${dataObj.getFullYear()} às ${hora}`;
     }
 
+    function atualizarInterfaceCliente() {
+      if (!clienteAtual) return;
+      const nomeExibicao = (clienteAtual.nome || '').trim() || clienteAtual.email.split('@')[0];
+      const fotoExibicao = clienteAtual.foto || FOTO_PADRAO_CLIENTE;
+
+      document.getElementById('user-display-name').innerText = nomeExibicao;
+      document.getElementById('header-client-foto').src = fotoExibicao;
+      document.getElementById('drawer-preview-foto').src = fotoExibicao;
+      document.getElementById('perfil-foto-base64').value = clienteAtual.foto || '';
+      document.getElementById('perfil-edit-nome').value = clienteAtual.nome || '';
+      document.getElementById('perfil-edit-telefone').value = clienteAtual.telefone || '';
+      document.getElementById('perfil-edit-nascimento').value = clienteAtual.nascimento || '';
+      document.getElementById('perfil-edit-email').value = clienteAtual.email || '';
+      document.getElementById('perfil-pontos-valor').innerText = `${clienteAtual.pontos || 0} pontos`;
+    }
+
     auth.onAuthStateChanged((user) => {
       if (user) {
-        database.ref(`clientes/${user.uid}`).once('value', (snapshot) => {
-          clienteAtual = { uid: user.uid, email: user.email, ...snapshot.val() };
-          document.getElementById('user-display-name').innerText = `Olá, ${clienteAtual.nome || 'Cliente'}`;
-          
-          document.getElementById('screen-auth').classList.add('hidden');
-          document.getElementById('screen-app').classList.remove('hidden');
-          document.getElementById('screen-app').classList.add('flex');
-
-          escutarServicosFirebase();
-          escutarBarbeirosFirebase();
-          carregarMeusAgendamentos();
+        database.ref(`clientes/${user.uid}`).on('value', (snapshot) => {
+          clienteAtual = { uid: user.uid, email: user.email, ...(snapshot.val() || {}) };
+          atualizarInterfaceCliente();
         });
+
+        document.getElementById('screen-auth').classList.add('hidden');
+        document.getElementById('screen-app').classList.remove('hidden');
+        document.getElementById('screen-app').classList.add('flex');
+
+        escutarServicosFirebase();
+        escutarBarbeirosFirebase();
+        carregarMeusAgendamentos(user.uid);
       } else {
+        clienteAtual = null;
+        fecharPainelPerfil();
         document.getElementById('screen-app').classList.add('hidden');
         document.getElementById('screen-auth').classList.remove('hidden');
       }
     });
+
+    // PAINEL LATERAL DO PERFIL DO CLIENTE
+    function abrirPainelPerfil() {
+      atualizarInterfaceCliente();
+      document.getElementById('drawer-perfil-overlay').classList.remove('hidden');
+    }
+
+    function fecharPainelPerfil() {
+      document.getElementById('drawer-perfil-overlay').classList.add('hidden');
+    }
+
+    // COMPRESSÃO DE FOTO ESCOLHIDA DO DISPOSITIVO
+    function processarFotoCliente(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const MAX_DIM = 300;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_DIM) {
+              height *= MAX_DIM / width;
+              width = MAX_DIM;
+            }
+          } else {
+            if (height > MAX_DIM) {
+              width *= MAX_DIM / height;
+              height = MAX_DIM;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.72);
+          document.getElementById('drawer-preview-foto').src = compressedDataUrl;
+          document.getElementById('perfil-foto-base64').value = compressedDataUrl;
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function salvarPerfilCliente(e) {
+      e.preventDefault();
+      if (!clienteAtual) return;
+
+      const btn = document.getElementById('btn-salvar-perfil-cliente');
+      btn.disabled = true;
+      btn.innerText = "Salvando...";
+
+      const atualizacoes = {
+        nome: document.getElementById('perfil-edit-nome').value.trim(),
+        telefone: document.getElementById('perfil-edit-telefone').value.trim(),
+        nascimento: document.getElementById('perfil-edit-nascimento').value,
+        email: clienteAtual.email,
+        pontos: clienteAtual.pontos || 0
+      };
+
+      const fotoBase64 = document.getElementById('perfil-foto-base64').value;
+      if (fotoBase64) {
+        atualizacoes.foto = fotoBase64;
+      }
+
+      database.ref(`clientes/${clienteAtual.uid}`).update(atualizacoes).then(() => {
+        btn.disabled = false;
+        btn.innerText = "Salvar Alterações";
+        alert("Perfil atualizado com sucesso!");
+        fecharPainelPerfil();
+      }).catch(err => {
+        btn.disabled = false;
+        btn.innerText = "Salvar Alterações";
+        alert("Erro ao salvar perfil: " + err.message);
+      });
+    }
 
     function alternarAbaAuth(aba) {
       if (aba === 'login') {
@@ -335,7 +529,12 @@
 
       auth.createUserWithEmailAndPassword(email, senha).then((cred) => {
         database.ref(`clientes/${cred.user.uid}`).set({
-          nome, telefone, nascimento, email, criadoEm: new Date().toISOString()
+          nome,
+          telefone,
+          nascimento,
+          email,
+          pontos: 0,
+          criadoEm: new Date().toISOString()
         });
       }).catch(err => alert("Erro ao cadastrar: " + err.message));
     }
@@ -393,7 +592,7 @@
         container.innerHTML += `
           <button onclick="selecionarProfissional('${b.id}')" class="w-full bg-black border border-pegas-border p-3 rounded-xl flex items-center justify-between hover:border-white transition">
             <div class="flex items-center space-x-3">
-              <img src="${b.foto}" alt="${b.nome}" class="w-10 h-10 rounded-full object-cover">
+              <img src="${b.foto}" alt="${b.nome}" class="w-10 h-10 rounded-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
               <div class="text-left">
                 <span class="text-sm font-bold text-white block">${b.nome}</span>
                 <span class="text-[10px] text-gray-400 line-clamp-1">${b.desc || ''}</span>
@@ -417,9 +616,9 @@
 
     function abrirTelaProfissional() {
       document.getElementById('perfil-barbeiro-detalhes').innerHTML = `
-        <img src="${barbeiroSelecionado.foto}" class="w-20 h-20 rounded-full mx-auto object-cover border-2 border-white/20">
+        <img src="${barbeiroSelecionado.foto}" class="w-20 h-20 rounded-full mx-auto object-cover border-2 border-white/20" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
         <h3 class="text-base font-bold text-white">${barbeiroSelecionado.nome}</h3>
-        <p class="text-xs text-gray-400 italic font-medium">"${barbeiroSelecionado.desc || 'Profissional PEGAS'}"</p>
+        <p class="text-xs text-gray-400 italic font-medium">"${barbeiroSelecionado.desc || 'Profissional Barbearia Araujo'}"</p>
       `;
       carregarHorariosDisponiveis();
       document.getElementById('screen-profissional').classList.remove('hidden');
@@ -518,8 +717,8 @@
       });
     }
 
-    function carregarMeusAgendamentos() {
-      database.ref('agendamentos').orderByChild('clienteId').equalTo(clienteAtual.uid).on('value', (snapshot) => {
+    function carregarMeusAgendamentos(uid) {
+      database.ref('agendamentos').orderByChild('clienteId').equalTo(uid).on('value', (snapshot) => {
         const dados = snapshot.val();
         meusAgendamentosLista = [];
         for (let id in dados) { meusAgendamentosLista.push({ id: id, ...dados[id] }); }
