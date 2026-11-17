@@ -61,4 +61,4 @@ module.exports = async (req, res) => {
     console.error("Erro no webhook:", error.message);
     return res.status(500).json({ error: error.message });
   }
-};sBzRy7fNpAIcspshti7LHqVDPK1ECtC8qmjHPkV7
+};
