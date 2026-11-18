@@ -299,7 +299,14 @@
       </div>
 
       <div class="mt-6 space-y-3">
-        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400 text-center sm:text-left">Horários Livres</h4>
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400 text-center sm:text-left">Horários Livres</h4>
+          <span id="info-duracao-slots" class="text-[10px] text-gray-400 font-semibold"></span>
+        </div>
+        <div id="aviso-folga-profissional" class="hidden bg-red-500/10 border border-red-500/30 text-red-300 text-xs rounded-xl p-3 text-center">
+          <i class="fa-solid fa-calendar-xmark mr-1.5 text-red-400"></i>
+          O profissional estará de folga nesta data. Todos os horários estão indisponíveis.
+        </div>
         <div id="container-horarios" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
       </div>
 
@@ -375,6 +382,24 @@
       const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
       return `${diasSemana[dataObj.getDay()]}, ${dataObj.getDate()} de ${meses[dataObj.getMonth()]} de ${dataObj.getFullYear()} às ${hora}`;
+    }
+
+    function converterHoraParaMinutos(strHora) {
+      if (!strHora || !strHora.includes(':')) return 0;
+      const [h, m] = strHora.split(':').map(Number);
+      return (h * 60) + m;
+    }
+
+    function formatarMinutosParaHora(totalMinutos) {
+      const h = Math.floor(totalMinutos / 60);
+      const m = totalMinutos % 60;
+      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+    }
+
+    function calcularSlotsNecessarios(duracaoMinutos, tmc) {
+      const tmcValido = Number(tmc) > 0 ? Number(tmc) : 30;
+      const duracaoValida = Number(duracaoMinutos) > 0 ? Number(duracaoMinutos) : tmcValido;
+      return Math.max(1, Math.ceil(duracaoValida / tmcValido));
     }
 
     function atualizarInterfaceCliente() {
@@ -629,51 +654,102 @@
 
     function carregarHorariosDisponiveis() {
       const container = document.getElementById('container-horarios');
-      container.innerHTML = '<p class="text-xs text-gray-500 col-span-3 text-center py-4">Buscando horários...</p>';
+      const avisoFolga = document.getElementById('aviso-folga-profissional');
+      const infoDuracaoSlots = document.getElementById('info-duracao-slots');
+
+      container.innerHTML = '<p class="text-xs text-gray-500 col-span-3 sm:col-span-4 text-center py-4">Buscando horários...</p>';
+      avisoFolga.classList.add('hidden');
+
       const dataSelecionada = document.getElementById('input-data-agendamento').value;
+      const tmc = Number(barbeiroSelecionado.tmc) || 30;
+      const slotsNecessariosServico = calcularSlotsNecessarios(servicoSelecionado?.duracao, tmc);
 
-      database.ref('agendamentos').orderByChild('data').equalTo(dataSelecionada).once('value', (snapAgendamentos) => {
-        const agendamentosOcupados = [];
-        snapAgendamentos.forEach(child => {
-          const val = child.val();
-          if (val.barbeiro === barbeiroSelecionado.nome && val.status !== 'Cancelado') {
-            agendamentosOcupados.push(val.hora);
-          }
-        });
+      infoDuracaoSlots.innerText = slotsNecessariosServico > 1
+        ? `Ocupa ${slotsNecessariosServico} horários (${servicoSelecionado.duracao} min)`
+        : `Duração: ${servicoSelecionado?.duracao || tmc} min`;
 
-        database.ref(`horasExtras/${barbeiroSelecionado.id}/${dataSelecionada}`).once('value', (snapExtras) => {
-          let extraAntesMinutos = 0;
-          let extraDepoisMinutos = 0;
+      // 1. Verifica se o barbeiro está de folga no dia selecionado
+      database.ref(`folgas/${barbeiroSelecionado.id}/${dataSelecionada}`).once('value', (snapFolga) => {
+        const diaDeFolga = snapFolga.exists() && Boolean(snapFolga.val()?.folga);
 
-          if (snapExtras.exists()) {
-            snapExtras.forEach(childExtra => {
-              const ext = childExtra.val();
-              if (ext.posicao === 'antes') extraAntesMinutos += (ext.horas * 60);
-              if (ext.posicao === 'depois') extraDepoisMinutos += (ext.horas * 60);
-            });
-          }
+        // 2. Busca agendamentos existentes no dia
+        database.ref('agendamentos').orderByChild('data').equalTo(dataSelecionada).once('value', (snapAgendamentos) => {
+          const slotsBloqueadosSet = new Set();
 
-          container.innerHTML = '';
-          const tmc = barbeiroSelecionado.tmc || 30;
-          let horaInicioBase = barbeiroSelecionado.inicio || 8;
-          let minutosInicioTotal = (horaInicioBase * 60) - extraAntesMinutos;
-          if (minutosInicioTotal < 0) minutosInicioTotal = 0;
+          snapAgendamentos.forEach(child => {
+            const val = child.val();
+            if (val.barbeiro === barbeiroSelecionado.nome && val.status !== 'Cancelado') {
+              const minutoInicioAg = converterHoraParaMinutos(val.hora);
 
-          let jornadaBaseMinutos = (barbeiroSelecionado.jornada || 10) * 60;
-          let minutosFimTotal = (horaInicioBase * 60) + jornadaBaseMinutos + extraDepoisMinutos;
+              // Descobre a duração do agendamento existente (salva no registro ou buscada pelo nome do serviço)
+              let duracaoExistente = Number(val.duracao);
+              if (!duracaoExistente || duracaoExistente <= 0) {
+                const srvEncontrado = servicosLista.find(s => s.nome === val.serviço);
+                duracaoExistente = srvEncontrado ? Number(srvEncontrado.duracao) : tmc;
+              }
 
-          for (let mAtual = minutosInicioTotal; mAtual < minutosFimTotal; mAtual += tmc) {
-            let h = Math.floor(mAtual / 60);
-            let m = mAtual % 60;
-            let strHora = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-            let ocupado = agendamentosOcupados.includes(strHora);
+              const qtdSlotsAg = Number(val.slotsOcupados) > 0
+                ? Number(val.slotsOcupados)
+                : calcularSlotsNecessarios(duracaoExistente, tmc);
 
-            if (ocupado) {
-              container.innerHTML += `<button disabled class="bg-pegas-card border border-pegas-border text-gray-600 opacity-40 text-xs py-2 rounded-xl font-bold cursor-not-allowed">${strHora}</button>`;
-            } else {
-              container.innerHTML += `<button onclick="confirmarHorario('${strHora}')" class="bg-pegas-card border border-pegas-border hover:border-white text-white text-xs py-2 rounded-xl font-bold transition">${strHora}</button>`;
+              for (let s = 0; s < qtdSlotsAg; s++) {
+                const minSlotOcupado = minutoInicioAg + (s * tmc);
+                slotsBloqueadosSet.add(formatarMinutosParaHora(minSlotOcupado));
+              }
             }
-          }
+          });
+
+          // 3. Busca horas extras do barbeiro no dia
+          database.ref(`horasExtras/${barbeiroSelecionado.id}/${dataSelecionada}`).once('value', (snapExtras) => {
+            let extraAntesMinutos = 0;
+            let extraDepoisMinutos = 0;
+
+            if (snapExtras.exists()) {
+              snapExtras.forEach(childExtra => {
+                const ext = childExtra.val();
+                if (ext.posicao === 'antes') extraAntesMinutos += (ext.horas * 60);
+                if (ext.posicao === 'depois') extraDepoisMinutos += (ext.horas * 60);
+              });
+            }
+
+            container.innerHTML = '';
+
+            if (diaDeFolga) {
+              avisoFolga.classList.remove('hidden');
+            }
+
+            let horaInicioBase = barbeiroSelecionado.inicio || 8;
+            let minutosInicioTotal = (horaInicioBase * 60) - extraAntesMinutos;
+            if (minutosInicioTotal < 0) minutosInicioTotal = 0;
+
+            let jornadaBaseMinutos = (barbeiroSelecionado.jornada || 10) * 60;
+            let minutosFimTotal = (horaInicioBase * 60) + jornadaBaseMinutos + extraDepoisMinutos;
+
+            for (let mAtual = minutosInicioTotal; mAtual < minutosFimTotal; mAtual += tmc) {
+              const strHora = formatarMinutosParaHora(mAtual);
+
+              // Verifica se todos os slots consecutivos necessários para este serviço cabem no expediente e estão livres
+              let indisponivel = diaDeFolga;
+
+              if (!indisponivel) {
+                for (let s = 0; s < slotsNecessariosServico; s++) {
+                  const minVerificar = mAtual + (s * tmc);
+                  const horaVerificar = formatarMinutosParaHora(minVerificar);
+
+                  if (minVerificar >= minutosFimTotal || slotsBloqueadosSet.has(horaVerificar)) {
+                    indisponivel = true;
+                    break;
+                  }
+                }
+              }
+
+              if (indisponivel) {
+                container.innerHTML += `<button disabled class="bg-pegas-card border border-pegas-border text-gray-600 opacity-40 text-xs py-2 rounded-xl font-bold cursor-not-allowed">${strHora}</button>`;
+              } else {
+                container.innerHTML += `<button onclick="confirmarHorario('${strHora}')" class="bg-pegas-card border border-pegas-border hover:border-white text-white text-xs py-2 rounded-xl font-bold transition">${strHora}</button>`;
+              }
+            }
+          });
         });
       });
     }
@@ -695,12 +771,17 @@
 
     function salvarAgendamentoNoFirebase() {
       const dataSelecionada = document.getElementById('input-data-agendamento').value;
+      const tmc = Number(barbeiroSelecionado.tmc) || 30;
+      const duracaoServico = Number(servicoSelecionado.duracao) || tmc;
+      const slotsOcupados = calcularSlotsNecessarios(duracaoServico, tmc);
 
       const novoAgendamento = {
         clienteId: clienteAtual.uid,
         cliente: clienteAtual.nome,
         telefone: clienteAtual.telefone,
         serviço: servicoSelecionado.nome,
+        duracao: duracaoServico,
+        slotsOcupados: slotsOcupados,
         valor: servicoSelecionado.preco,
         barbeiro: barbeiroSelecionado.nome,
         data: dataSelecionada,
