@@ -85,7 +85,12 @@
           </div>
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Senha</label>
-            <input type="password" id="login-senha" required placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+            <div class="relative">
+              <input type="password" id="login-senha" required placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 pr-10 text-xs text-white focus:outline-none focus:border-white">
+              <button type="button" onclick="toggleVisibilidadeSenha('login-senha', 'icon-login-senha')" class="absolute inset-y-0 right-0 px-3 text-gray-400 hover:text-white flex items-center" title="Mostrar/Ocultar senha">
+                <i id="icon-login-senha" class="fa-solid fa-eye text-xs"></i>
+              </button>
+            </div>
           </div>
           <button type="submit" class="w-full py-3 bg-white text-black font-black text-xs uppercase tracking-wider rounded-xl hover:bg-gray-200 transition">
             Entrar no Portal
@@ -112,7 +117,12 @@
           </div>
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Senha (Mínimo 6 caracteres)</label>
-            <input type="password" id="reg-senha" required minlength="6" placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+            <div class="relative">
+              <input type="password" id="reg-senha" required minlength="6" placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 pr-10 text-xs text-white focus:outline-none focus:border-white">
+              <button type="button" onclick="toggleVisibilidadeSenha('reg-senha', 'icon-reg-senha')" class="absolute inset-y-0 right-0 px-3 text-gray-400 hover:text-white flex items-center" title="Mostrar/Ocultar senha">
+                <i id="icon-reg-senha" class="fa-solid fa-eye text-xs"></i>
+              </button>
+            </div>
           </div>
           <button type="submit" class="w-full py-3 bg-white text-black font-black text-xs uppercase tracking-wider rounded-xl hover:bg-gray-200 transition">
             Cadastrar Conta
@@ -247,6 +257,29 @@
             <input type="email" id="perfil-edit-email" disabled class="w-full bg-black/50 border border-pegas-border rounded-xl p-2.5 text-xs text-gray-500 cursor-not-allowed">
           </div>
 
+          <!-- ALTERAR SENHA (OPCIONAL) -->
+          <div class="pt-2 border-t border-pegas-border space-y-2.5">
+            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Alterar Senha (Opcional)</p>
+            <div>
+              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Senha Atual</label>
+              <div class="relative">
+                <input type="password" id="perfil-edit-senha-atual" placeholder="Digite sua senha atual" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 pr-9 text-xs text-white focus:outline-none focus:border-white">
+                <button type="button" onclick="toggleVisibilidadeSenha('perfil-edit-senha-atual', 'icon-perfil-senha-atual')" class="absolute inset-y-0 right-0 px-2.5 text-gray-400 hover:text-white flex items-center">
+                  <i id="icon-perfil-senha-atual" class="fa-solid fa-eye text-xs"></i>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Nova Senha (Mín. 6 caracteres)</label>
+              <div class="relative">
+                <input type="password" id="perfil-edit-nova-senha" minlength="6" placeholder="Nova senha" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 pr-9 text-xs text-white focus:outline-none focus:border-white">
+                <button type="button" onclick="toggleVisibilidadeSenha('perfil-edit-nova-senha', 'icon-perfil-nova-senha')" class="absolute inset-y-0 right-0 px-2.5 text-gray-400 hover:text-white flex items-center">
+                  <i id="icon-perfil-nova-senha" class="fa-solid fa-eye text-xs"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
           <button type="submit" id="btn-salvar-perfil-cliente" class="w-full py-3 bg-white text-black font-black text-xs uppercase tracking-wider rounded-xl hover:bg-gray-200 transition mt-2">
             Salvar Alterações
           </button>
@@ -373,6 +406,22 @@
 
     document.getElementById('input-data-agendamento').value = new Date().toISOString().split('T')[0];
 
+    function toggleVisibilidadeSenha(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (!input || !icon) return;
+
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+
     function formatarDataPorExtenso(dataIso, hora) {
       if (!dataIso) return "---";
       const partes = dataIso.split('-');
@@ -385,20 +434,27 @@
     }
 
     function converterHoraParaMinutos(strHora) {
-      if (!strHora || !strHora.includes(':')) return 0;
-      const [h, m] = strHora.split(':').map(Number);
+      if (!strHora || !String(strHora).includes(':')) return 0;
+      const partes = String(strHora).trim().split(':');
+      const h = parseInt(partes[0], 10) || 0;
+      const m = parseInt(partes[1], 10) || 0;
       return (h * 60) + m;
     }
 
     function formatarMinutosParaHora(totalMinutos) {
       const h = Math.floor(totalMinutos / 60);
       const m = totalMinutos % 60;
-      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+      return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    }
+
+    function extrairNumeroInteiro(valor, padrao) {
+      const num = parseInt(String(valor || '').replace(/[^\d]/g, ''), 10);
+      return (!isNaN(num) && num > 0) ? num : padrao;
     }
 
     function calcularSlotsNecessarios(duracaoMinutos, tmc) {
-      const tmcValido = Number(tmc) > 0 ? Number(tmc) : 30;
-      const duracaoValida = Number(duracaoMinutos) > 0 ? Number(duracaoMinutos) : tmcValido;
+      const tmcValido = extrairNumeroInteiro(tmc, 30);
+      const duracaoValida = extrairNumeroInteiro(duracaoMinutos, tmcValido);
       return Math.max(1, Math.ceil(duracaoValida / tmcValido));
     }
 
@@ -443,6 +499,8 @@
     // PAINEL LATERAL DO PERFIL DO CLIENTE
     function abrirPainelPerfil() {
       atualizarInterfaceCliente();
+      document.getElementById('perfil-edit-senha-atual').value = '';
+      document.getElementById('perfil-edit-nova-senha').value = '';
       document.getElementById('drawer-perfil-overlay').classList.remove('hidden');
     }
 
@@ -490,37 +548,64 @@
       reader.readAsDataURL(file);
     }
 
-    function salvarPerfilCliente(e) {
+    async function salvarPerfilCliente(e) {
       e.preventDefault();
-      if (!clienteAtual) return;
+      if (!clienteAtual || !auth.currentUser) return;
+
+      const senhaAtual = document.getElementById('perfil-edit-senha-atual').value;
+      const novaSenha = document.getElementById('perfil-edit-nova-senha').value;
+
+      if (novaSenha && !senhaAtual) {
+        alert("Para alterar sua senha, informe também a sua senha atual.");
+        return;
+      }
+
+      if (novaSenha && novaSenha.length < 6) {
+        alert("A nova senha deve ter no mínimo 6 caracteres.");
+        return;
+      }
 
       const btn = document.getElementById('btn-salvar-perfil-cliente');
       btn.disabled = true;
       btn.innerText = "Salvando...";
 
-      const atualizacoes = {
-        nome: document.getElementById('perfil-edit-nome').value.trim(),
-        telefone: document.getElementById('perfil-edit-telefone').value.trim(),
-        nascimento: document.getElementById('perfil-edit-nascimento').value,
-        email: clienteAtual.email,
-        pontos: clienteAtual.pontos || 0
-      };
+      try {
+        // Se o cliente preencheu nova senha, reautentica e atualiza no Firebase Auth
+        if (novaSenha) {
+          const credencial = firebase.auth.EmailAuthProvider.credential(auth.currentUser.email, senhaAtual);
+          await auth.currentUser.reauthenticateWithCredential(credencial);
+          await auth.currentUser.updatePassword(novaSenha);
+        }
 
-      const fotoBase64 = document.getElementById('perfil-foto-base64').value;
-      if (fotoBase64) {
-        atualizacoes.foto = fotoBase64;
-      }
+        const atualizacoes = {
+          nome: document.getElementById('perfil-edit-nome').value.trim(),
+          telefone: document.getElementById('perfil-edit-telefone').value.trim(),
+          nascimento: document.getElementById('perfil-edit-nascimento').value,
+          email: clienteAtual.email,
+          pontos: clienteAtual.pontos || 0
+        };
 
-      database.ref(`clientes/${clienteAtual.uid}`).update(atualizacoes).then(() => {
-        btn.disabled = false;
-        btn.innerText = "Salvar Alterações";
-        alert("Perfil atualizado com sucesso!");
+        const fotoBase64 = document.getElementById('perfil-foto-base64').value;
+        if (fotoBase64) {
+          atualizacoes.foto = fotoBase64;
+        }
+
+        await database.ref(`clientes/${clienteAtual.uid}`).update(atualizacoes);
+
+        document.getElementById('perfil-edit-senha-atual').value = '';
+        document.getElementById('perfil-edit-nova-senha').value = '';
+        alert(novaSenha ? "Perfil e senha atualizados com sucesso!" : "Perfil atualizado com sucesso!");
         fecharPainelPerfil();
-      }).catch(err => {
+      } catch (err) {
+        if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-login-credentials') {
+          alert("A senha atual digitada está incorreta.");
+        } else {
+          alert("Erro ao salvar perfil: " + err.message);
+        }
+      } finally {
         btn.disabled = false;
         btn.innerText = "Salvar Alterações";
-        alert("Erro ao salvar perfil: " + err.message);
-      });
+      }
     }
 
     function alternarAbaAuth(aba) {
@@ -661,36 +746,36 @@
       avisoFolga.classList.add('hidden');
 
       const dataSelecionada = document.getElementById('input-data-agendamento').value;
-      const tmc = Number(barbeiroSelecionado.tmc) || 30;
-      const slotsNecessariosServico = calcularSlotsNecessarios(servicoSelecionado?.duracao, tmc);
+      const tmc = extrairNumeroInteiro(barbeiroSelecionado.tmc, 30);
+      const duracaoServicoAtual = extrairNumeroInteiro(servicoSelecionado?.duracao, tmc);
+      const slotsNecessariosServico = calcularSlotsNecessarios(duracaoServicoAtual, tmc);
 
       infoDuracaoSlots.innerText = slotsNecessariosServico > 1
-        ? `Ocupa ${slotsNecessariosServico} horários (${servicoSelecionado.duracao} min)`
-        : `Duração: ${servicoSelecionado?.duracao || tmc} min`;
+        ? `Ocupa ${slotsNecessariosServico} horários (${duracaoServicoAtual} min)`
+        : `Duração: ${duracaoServicoAtual} min`;
 
-      // 1. Verifica se o barbeiro está de folga no dia selecionado
       database.ref(`folgas/${barbeiroSelecionado.id}/${dataSelecionada}`).once('value', (snapFolga) => {
         const diaDeFolga = snapFolga.exists() && Boolean(snapFolga.val()?.folga);
 
-        // 2. Busca agendamentos existentes no dia
         database.ref('agendamentos').orderByChild('data').equalTo(dataSelecionada).once('value', (snapAgendamentos) => {
           const slotsBloqueadosSet = new Set();
 
           snapAgendamentos.forEach(child => {
             const val = child.val();
-            if (val.barbeiro === barbeiroSelecionado.nome && val.status !== 'Cancelado') {
+            const mesmoBarbeiro = (val.barbeiroId && val.barbeiroId === barbeiroSelecionado.id) ||
+                                  (val.barbeiro && val.barbeiro.trim().toLowerCase() === barbeiroSelecionado.nome.trim().toLowerCase());
+
+            if (mesmoBarbeiro && val.status !== 'Cancelado') {
               const minutoInicioAg = converterHoraParaMinutos(val.hora);
 
-              // Descobre a duração do agendamento existente (salva no registro ou buscada pelo nome do serviço)
-              let duracaoExistente = Number(val.duracao);
-              if (!duracaoExistente || duracaoExistente <= 0) {
-                const srvEncontrado = servicosLista.find(s => s.nome === val.serviço);
-                duracaoExistente = srvEncontrado ? Number(srvEncontrado.duracao) : tmc;
-              }
+              // Busca duração pelo nome do serviço cadastrado ou pelo campo salvo no agendamento
+              const srvEncontrado = servicosLista.find(s => s.nome && val.serviço && s.nome.trim().toLowerCase() === val.serviço.trim().toLowerCase());
+              const duracaoExistente = extrairNumeroInteiro(val.duracao, srvEncontrado ? extrairNumeroInteiro(srvEncontrado.duracao, tmc) : tmc);
 
-              const qtdSlotsAg = Number(val.slotsOcupados) > 0
-                ? Number(val.slotsOcupados)
-                : calcularSlotsNecessarios(duracaoExistente, tmc);
+              const qtdSlotsAg = Math.max(
+                extrairNumeroInteiro(val.slotsOcupados, 1),
+                calcularSlotsNecessarios(duracaoExistente, tmc)
+              );
 
               for (let s = 0; s < qtdSlotsAg; s++) {
                 const minSlotOcupado = minutoInicioAg + (s * tmc);
@@ -699,7 +784,6 @@
             }
           });
 
-          // 3. Busca horas extras do barbeiro no dia
           database.ref(`horasExtras/${barbeiroSelecionado.id}/${dataSelecionada}`).once('value', (snapExtras) => {
             let extraAntesMinutos = 0;
             let extraDepoisMinutos = 0;
@@ -707,8 +791,8 @@
             if (snapExtras.exists()) {
               snapExtras.forEach(childExtra => {
                 const ext = childExtra.val();
-                if (ext.posicao === 'antes') extraAntesMinutos += (ext.horas * 60);
-                if (ext.posicao === 'depois') extraDepoisMinutos += (ext.horas * 60);
+                if (ext.posicao === 'antes') extraAntesMinutos += (Number(ext.horas || 0) * 60);
+                if (ext.posicao === 'depois') extraDepoisMinutos += (Number(ext.horas || 0) * 60);
               });
             }
 
@@ -718,17 +802,16 @@
               avisoFolga.classList.remove('hidden');
             }
 
-            let horaInicioBase = barbeiroSelecionado.inicio || 8;
+            const horaInicioBase = Number(barbeiroSelecionado.inicio) || 8;
             let minutosInicioTotal = (horaInicioBase * 60) - extraAntesMinutos;
             if (minutosInicioTotal < 0) minutosInicioTotal = 0;
 
-            let jornadaBaseMinutos = (barbeiroSelecionado.jornada || 10) * 60;
-            let minutosFimTotal = (horaInicioBase * 60) + jornadaBaseMinutos + extraDepoisMinutos;
+            const jornadaBaseMinutos = (Number(barbeiroSelecionado.jornada) || 10) * 60;
+            const minutosFimTotal = (horaInicioBase * 60) + jornadaBaseMinutos + extraDepoisMinutos;
 
             for (let mAtual = minutosInicioTotal; mAtual < minutosFimTotal; mAtual += tmc) {
               const strHora = formatarMinutosParaHora(mAtual);
 
-              // Verifica se todos os slots consecutivos necessários para este serviço cabem no expediente e estão livres
               let indisponivel = diaDeFolga;
 
               if (!indisponivel) {
@@ -757,10 +840,14 @@
     function confirmarHorario(hora) {
       horaSelecionada = hora;
       const dataSelecionada = document.getElementById('input-data-agendamento').value;
+      const tmc = extrairNumeroInteiro(barbeiroSelecionado.tmc, 30);
+      const duracaoServico = extrairNumeroInteiro(servicoSelecionado.duracao, tmc);
+      const slotsOcupados = calcularSlotsNecessarios(duracaoServico, tmc);
+      const horaFimPrevista = formatarMinutosParaHora(converterHoraParaMinutos(horaSelecionada) + (slotsOcupados * tmc));
 
-      document.getElementById('resumo-servico').innerText = servicoSelecionado.nome;
+      document.getElementById('resumo-servico').innerText = `${servicoSelecionado.nome} (${duracaoServico} min)`;
       document.getElementById('resumo-barbeiro').innerText = barbeiroSelecionado.nome;
-      document.getElementById('resumo-horario').innerText = formatarDataPorExtenso(dataSelecionada, horaSelecionada);
+      document.getElementById('resumo-horario').innerText = `${formatarDataPorExtenso(dataSelecionada, horaSelecionada)} até ${horaFimPrevista}`;
       document.getElementById('resumo-valor').innerText = `R$ ${servicoSelecionado.preco},00`;
 
       document.getElementById('modal-confirmacao').classList.remove('hidden');
@@ -771,9 +858,10 @@
 
     function salvarAgendamentoNoFirebase() {
       const dataSelecionada = document.getElementById('input-data-agendamento').value;
-      const tmc = Number(barbeiroSelecionado.tmc) || 30;
-      const duracaoServico = Number(servicoSelecionado.duracao) || tmc;
+      const tmc = extrairNumeroInteiro(barbeiroSelecionado.tmc, 30);
+      const duracaoServico = extrairNumeroInteiro(servicoSelecionado.duracao, tmc);
       const slotsOcupados = calcularSlotsNecessarios(duracaoServico, tmc);
+      const horaFim = formatarMinutosParaHora(converterHoraParaMinutos(horaSelecionada) + (slotsOcupados * tmc));
 
       const novoAgendamento = {
         clienteId: clienteAtual.uid,
@@ -782,7 +870,9 @@
         serviço: servicoSelecionado.nome,
         duracao: duracaoServico,
         slotsOcupados: slotsOcupados,
+        horaFim: horaFim,
         valor: servicoSelecionado.preco,
+        barbeiroId: barbeiroSelecionado.id,
         barbeiro: barbeiroSelecionado.nome,
         data: dataSelecionada,
         hora: horaSelecionada,
@@ -826,6 +916,8 @@
           ? `<span class="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold rounded-full">Concluído</span>`
           : `<span class="px-2 py-0.5 bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] font-bold rounded-full">Cancelado</span>`;
 
+        const textoHorario = item.horaFim ? `${item.hora} às ${item.horaFim}` : item.hora;
+
         container.innerHTML += `
           <div class="bg-pegas-card border border-pegas-border p-4 rounded-xl flex items-center justify-between">
             <div class="space-y-1">
@@ -834,7 +926,7 @@
                 ${statusBadge}
               </div>
               <p class="text-xs text-gray-400">Barbeiro: <strong class="text-white">${item.barbeiro}</strong></p>
-              <p class="text-[11px] text-gray-500"><i class="fa-solid fa-calendar-day mr-1"></i>${formatarDataPorExtenso(item.data, item.hora)} • R$ ${item.valor},00</p>
+              <p class="text-[11px] text-gray-500"><i class="fa-solid fa-calendar-day mr-1"></i>${formatarDataPorExtenso(item.data, textoHorario)} • R$ ${item.valor},00</p>
             </div>
 
             ${item.status !== 'Cancelado' && item.status !== 'Concluído' ? `
