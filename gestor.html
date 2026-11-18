@@ -277,25 +277,67 @@
     </footer>
   </div>
 
-  <!-- POP-UP MODAL: AGENDAMENTOS DO DIA SELECIONADO NO CALENDÁRIO + BOTAO DE HORA EXTRA -->
+  <!-- POP-UP MODAL: AGENDAMENTOS DO DIA SELECIONADO NO CALENDÁRIO + HORA EXTRA + FOLGA -->
   <div id="modal-dia-calendario" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3 sm:p-4 fade-in">
     <div class="bg-pegas-card border border-pegas-border w-full max-w-lg rounded-2xl p-4 sm:p-6 space-y-4 max-h-[85vh] flex flex-col">
-      <div class="flex items-center justify-between border-b border-pegas-border pb-3 flex-shrink-0">
+      <div class="flex items-center justify-between border-b border-pegas-border pb-3 flex-shrink-0 gap-2">
         <div>
           <h3 id="modal-dia-titulo" class="font-black text-white text-sm sm:text-base">Agendamentos do Dia</h3>
-          <p class="text-[10px] text-gray-400">Gerencie os cortes marcados para esta data</p>
+          <p id="modal-dia-subtitulo" class="text-[10px] text-gray-400">Gerencie os cortes marcados para esta data</p>
         </div>
-        <div class="flex items-center space-x-2">
-          <button onclick="abrirModalHoraExtraComData()" class="px-2.5 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold rounded-xl hover:bg-emerald-500/20 flex items-center space-x-1">
+        <div class="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
+          <!-- BOTÕES NORMAIS (QUANDO NÃO É FOLGA) -->
+          <button id="btn-modal-hora-extra" onclick="abrirModalHoraExtraComData()" class="px-2.5 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold rounded-xl hover:bg-emerald-500/20 flex items-center space-x-1 transition">
             <i class="fa-solid fa-bolt text-xs"></i>
             <span>+ Hora Extra</span>
           </button>
+          <button id="btn-modal-folga" onclick="abrirModalConfirmarFolga()" class="px-2.5 py-1.5 bg-red-600 text-white text-xs font-bold rounded-xl hover:bg-red-500 flex items-center space-x-1 transition">
+            <i class="fa-solid fa-calendar-xmark text-xs"></i>
+            <span>Folga</span>
+          </button>
+
+          <!-- BOTÃO EXCLUSIVO QUANDO O DIA JÁ ESTÁ REGISTRADO COMO FOLGA -->
+          <button id="btn-modal-cancelar-folga" onclick="cancelarFolgaDia()" class="hidden px-3 py-1.5 bg-red-500/15 border border-red-500/40 text-red-400 text-xs font-bold rounded-xl hover:bg-red-500/25 flex items-center space-x-1.5 transition">
+            <i class="fa-solid fa-rotate-left text-xs"></i>
+            <span>Cancelar Folga</span>
+          </button>
+
           <button onclick="fecharModalDia()" class="text-gray-400 hover:text-white p-1">
             <i class="fa-solid fa-xmark text-lg"></i>
           </button>
         </div>
       </div>
+
+      <!-- AVISO DE FOLGA ATIVA NO DIA -->
+      <div id="banner-folga-ativa" class="hidden bg-red-500/10 border border-red-500/30 rounded-xl p-3 flex items-center space-x-2.5 text-xs text-red-300 flex-shrink-0">
+        <i class="fa-solid fa-umbrella-beach text-red-400 text-sm"></i>
+        <span>Este dia está marcado como <strong>Folga</strong>. Todos os horários estão bloqueados para os clientes.</span>
+      </div>
+
       <div id="modal-dia-lista" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div>
+    </div>
+  </div>
+
+  <!-- POP-UP MODAL PRIORITÁRIO (NA FRENTE DO MODAL DO DIA): CONFIRMAÇÃO DE FOLGA -->
+  <div id="modal-confirmar-folga" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-[70] hidden items-center justify-center p-4 fade-in">
+    <div class="bg-pegas-card border border-red-500/40 w-full max-w-sm rounded-2xl p-5 sm:p-6 space-y-4 text-center shadow-2xl">
+      <div class="w-12 h-12 rounded-full bg-red-500/15 border border-red-500/30 text-red-400 flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-calendar-xmark"></i>
+      </div>
+      <div class="space-y-1.5">
+        <h3 class="text-base sm:text-lg font-black text-white">Registrar Folga?</h3>
+        <p id="texto-confirmar-folga" class="text-xs text-gray-300 leading-relaxed">
+          Deseja confirmar folga para este dia? Todos os horários ficarão indisponíveis para os clientes.
+        </p>
+      </div>
+      <div class="flex space-x-2 pt-2">
+        <button type="button" onclick="fecharModalConfirmarFolga()" class="w-1/2 py-2.5 bg-black border border-pegas-border text-gray-300 font-bold rounded-xl text-xs hover:text-white transition">
+          Voltar
+        </button>
+        <button type="button" onclick="confirmarFolgaFirebase()" class="w-1/2 py-2.5 bg-red-600 text-white font-extrabold rounded-xl text-xs hover:bg-red-500 transition">
+          Confirmar Folga
+        </button>
+      </div>
     </div>
   </div>
 
@@ -504,6 +546,7 @@
     let servicosLista = [];
     let barbeiroLogado = null;
     let agendamentosLista = [];
+    let folgasBarbeiroMapa = {};
 
     const LINK_ASAAS_BASE = "https://www.asaas.com/000/c/q7r828t12ir32220";
     const FOTO_PADRAO_BARBEIRO = "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200";
@@ -531,7 +574,7 @@
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement('canvas');
-          const MAX_DIM = 300; // Tamanho ideal para avatar leve e rápido no Realtime Database
+          const MAX_DIM = 300;
           let width = img.width;
           let height = img.height;
 
@@ -552,7 +595,6 @@
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Converte em JPEG com qualidade 0.72 para garantir leveza mesmo em fotos de alta resolução
           const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.72);
 
           if (modo === 'edit') {
@@ -580,7 +622,6 @@
       const targetMenu = document.getElementById(`menu-card-${id}`);
       const isHidden = targetMenu.classList.contains('hidden');
 
-      // Fecha outros menus abertos
       document.querySelectorAll('[id^="menu-card-"]').forEach(el => el.classList.add('hidden'));
 
       if (isHidden) {
@@ -595,7 +636,6 @@
         dropdown.classList.add('hidden');
       }
 
-      // Fecha menus "..." dos cards ao clicar fora
       if (!e.target.closest('[data-card-menu]')) {
         document.querySelectorAll('[id^="menu-card-"]').forEach(el => el.classList.add('hidden'));
       }
@@ -710,6 +750,59 @@
         alert("Horas extras adicionadas com sucesso!");
         fecharModalHoraExtra();
       });
+    }
+
+    // MODAL E AÇÕES DE FOLGA DO BARBEIRO
+    function abrirModalConfirmarFolga() {
+      if (!diaAbertoModalStr) return;
+      const partes = diaAbertoModalStr.split('-');
+      const dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+      document.getElementById('texto-confirmar-folga').innerHTML = `Deseja confirmar folga para o dia <strong class="text-white">${dataFormatada}</strong>? Todos os horários deste dia ficarão bloqueados para os clientes.`;
+      document.getElementById('modal-confirmar-folga').classList.remove('hidden');
+      document.getElementById('modal-confirmar-folga').classList.add('flex');
+    }
+
+    function fecharModalConfirmarFolga() {
+      document.getElementById('modal-confirmar-folga').classList.add('hidden');
+    }
+
+    function confirmarFolgaFirebase() {
+      if (!barbeiroLogado || !diaAbertoModalStr) return;
+      database.ref(`folgas/${barbeiroLogado.id}/${diaAbertoModalStr}`).set({
+        folga: true,
+        barbeiro: barbeiroLogado.nome,
+        criadoEm: new Date().toISOString()
+      }).then(() => {
+        fecharModalConfirmarFolga();
+        atualizarBotoesModalDia(diaAbertoModalStr);
+      });
+    }
+
+    function cancelarFolgaDia() {
+      if (!barbeiroLogado || !diaAbertoModalStr) return;
+      database.ref(`folgas/${barbeiroLogado.id}/${diaAbertoModalStr}`).remove().then(() => {
+        atualizarBotoesModalDia(diaAbertoModalStr);
+      });
+    }
+
+    function atualizarBotoesModalDia(dataIsoStr) {
+      const emFolga = Boolean(folgasBarbeiroMapa[dataIsoStr]);
+      const btnHoraExtra = document.getElementById('btn-modal-hora-extra');
+      const btnFolga = document.getElementById('btn-modal-folga');
+      const btnCancelarFolga = document.getElementById('btn-modal-cancelar-folga');
+      const bannerFolga = document.getElementById('banner-folga-ativa');
+
+      if (emFolga) {
+        btnHoraExtra.classList.add('hidden');
+        btnFolga.classList.add('hidden');
+        btnCancelarFolga.classList.remove('hidden');
+        bannerFolga.classList.remove('hidden');
+      } else {
+        btnHoraExtra.classList.remove('hidden');
+        btnFolga.classList.remove('hidden');
+        btnCancelarFolga.classList.add('hidden');
+        bannerFolga.classList.add('hidden');
+      }
     }
 
     function abrirModalServicos() { document.getElementById('modal-servicos').classList.remove('hidden'); document.getElementById('modal-servicos').classList.add('flex'); }
@@ -854,12 +947,25 @@
 
     function logarBarbeiro(id) {
       barbeiroLogado = barbeirosLista.find(b => b.id === id);
+      folgasBarbeiroMapa = {};
       esconderTodasTelas();
       document.getElementById('header-user-foto').src = barbeiroLogado.foto || FOTO_PADRAO_BARBEIRO;
       document.getElementById('header-user-nome').innerText = barbeiroLogado.nome;
       document.getElementById('screen-dashboard').classList.remove('hidden');
       document.getElementById('screen-dashboard').classList.add('flex');
+      iniciarEscutasFolgasBarbeiro(barbeiroLogado.id);
       iniciarEscutasAgendamentos();
+    }
+
+    function iniciarEscutasFolgasBarbeiro(barbeiroId) {
+      database.ref('folgas').off();
+      database.ref(`folgas/${barbeiroId}`).on('value', (snapshot) => {
+        folgasBarbeiroMapa = snapshot.val() || {};
+        renderizarCalendarioGestor();
+        if (diaAbertoModalStr) {
+          atualizarBotoesModalDia(diaAbertoModalStr);
+        }
+      });
     }
 
     function voltarParaPerfis() {
@@ -869,6 +975,7 @@
     }
 
     function iniciarEscutasAgendamentos() {
+      database.ref('agendamentos').off();
       database.ref('agendamentos').on('value', (snapshot) => {
         const dados = snapshot.val();
         agendamentosLista = [];
@@ -918,16 +1025,22 @@
         const diaStr = String(dia).padStart(2, '0');
         const dataIsoStr = `${ano}-${mesStr}-${diaStr}`;
 
+        const emFolga = Boolean(folgasBarbeiroMapa[dataIsoStr]);
         const qtdPedidos = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome && a.data === dataIsoStr && a.status !== 'Cancelado').length;
 
         let badgeHtml = '';
-        if (qtdPedidos > 0) {
+        if (emFolga) {
+          badgeHtml = `<span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 text-[7px] sm:text-[8px] font-black uppercase tracking-wider text-red-400">FOLGA</span>`;
+        } else if (qtdPedidos > 0) {
           badgeHtml = `<span class="absolute top-1 right-1 bg-emerald-500 text-black text-[9px] font-black w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center shadow">${qtdPedidos}</span>`;
         }
 
+        const classesDia = emFolga
+          ? "relative w-full h-10 sm:h-12 rounded-xl border border-red-500/40 bg-red-500/10 hover:border-red-400 text-red-300 text-xs font-bold flex items-center justify-center transition active:scale-95"
+          : "relative w-full h-10 sm:h-12 rounded-xl border border-pegas-border bg-black hover:border-gray-400 text-white text-xs font-bold flex items-center justify-center transition active:scale-95";
+
         containerDias.innerHTML += `
-          <button type="button" onclick="abrirModalDia('${dataIsoStr}')" 
-            class="relative w-full h-10 sm:h-12 rounded-xl border border-pegas-border bg-black hover:border-gray-400 text-white text-xs font-bold flex items-center justify-center transition active:scale-95">
+          <button type="button" onclick="abrirModalDia('${dataIsoStr}')" class="${classesDia}">
             <span>${dia}</span>
             ${badgeHtml}
           </button>
@@ -939,6 +1052,7 @@
       diaAbertoModalStr = dataIsoStr;
       const partes = dataIsoStr.split('-');
       document.getElementById('modal-dia-titulo').innerText = `Agendamentos (${partes[2]}/${partes[1]}/${partes[0]})`;
+      atualizarBotoesModalDia(dataIsoStr);
       renderizarListaModalDia(dataIsoStr);
       document.getElementById('modal-dia-calendario').classList.remove('hidden');
       document.getElementById('modal-dia-calendario').classList.add('flex');
@@ -946,6 +1060,7 @@
 
     function fecharModalDia() {
       diaAbertoModalStr = null;
+      fecharModalConfirmarFolga();
       document.getElementById('modal-dia-calendario').classList.add('hidden');
     }
 
