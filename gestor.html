@@ -65,7 +65,12 @@
           </div>
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Senha</label>
-            <input type="password" id="gestor-login-senha" required placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+            <div class="relative">
+              <input type="password" id="gestor-login-senha" required placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 pr-10 text-xs text-white focus:outline-none focus:border-white">
+              <button type="button" onclick="toggleVisibilidadeSenha('gestor-login-senha', 'icon-gestor-login-senha')" class="absolute inset-y-0 right-0 px-3 text-gray-400 hover:text-white flex items-center" title="Mostrar/Ocultar senha">
+                <i id="icon-gestor-login-senha" class="fa-solid fa-eye text-xs"></i>
+              </button>
+            </div>
           </div>
           <button type="submit" class="w-full py-3 bg-white text-black font-black text-xs uppercase tracking-wider rounded-xl hover:bg-gray-200 transition">
             Entrar no Painel
@@ -83,7 +88,12 @@
           </div>
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Senha (Mínimo 6 dígitos)</label>
-            <input type="password" id="gestor-reg-senha" minlength="6" required placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+            <div class="relative">
+              <input type="password" id="gestor-reg-senha" minlength="6" required placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 pr-10 text-xs text-white focus:outline-none focus:border-white">
+              <button type="button" onclick="toggleVisibilidadeSenha('gestor-reg-senha', 'icon-gestor-reg-senha')" class="absolute inset-y-0 right-0 px-3 text-gray-400 hover:text-white flex items-center" title="Mostrar/Ocultar senha">
+                <i id="icon-gestor-reg-senha" class="fa-solid fa-eye text-xs"></i>
+              </button>
+            </div>
           </div>
           <button type="submit" class="w-full py-3 bg-white text-black font-black text-xs uppercase tracking-wider rounded-xl hover:bg-gray-200 transition">
             Criar Conta e Assinar
@@ -553,6 +563,51 @@
 
     let dataCalendarioAtual = new Date();
     let diaAbertoModalStr = null;
+
+    function toggleVisibilidadeSenha(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (!input || !icon) return;
+
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+
+    function converterHoraParaMinutos(strHora) {
+      if (!strHora || !String(strHora).includes(':')) return 0;
+      const partes = String(strHora).trim().split(':');
+      const h = parseInt(partes[0], 10) || 0;
+      const m = parseInt(partes[1], 10) || 0;
+      return (h * 60) + m;
+    }
+
+    function formatarMinutosParaHora(totalMinutos) {
+      const h = Math.floor(totalMinutos / 60);
+      const m = totalMinutos % 60;
+      return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    }
+
+    function formatarHorarioAgendamentoGestor(item) {
+      if (item.horaFim) {
+        return `${item.hora} às ${item.horaFim}`;
+      }
+      const tmc = parseInt(barbeiroLogado?.tmc, 10) || 30;
+      const srv = servicosLista.find(s => s.nome && item.serviço && s.nome.trim().toLowerCase() === item.serviço.trim().toLowerCase());
+      const duracao = parseInt(item.duracao, 10) || (srv ? parseInt(srv.duracao, 10) : tmc);
+      const slots = Math.max(1, Math.ceil(duracao / tmc));
+      if (slots > 1) {
+        const fim = formatarMinutosParaHora(converterHoraParaMinutos(item.hora) + (slots * tmc));
+        return `${item.hora} às ${fim}`;
+      }
+      return item.hora;
+    }
 
     auth.onAuthStateChanged((user) => {
       if (user) {
@@ -1126,6 +1181,7 @@
 
         const nomeFormatado = formatarPrimeiroUltimoNome(item.cliente);
         const btnWhats = gerarBotaoWhatsapp(item.telefone);
+        const horarioExibicao = formatarHorarioAgendamentoGestor(item);
 
         container.innerHTML += `
           <div class="bg-black border border-pegas-border p-3.5 rounded-xl flex items-center justify-between">
@@ -1135,7 +1191,7 @@
                 ${btnWhats}
                 ${statusBadge}
               </div>
-              <p class="text-[11px] text-gray-400"><strong class="text-white">${item.hora}</strong> • ${item.serviço} • R$ ${item.valor},00</p>
+              <p class="text-[11px] text-gray-400"><strong class="text-white">${horarioExibicao}</strong> • ${item.serviço} • R$ ${item.valor},00</p>
             </div>
             <div class="flex items-center space-x-1.5">
               ${botoesAcao}
@@ -1221,6 +1277,7 @@
         const dataFmt = item.data ? item.data.split('-').reverse().join('/') : '---';
         const nomeFormatado = formatarPrimeiroUltimoNome(item.cliente);
         const btnWhats = gerarBotaoWhatsapp(item.telefone);
+        const horarioExibicao = formatarHorarioAgendamentoGestor(item);
 
         container.innerHTML += `
           <div class="bg-pegas-card border border-pegas-border p-3.5 sm:p-4 rounded-xl flex items-center justify-between">
@@ -1230,7 +1287,7 @@
                 ${btnWhats}
                 ${statusBadge}
               </div>
-              <p class="text-xs text-gray-400"><strong class="text-white">${dataFmt} às ${item.hora}</strong> • ${item.serviço} • R$ ${item.valor},00</p>
+              <p class="text-xs text-gray-400"><strong class="text-white">${dataFmt} • ${horarioExibicao}</strong> • ${item.serviço} • R$ ${item.valor},00</p>
             </div>
             <div class="flex items-center space-x-1.5">
               ${botoesAcao}
