@@ -35,6 +35,12 @@
     .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #0a0a0a; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+    .story-ring-inactive {
+      background: #3a3a3c;
+    }
+    .story-ring-active {
+      background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    }
   </style>
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-white selection:text-black">
@@ -160,13 +166,22 @@
   <!-- TELA 4: DASHBOARD COMPLETO DO GESTOR -->
   <div id="screen-dashboard" class="hidden flex-col min-h-screen">
     
-    <!-- HEADER LIMPO COM O DROPDOWN DO PERFIL -->
+    <!-- HEADER COM BOTÃO DE STORIES ESTILO INSTAGRAM NO ÍCONE DA BARBEARIA -->
     <header class="bg-pegas-card border-b border-pegas-border sticky top-0 z-30">
       <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
-        <div class="flex items-center space-x-2 sm:space-x-3">
-          <div class="w-8 h-8 sm:w-10 sm:h-10 border border-white/20 rounded-full flex items-center justify-center bg-black overflow-hidden p-1">
-            <img src="icon.png" alt="Barbearia Araujo" class="w-full h-full object-contain" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
-          </div>
+        <div class="flex items-center space-x-2.5 sm:space-x-3">
+          <!-- BOTÃO STORIES ESTILO INSTAGRAM -->
+          <button type="button" onclick="abrirModalNovoStory()" title="Postar novo story" class="relative group focus:outline-none active:scale-95 transition">
+            <div id="story-ring-header" class="story-ring-inactive w-9 h-9 sm:w-11 sm:h-11 rounded-full p-[2.5px] flex items-center justify-center transition-all duration-300 shadow-lg">
+              <div class="w-full h-full rounded-full bg-black p-[2px] flex items-center justify-center overflow-hidden">
+                <img src="icon.png" alt="Postar Story" class="w-full h-full object-contain rounded-full" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
+              </div>
+            </div>
+            <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-white text-black border border-black flex items-center justify-center text-[8px] sm:text-[9px] font-black shadow">
+              <i class="fa-solid fa-plus"></i>
+            </span>
+          </button>
+
           <div>
             <h1 class="text-xs sm:text-sm font-black tracking-wider text-white leading-none uppercase">BARBEARIA ARAUJO</h1>
             <p class="text-[8px] tracking-[0.25em] text-emerald-400 uppercase font-semibold mt-0.5">PAINEL PRO</p>
@@ -285,6 +300,58 @@
         <span id="badge-vencimento" class="text-gray-400 text-[10px] sm:text-[11px]">Vencimento: ---</span>
       </div>
     </footer>
+  </div>
+
+  <!-- POP-UP MODAL: POSTAR NOVO STORY -->
+  <div id="modal-novo-story" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-3 sm:p-4 fade-in">
+    <div class="bg-pegas-card border border-pegas-border w-full max-w-md rounded-2xl p-4 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between border-b border-pegas-border pb-3">
+        <div>
+          <h3 class="font-extrabold text-white text-sm sm:text-base uppercase tracking-wider">Postar novo story</h3>
+          <p class="text-[10px] text-gray-400">Visível para os clientes até o final do dia (23:59)</p>
+        </div>
+        <button type="button" onclick="fecharModalNovoStory()" class="text-gray-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form onsubmit="publicarStoryFirebase(event)" class="space-y-3">
+        <!-- PRÉVIA DA FOTO DO STORY -->
+        <div id="story-preview-wrapper" class="hidden flex-col items-center space-y-2 bg-black border border-pegas-border rounded-2xl p-3">
+          <img id="story-preview-img" src="" alt="Prévia do Story" class="w-40 h-56 object-cover rounded-xl border border-white/15">
+          <span class="text-[10px] text-emerald-400 font-semibold"><i class="fa-solid fa-compress mr-1"></i>Imagem otimizada automaticamente</span>
+        </div>
+
+        <!-- SELETOR DE FOTO DO DISPOSITIVO -->
+        <label class="cursor-pointer w-full py-3.5 px-4 bg-black border-2 border-dashed border-pegas-border hover:border-white rounded-2xl flex flex-col items-center justify-center space-y-1.5 transition">
+          <div class="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white">
+            <i class="fa-solid fa-camera text-sm"></i>
+          </div>
+          <span id="story-label-arquivo" class="text-xs font-bold text-white">Selecionar foto do dispositivo</span>
+          <span class="text-[10px] text-gray-400">Toque para escolher da galeria ou câmera</span>
+          <input type="file" id="story-input-arquivo" accept="image/*" onchange="processarUploadImagem(event, 'story')" class="hidden">
+        </label>
+        <input type="hidden" id="story-foto-base64">
+
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Legenda (Opcional)</label>
+          <input type="text" id="story-legenda" maxlength="80" placeholder="Ex: Degradê navalhado feito agora!" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+        </div>
+
+        <div class="flex justify-end space-x-2 pt-2 border-t border-pegas-border">
+          <button type="button" onclick="fecharModalNovoStory()" class="px-4 py-2 bg-black border border-pegas-border text-gray-400 text-xs font-bold rounded-xl hover:text-white">Cancelar</button>
+          <button type="submit" id="btn-publicar-story" class="px-5 py-2 bg-white text-black text-xs font-extrabold uppercase rounded-xl hover:bg-gray-200 transition">
+            Publicar Story
+          </button>
+        </div>
+      </form>
+
+      <!-- LISTA DE STORIES ATIVOS HOJE -->
+      <div id="secao-stories-ativos" class="hidden pt-3 border-t border-pegas-border space-y-2.5">
+        <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Stories ativos hoje</h4>
+        <div id="lista-stories-ativos-gestor" class="grid grid-cols-3 gap-2"></div>
+      </div>
+    </div>
   </div>
 
   <!-- POP-UP MODAL: AGENDAMENTOS DO DIA SELECIONADO NO CALENDÁRIO + HORA EXTRA + FOLGA -->
@@ -557,6 +624,7 @@
     let barbeiroLogado = null;
     let agendamentosLista = [];
     let folgasBarbeiroMapa = {};
+    let storiesAtivosLista = [];
 
     const LINK_ASAAS_BASE = "https://www.asaas.com/000/c/q7r828t12ir32220";
     const FOTO_PADRAO_BARBEIRO = "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200";
@@ -629,7 +697,8 @@
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement('canvas');
-          const MAX_DIM = 300;
+          const MAX_DIM = modo === 'story' ? 720 : 300;
+          const QUALIDADE = modo === 'story' ? 0.65 : 0.72;
           let width = img.width;
           let height = img.height;
 
@@ -650,7 +719,7 @@
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
 
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.72);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', QUALIDADE);
 
           if (modo === 'edit') {
             document.getElementById('edit-preview-foto').src = compressedDataUrl;
@@ -658,11 +727,143 @@
           } else if (modo === 'create') {
             document.getElementById('create-preview-foto').src = compressedDataUrl;
             document.getElementById('create-barbeiro-foto-base64').value = compressedDataUrl;
+          } else if (modo === 'story') {
+            document.getElementById('story-preview-img').src = compressedDataUrl;
+            document.getElementById('story-foto-base64').value = compressedDataUrl;
+            document.getElementById('story-preview-wrapper').classList.remove('hidden');
+            document.getElementById('story-preview-wrapper').classList.add('flex');
+            document.getElementById('story-label-arquivo').innerText = "Trocar foto selecionada";
           }
         };
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
+    }
+
+    // ==========================================
+    // STORIES (CONTROLE NO GESTOR.HTML)
+    // ==========================================
+    function iniciarEscutasStories() {
+      database.ref('stories').off();
+      database.ref('stories').on('value', (snapshot) => {
+        const dados = snapshot.val() || {};
+        const agora = Date.now();
+        storiesAtivosLista = [];
+
+        for (const id in dados) {
+          const item = dados[id];
+          if (item && item.expiraEm && item.expiraEm > agora) {
+            storiesAtivosLista.push({ id, ...item });
+          } else if (item && item.expiraEm && item.expiraEm <= agora) {
+            // Remove stories expirados do dia anterior automaticamente
+            database.ref(`stories/${id}`).remove();
+          }
+        }
+
+        storiesAtivosLista.sort((a, b) => (b.criadoEm || 0) - (a.criadoEm || 0));
+        atualizarAnelStoriesHeader();
+        renderizarStoriesAtivosGestor();
+      });
+    }
+
+    function atualizarAnelStoriesHeader() {
+      const ring = document.getElementById('story-ring-header');
+      if (!ring) return;
+
+      if (storiesAtivosLista.length > 0) {
+        ring.classList.remove('story-ring-inactive');
+        ring.classList.add('story-ring-active');
+      } else {
+        ring.classList.remove('story-ring-active');
+        ring.classList.add('story-ring-inactive');
+      }
+    }
+
+    function abrirModalNovoStory() {
+      document.getElementById('story-input-arquivo').value = '';
+      document.getElementById('story-foto-base64').value = '';
+      document.getElementById('story-legenda').value = '';
+      document.getElementById('story-label-arquivo').innerText = "Selecionar foto do dispositivo";
+      document.getElementById('story-preview-wrapper').classList.add('hidden');
+      document.getElementById('story-preview-wrapper').classList.remove('flex');
+
+      renderizarStoriesAtivosGestor();
+      document.getElementById('modal-novo-story').classList.remove('hidden');
+      document.getElementById('modal-novo-story').classList.add('flex');
+    }
+
+    function fecharModalNovoStory() {
+      document.getElementById('modal-novo-story').classList.add('hidden');
+    }
+
+    function publicarStoryFirebase(e) {
+      e.preventDefault();
+      const fotoBase64 = document.getElementById('story-foto-base64').value;
+      if (!fotoBase64) {
+        alert("Selecione uma foto do dispositivo antes de publicar o story.");
+        return;
+      }
+
+      const btn = document.getElementById('btn-publicar-story');
+      btn.disabled = true;
+      btn.innerText = "Publicando...";
+
+      const fimDoDia = new Date();
+      fimDoDia.setHours(23, 59, 59, 999);
+
+      const novoStory = {
+        imagem: fotoBase64,
+        legenda: document.getElementById('story-legenda').value.trim(),
+        autorNome: barbeiroLogado ? barbeiroLogado.nome : "Barbearia Araujo",
+        autorFoto: barbeiroLogado?.foto || FOTO_PADRAO_BARBEIRO,
+        criadoEm: Date.now(),
+        expiraEm: fimDoDia.getTime()
+      };
+
+      database.ref('stories').push(novoStory).then(() => {
+        btn.disabled = false;
+        btn.innerText = "Publicar Story";
+        fecharModalNovoStory();
+      }).catch(err => {
+        btn.disabled = false;
+        btn.innerText = "Publicar Story";
+        alert("Erro ao publicar story: " + err.message);
+      });
+    }
+
+    function renderizarStoriesAtivosGestor() {
+      const secao = document.getElementById('secao-stories-ativos');
+      const lista = document.getElementById('lista-stories-ativos-gestor');
+      if (!secao || !lista) return;
+
+      if (storiesAtivosLista.length === 0) {
+        secao.classList.add('hidden');
+        lista.innerHTML = '';
+        return;
+      }
+
+      secao.classList.remove('hidden');
+      lista.innerHTML = '';
+
+      storiesAtivosLista.forEach(s => {
+        lista.innerHTML += `
+          <div class="relative group rounded-xl overflow-hidden border border-pegas-border bg-black aspect-[3/4]">
+            <img src="${s.imagem}" alt="Story" class="w-full h-full object-cover">
+            <button type="button" onclick="excluirStoryFirebase('${s.id}')" title="Remover story" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/80 text-red-400 hover:bg-red-600 hover:text-white flex items-center justify-center text-[10px] transition">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 to-transparent p-1.5">
+              <p class="text-[9px] text-white font-semibold truncate">${s.autorNome || ''}</p>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function excluirStoryFirebase(id) {
+      if (confirm("Remover este story agora?")) {
+        database.ref(`stories/${id}`).remove();
+      }
     }
 
     // MENU PERFIL DROPDOWN NO DASHBOARD
@@ -1008,6 +1209,7 @@
       document.getElementById('header-user-nome').innerText = barbeiroLogado.nome;
       document.getElementById('screen-dashboard').classList.remove('hidden');
       document.getElementById('screen-dashboard').classList.add('flex');
+      iniciarEscutasStories();
       iniciarEscutasFolgasBarbeiro(barbeiroLogado.id);
       iniciarEscutasAgendamentos();
     }
