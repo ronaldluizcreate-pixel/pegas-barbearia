@@ -161,6 +161,9 @@
     </div>
     <!-- CONTAINER FLEX CENTRALIZADO -->
     <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 max-w-4xl w-full" id="container-perfis-barbeiros"></div>
+    <button type="button" onclick="realizarLogoutGestor()" class="text-xs text-gray-500 hover:text-white pt-2 transition">
+      <i class="fa-solid fa-right-from-bracket mr-1"></i> Sair da conta gestor
+    </button>
   </div>
 
   <!-- TELA 4: DASHBOARD COMPLETO DO GESTOR -->
@@ -171,7 +174,7 @@
       <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
         <div class="flex items-center space-x-2.5 sm:space-x-3">
           <!-- BOTÃO STORIES ESTILO INSTAGRAM -->
-          <button type="button" onclick="abrirModalNovoStory()" title="Postar novo story" class="relative group focus:outline-none active:scale-95 transition">
+          <button type="button" onclick="abrirModalNovoStory()" title="Meus Stories" class="relative group focus:outline-none active:scale-95 transition">
             <div id="story-ring-header" class="story-ring-inactive w-9 h-9 sm:w-11 sm:h-11 rounded-full p-[2.5px] flex items-center justify-center transition-all duration-300 shadow-lg">
               <div class="w-full h-full rounded-full bg-black p-[2px] flex items-center justify-center overflow-hidden">
                 <img src="icon.png" alt="Postar Story" class="w-full h-full object-contain rounded-full" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
@@ -302,7 +305,7 @@
     </footer>
   </div>
 
-  <!-- POP-UP MODAL: POSTAR NOVO STORY -->
+  <!-- POP-UP MODAL: POSTAR NOVO STORY + VISUALIZAÇÕES DE CLIENTES (PRIVADO POR BARBEIRO) -->
   <div id="modal-novo-story" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-3 sm:p-4 fade-in">
     <div class="bg-pegas-card border border-pegas-border w-full max-w-md rounded-2xl p-4 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
       <div class="flex items-center justify-between border-b border-pegas-border pb-3">
@@ -346,10 +349,13 @@
         </div>
       </form>
 
-      <!-- LISTA DE STORIES ATIVOS HOJE -->
-      <div id="secao-stories-ativos" class="hidden pt-3 border-t border-pegas-border space-y-2.5">
-        <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Stories ativos hoje</h4>
-        <div id="lista-stories-ativos-gestor" class="grid grid-cols-3 gap-2"></div>
+      <!-- LISTA DE STORIES ATIVOS DO PRÓPRIO BARBEIRO + QUEM VISUALIZOU -->
+      <div id="secao-stories-ativos" class="hidden pt-3 border-t border-pegas-border space-y-3">
+        <div class="flex items-center justify-between">
+          <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Meus stories ativos hoje</h4>
+          <span class="text-[10px] text-gray-500">Exclusivo deste perfil</span>
+        </div>
+        <div id="lista-stories-ativos-gestor" class="space-y-3"></div>
       </div>
     </div>
   </div>
@@ -624,7 +630,7 @@
     let barbeiroLogado = null;
     let agendamentosLista = [];
     let folgasBarbeiroMapa = {};
-    let storiesAtivosLista = [];
+    let storiesDoBarbeiroAtual = [];
 
     const LINK_ASAAS_BASE = "https://www.asaas.com/000/c/q7r828t12ir32220";
     const FOTO_PADRAO_BARBEIRO = "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200";
@@ -677,6 +683,14 @@
       return item.hora;
     }
 
+    function pertenceAoBarbeiroLogado(registro) {
+      if (!barbeiroLogado || !registro) return false;
+      if (registro.barbeiroId) {
+        return registro.barbeiroId === barbeiroLogado.id;
+      }
+      return Boolean(registro.barbeiro && registro.barbeiro.trim().toLowerCase() === barbeiroLogado.nome.trim().toLowerCase());
+    }
+
     auth.onAuthStateChanged((user) => {
       if (user) {
         gestorLogado = user;
@@ -687,7 +701,7 @@
       }
     });
 
-    // COMPRESSOR DE IMAGEM DO DISPOSITIVO (REDIMENSIONA E REDUZ PESO AUTOMATICAMENTE)
+    // COMPRESSOR DE IMAGEM DO DISPOSITIVO
     function processarUploadImagem(event, modo) {
       const file = event.target.files[0];
       if (!file) return;
@@ -741,26 +755,36 @@
     }
 
     // ==========================================
-    // STORIES (CONTROLE NO GESTOR.HTML)
+    // STORIES PRIVADOS POR BARBEIRO + VISUALIZAÇÕES DE CLIENTES
     // ==========================================
     function iniciarEscutasStories() {
       database.ref('stories').off();
       database.ref('stories').on('value', (snapshot) => {
         const dados = snapshot.val() || {};
         const agora = Date.now();
-        storiesAtivosLista = [];
+        storiesDoBarbeiroAtual = [];
 
         for (const id in dados) {
           const item = dados[id];
-          if (item && item.expiraEm && item.expiraEm > agora) {
-            storiesAtivosLista.push({ id, ...item });
-          } else if (item && item.expiraEm && item.expiraEm <= agora) {
-            // Remove stories expirados do dia anterior automaticamente
+          if (!item) continue;
+
+          if (item.expiraEm && item.expiraEm <= agora) {
             database.ref(`stories/${id}`).remove();
+            continue;
+          }
+
+          // Restringe visualização e gerenciamento apenas ao barbeiro que postou o story
+          const ehDoBarbeiroAtual = barbeiroLogado && (
+            (item.autorId && item.autorId === barbeiroLogado.id) ||
+            (!item.autorId && item.autorNome && item.autorNome.trim().toLowerCase() === barbeiroLogado.nome.trim().toLowerCase())
+          );
+
+          if (ehDoBarbeiroAtual && item.expiraEm && item.expiraEm > agora) {
+            storiesDoBarbeiroAtual.push({ id, ...item });
           }
         }
 
-        storiesAtivosLista.sort((a, b) => (b.criadoEm || 0) - (a.criadoEm || 0));
+        storiesDoBarbeiroAtual.sort((a, b) => (b.criadoEm || 0) - (a.criadoEm || 0));
         atualizarAnelStoriesHeader();
         renderizarStoriesAtivosGestor();
       });
@@ -770,7 +794,7 @@
       const ring = document.getElementById('story-ring-header');
       if (!ring) return;
 
-      if (storiesAtivosLista.length > 0) {
+      if (storiesDoBarbeiroAtual.length > 0) {
         ring.classList.remove('story-ring-inactive');
         ring.classList.add('story-ring-active');
       } else {
@@ -798,6 +822,8 @@
 
     function publicarStoryFirebase(e) {
       e.preventDefault();
+      if (!barbeiroLogado) return;
+
       const fotoBase64 = document.getElementById('story-foto-base64').value;
       if (!fotoBase64) {
         alert("Selecione uma foto do dispositivo antes de publicar o story.");
@@ -812,10 +838,12 @@
       fimDoDia.setHours(23, 59, 59, 999);
 
       const novoStory = {
+        gestorUid: gestorLogado ? gestorLogado.uid : '',
+        autorId: barbeiroLogado.id,
+        autorNome: barbeiroLogado.nome,
+        autorFoto: barbeiroLogado.foto || FOTO_PADRAO_BARBEIRO,
         imagem: fotoBase64,
         legenda: document.getElementById('story-legenda').value.trim(),
-        autorNome: barbeiroLogado ? barbeiroLogado.nome : "Barbearia Araujo",
-        autorFoto: barbeiroLogado?.foto || FOTO_PADRAO_BARBEIRO,
         criadoEm: Date.now(),
         expiraEm: fimDoDia.getTime()
       };
@@ -836,7 +864,7 @@
       const lista = document.getElementById('lista-stories-ativos-gestor');
       if (!secao || !lista) return;
 
-      if (storiesAtivosLista.length === 0) {
+      if (storiesDoBarbeiroAtual.length === 0) {
         secao.classList.add('hidden');
         lista.innerHTML = '';
         return;
@@ -845,15 +873,60 @@
       secao.classList.remove('hidden');
       lista.innerHTML = '';
 
-      storiesAtivosLista.forEach(s => {
+      storiesDoBarbeiroAtual.forEach(s => {
+        const visualizacoesObj = s.visualizacoes || {};
+        const visualizacoesLista = Object.values(visualizacoesObj).sort((a, b) => (b.vistoEm || 0) - (a.vistoEm || 0));
+
+        let htmlViews = '';
+        if (visualizacoesLista.length === 0) {
+          htmlViews = `<p class="text-[10px] text-gray-500 italic">Nenhuma visualização de cliente ainda.</p>`;
+        } else {
+          const itensClientes = visualizacoesLista.map(v => {
+            const fotoCli = v.foto || FOTO_PADRAO_BARBEIRO;
+            const nomeCli = v.nome || 'Cliente';
+            let horaVisto = '';
+            if (v.vistoEm) {
+              const dt = new Date(v.vistoEm);
+              horaVisto = `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+            }
+            return `
+              <div class="flex items-center justify-between bg-pegas-card border border-pegas-border/70 px-2.5 py-1.5 rounded-lg">
+                <div class="flex items-center space-x-2 min-w-0">
+                  <img src="${fotoCli}" alt="${nomeCli}" class="w-6 h-6 rounded-full object-cover border border-white/20 flex-shrink-0" onerror="this.src='${FOTO_PADRAO_BARBEIRO}'">
+                  <span class="text-[11px] font-semibold text-white truncate">${nomeCli}</span>
+                </div>
+                ${horaVisto ? `<span class="text-[9px] text-gray-400 flex-shrink-0 ml-2">${horaVisto}</span>` : ''}
+              </div>
+            `;
+          }).join('');
+
+          htmlViews = `<div class="space-y-1.5 max-h-32 overflow-y-auto custom-scrollbar pr-0.5">${itensClientes}</div>`;
+        }
+
+        const dtPost = s.criadoEm ? new Date(s.criadoEm) : null;
+        const horaPost = dtPost ? `${String(dtPost.getHours()).padStart(2, '0')}:${String(dtPost.getMinutes()).padStart(2, '0')}` : 'Hoje';
+
         lista.innerHTML += `
-          <div class="relative group rounded-xl overflow-hidden border border-pegas-border bg-black aspect-[3/4]">
-            <img src="${s.imagem}" alt="Story" class="w-full h-full object-cover">
-            <button type="button" onclick="excluirStoryFirebase('${s.id}')" title="Remover story" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/80 text-red-400 hover:bg-red-600 hover:text-white flex items-center justify-center text-[10px] transition">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 to-transparent p-1.5">
-              <p class="text-[9px] text-white font-semibold truncate">${s.autorNome || ''}</p>
+          <div class="bg-black border border-pegas-border rounded-xl p-3 space-y-2.5">
+            <div class="flex items-start justify-between gap-2.5">
+              <div class="flex items-center space-x-2.5 min-w-0">
+                <img src="${s.imagem}" alt="Story" class="w-12 h-16 rounded-lg object-cover border border-white/15 flex-shrink-0">
+                <div class="min-w-0">
+                  <p class="text-[11px] font-bold text-white truncate">${s.legenda || 'Story sem legenda'}</p>
+                  <p class="text-[10px] text-gray-400 mt-0.5">Postado hoje às ${horaPost}</p>
+                  <p class="text-[10px] text-emerald-400 font-bold mt-1">
+                    <i class="fa-solid fa-eye mr-1"></i>${visualizacoesLista.length} ${visualizacoesLista.length === 1 ? 'visualização' : 'visualizações'}
+                  </p>
+                </div>
+              </div>
+              <button type="button" onclick="excluirStoryFirebase('${s.id}')" title="Apagar meu story" class="w-7 h-7 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-600 hover:text-white flex items-center justify-center text-xs transition flex-shrink-0">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+
+            <div class="pt-2 border-t border-pegas-border/80 space-y-1.5">
+              <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">Visto por:</p>
+              ${htmlViews}
             </div>
           </div>
         `;
@@ -861,6 +934,8 @@
     }
 
     function excluirStoryFirebase(id) {
+      const storyAlvo = storiesDoBarbeiroAtual.find(item => item.id === id);
+      if (!storyAlvo) return;
       if (confirm("Remover este story agora?")) {
         database.ref(`stories/${id}`).remove();
       }
@@ -897,7 +972,7 @@
       }
     });
 
-    // MODAL CRIAR NOVO PERFIL DE BARBEIRO
+    // MODAL CRIAR NOVO PERFIL DE BARBEIRO (VINCULADO À CONTA DO GESTOR LOGADO)
     function abrirModalCriarPerfil() {
       document.getElementById('create-barbeiro-nome').value = '';
       document.getElementById('create-barbeiro-inicio').value = 8;
@@ -917,13 +992,17 @@
 
     function criarNovoBarbeiroFirebase(e) {
       e.preventDefault();
+      if (!gestorLogado) return;
+
       const dados = {
+        gestorUid: gestorLogado.uid,
         nome: document.getElementById('create-barbeiro-nome').value.trim(),
         inicio: Number(document.getElementById('create-barbeiro-inicio').value),
         jornada: Number(document.getElementById('create-barbeiro-jornada').value),
         tmc: Number(document.getElementById('create-barbeiro-tmc').value),
         foto: document.getElementById('create-barbeiro-foto-base64').value || FOTO_PADRAO_BARBEIRO,
-        desc: document.getElementById('create-barbeiro-desc').value.trim()
+        desc: document.getElementById('create-barbeiro-desc').value.trim(),
+        criadoEm: Date.now()
       };
 
       database.ref('barbeiros').push(dados).then(() => {
@@ -931,11 +1010,50 @@
       });
     }
 
-    function excluirBarbeiroPerfil(event, id, nome) {
+    // EXCLUSÃO COMPLETA DO BARBEIRO E DE TODOS OS SEUS DADOS NO SERVIDOR
+    async function excluirBarbeiroPerfil(event, id, nome) {
       event.stopPropagation();
       document.querySelectorAll('[id^="menu-card-"]').forEach(el => el.classList.add('hidden'));
-      if (confirm(`Tem certeza que deseja excluir o perfil de "${nome}"?`)) {
-        database.ref(`barbeiros/${id}`).remove();
+
+      if (!confirm(`Tem certeza que deseja excluir o perfil de "${nome}" e apagar TODOS os agendamentos, folgas, horas extras e stories vinculados a ele?`)) {
+        return;
+      }
+
+      try {
+        // 1. Remove o perfil do barbeiro
+        await database.ref(`barbeiros/${id}`).remove();
+
+        // 2. Remove folgas e horas extras vinculadas ao ID deste barbeiro
+        await database.ref(`folgas/${id}`).remove();
+        await database.ref(`horasExtras/${id}`).remove();
+
+        // 3. Remove todos os agendamentos vinculados a este barbeiro (por ID ou nome legado)
+        const snapAg = await database.ref('agendamentos').once('value');
+        const promessasLimpeza = [];
+        snapAg.forEach(child => {
+          const val = child.val();
+          if (val && (val.barbeiroId === id || (!val.barbeiroId && val.barbeiro && val.barbeiro.trim().toLowerCase() === nome.trim().toLowerCase()))) {
+            promessasLimpeza.push(database.ref(`agendamentos/${child.key}`).remove());
+          }
+        });
+
+        // 4. Remove todos os stories postados por este barbeiro
+        const snapStories = await database.ref('stories').once('value');
+        snapStories.forEach(child => {
+          const val = child.val();
+          if (val && (val.autorId === id || (!val.autorId && val.autorNome && val.autorNome.trim().toLowerCase() === nome.trim().toLowerCase()))) {
+            promessasLimpeza.push(database.ref(`stories/${child.key}`).remove());
+          }
+        });
+
+        await Promise.all(promessasLimpeza);
+
+        if (barbeiroLogado && barbeiroLogado.id === id) {
+          barbeiroLogado = null;
+          voltarParaPerfis();
+        }
+      } catch (err) {
+        alert("Erro ao excluir perfil e limpar registros: " + err.message);
       }
     }
 
@@ -965,6 +1083,7 @@
       if (!barbeiroLogado) return;
 
       const dados = {
+        gestorUid: barbeiroLogado.gestorUid || (gestorLogado ? gestorLogado.uid : ''),
         inicio: Number(document.getElementById('edit-barbeiro-inicio').value),
         jornada: Number(document.getElementById('edit-barbeiro-jornada').value),
         tmc: Number(document.getElementById('edit-barbeiro-tmc').value),
@@ -1026,6 +1145,7 @@
       if (!barbeiroLogado || !diaAbertoModalStr) return;
       database.ref(`folgas/${barbeiroLogado.id}/${diaAbertoModalStr}`).set({
         folga: true,
+        barbeiroId: barbeiroLogado.id,
         barbeiro: barbeiroLogado.nome,
         criadoEm: new Date().toISOString()
       }).then(() => {
@@ -1109,10 +1229,12 @@
       auth.signOut().then(() => {
         gestorLogado = null;
         barbeiroLogado = null;
+        barbeirosLista = [];
       });
     }
 
     function escutarAssinaturaGestor(uid) {
+      database.ref(`assinaturasGestores/${uid}`).off();
       database.ref(`assinaturasGestores/${uid}`).on('value', (snapshot) => {
         const dados = snapshot.val();
         const hojeStr = new Date().toISOString().split('T')[0];
@@ -1123,9 +1245,11 @@
           document.getElementById('screen-blocked-pro').classList.add('flex');
         } else {
           document.getElementById('badge-vencimento').innerText = `Vencimento: ${dados.vencimento.split('-').reverse().join('/')}`;
-          esconderTodasTelas();
-          document.getElementById('screen-profiles').classList.remove('hidden');
-          document.getElementById('screen-profiles').classList.add('flex');
+          if (!barbeiroLogado) {
+            esconderTodasTelas();
+            document.getElementById('screen-profiles').classList.remove('hidden');
+            document.getElementById('screen-profiles').classList.add('flex');
+          }
           escutarBarbeirosFirebase();
           escutarServicosFirebase();
         }
@@ -1139,18 +1263,34 @@
       document.getElementById('screen-dashboard').classList.add('hidden');
     }
 
+    // CARREGA APENAS OS BARBEIROS PERTENCENTES À CONTA DO GESTOR LOGADO
     function escutarBarbeirosFirebase() {
+      if (!gestorLogado) return;
+      database.ref('barbeiros').off();
       database.ref('barbeiros').on('value', (snapshot) => {
-        const dados = snapshot.val();
+        const dados = snapshot.val() || {};
         barbeirosLista = [];
-        for (let id in dados) { 
-          barbeirosLista.push({ id: id, ...dados[id] });
-        }
+
+        // Verifica se existem perfis legados sem gestorUid (da conta piloto original)
+        const todosRegistros = Object.entries(dados).map(([id, val]) => ({ id, ...val }));
+        const possuiVinculoProprio = todosRegistros.some(b => b.gestorUid === gestorLogado.uid);
+
+        todosRegistros.forEach(b => {
+          if (b.gestorUid === gestorLogado.uid) {
+            barbeirosLista.push(b);
+          } else if (!b.gestorUid && !possuiVinculoProprio && Object.keys(dados).length > 0 && gestorLogado.email && gestorLogado.email.toLowerCase().includes('araujo')) {
+            // Migra automaticamente os perfis antigos sem gestorUid apenas para a conta da Barbearia Araujo
+            database.ref(`barbeiros/${b.id}`).update({ gestorUid: gestorLogado.uid });
+            barbeirosLista.push({ ...b, gestorUid: gestorLogado.uid });
+          }
+        });
+
         renderizarPerfis();
       });
     }
 
     function escutarServicosFirebase() {
+      database.ref('servicos').off();
       database.ref('servicos').on('value', (snapshot) => {
         const dados = snapshot.val();
         servicosLista = [];
@@ -1203,7 +1343,9 @@
 
     function logarBarbeiro(id) {
       barbeiroLogado = barbeirosLista.find(b => b.id === id);
+      if (!barbeiroLogado) return;
       folgasBarbeiroMapa = {};
+      storiesDoBarbeiroAtual = [];
       esconderTodasTelas();
       document.getElementById('header-user-foto').src = barbeiroLogado.foto || FOTO_PADRAO_BARBEIRO;
       document.getElementById('header-user-nome').innerText = barbeiroLogado.nome;
@@ -1226,6 +1368,7 @@
     }
 
     function voltarParaPerfis() {
+      barbeiroLogado = null;
       esconderTodasTelas();
       document.getElementById('screen-profiles').classList.remove('hidden');
       document.getElementById('screen-profiles').classList.add('flex');
@@ -1258,6 +1401,8 @@
       const labelMesAno = document.getElementById('label-mes-ano-calendario');
       containerDias.innerHTML = '';
 
+      if (!barbeiroLogado) return;
+
       const ano = dataCalendarioAtual.getFullYear();
       const mes = dataCalendarioAtual.getMonth();
 
@@ -1283,7 +1428,7 @@
         const dataIsoStr = `${ano}-${mesStr}-${diaStr}`;
 
         const emFolga = Boolean(folgasBarbeiroMapa[dataIsoStr]);
-        const qtdPedidos = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome && a.data === dataIsoStr && a.status !== 'Cancelado').length;
+        const qtdPedidos = agendamentosLista.filter(a => pertenceAoBarbeiroLogado(a) && a.data === dataIsoStr && a.status !== 'Cancelado').length;
 
         let badgeHtml = '';
         if (emFolga) {
@@ -1344,7 +1489,7 @@
       const container = document.getElementById('modal-dia-lista');
       container.innerHTML = '';
 
-      const filtrados = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome && a.data === dataIsoStr);
+      const filtrados = agendamentosLista.filter(a => pertenceAoBarbeiroLogado(a) && a.data === dataIsoStr);
 
       if (filtrados.length === 0) {
         container.innerHTML = `<p class="text-xs text-gray-500 text-center py-8">Nenhum agendamento para esta data.</p>`;
@@ -1412,7 +1557,7 @@
 
       const hojeIso = new Date().toISOString().split('T')[0];
 
-      const doDiaGeral = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome && a.data === hojeIso && a.status !== 'Cancelado');
+      const doDiaGeral = agendamentosLista.filter(a => pertenceAoBarbeiroLogado(a) && a.data === hojeIso && a.status !== 'Cancelado');
       document.getElementById('stat-total').innerText = doDiaGeral.length;
       document.getElementById('stat-confirmados').innerText = doDiaGeral.filter(a => a.status === 'Confirmado').length;
       document.getElementById('stat-pendentes').innerText = doDiaGeral.filter(a => a.status === 'Pendente').length;
@@ -1423,7 +1568,7 @@
 
       let faturamentoMesCalculado = 0;
       agendamentosLista.forEach(a => {
-        if (a.barbeiro === barbeiroLogado.nome && a.status === 'Concluído' && a.data) {
+        if (pertenceAoBarbeiroLogado(a) && a.status === 'Concluído' && a.data) {
           if (a.data.startsWith(prefixoMesAnoCal)) {
             faturamentoMesCalculado += Number(a.valor || 0);
           }
@@ -1431,7 +1576,7 @@
       });
       document.getElementById('stat-faturamento').innerText = `R$ ${faturamentoMesCalculado.toFixed(2)}`;
 
-      let listagem = agendamentosLista.filter(a => a.barbeiro === barbeiroLogado.nome);
+      let listagem = agendamentosLista.filter(a => pertenceAoBarbeiroLogado(a));
 
       if (statusFiltro === 'Ativos') {
         listagem = listagem.filter(a => a.status === 'Pendente' || a.status === 'Confirmado');
