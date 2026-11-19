@@ -77,12 +77,12 @@
         <form id="form-login-gestor" onsubmit="realizarLoginGestor(event)" class="space-y-3">
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">E-mail</label>
-            <input type="email" id="gestor-login-email" required placeholder="seu@email.com" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
+            <input type="email" id="gestor-login-email" autocomplete="email" required placeholder="seu@email.com" class="w-full bg-black border border-pegas-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-white">
           </div>
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Senha</label>
             <div class="relative">
-              <input type="password" id="gestor-login-senha" required placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 pr-10 text-xs text-white focus:outline-none focus:border-white">
+              <input type="password" id="gestor-login-senha" autocomplete="current-password" required placeholder="••••••••" class="w-full bg-black border border-pegas-border rounded-xl p-3 pr-10 text-xs text-white focus:outline-none focus:border-white">
               <button type="button" onclick="toggleVisibilidadeSenha('gestor-login-senha', 'icon-gestor-login-senha')" class="absolute inset-y-0 right-0 px-3 text-gray-400 hover:text-white flex items-center" title="Mostrar/Ocultar senha">
                 <i id="icon-gestor-login-senha" class="fa-solid fa-eye text-xs"></i>
               </button>
@@ -289,21 +289,27 @@
         <div id="container-calendario-dias" class="grid grid-cols-7 gap-1.5 sm:gap-2 pt-1"></div>
       </section>
 
-      <!-- FILTROS DE STATUS E LISTAGEM PRINCIPAL GLOBAL -->
+      <!-- FILTROS DE STATUS E BOTÃO DE AGENDAMENTO MANUAL -->
       <section class="bg-pegas-card border border-pegas-border p-3.5 sm:p-4 rounded-2xl space-y-3">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h3 class="text-xs font-extrabold text-white uppercase tracking-wider">Agendamentos Gerais</h3>
-            <p class="text-[10px] text-gray-400">Lista geral independente do calendário</p>
+            <p class="text-[10px] text-gray-400">Lista geral ou marcação presencial no balcão</p>
           </div>
-          <select id="gestor-filtro-status" onchange="renderizarAgendamentosGestor()" class="bg-black border border-pegas-border rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none">
-            <option value="Ativos">Ativos (Pend. e Conf.)</option>
-            <option value="Todos">Todos os Status</option>
-            <option value="Pendente">Apenas Pendentes</option>
-            <option value="Confirmado">Apenas Confirmados</option>
-            <option value="Concluído">Apenas Concluídos</option>
-            <option value="Cancelado">Apenas Cancelados</option>
-          </select>
+          <div class="flex items-center space-x-2">
+            <button type="button" onclick="abrirModalAgendamentoManual()" class="px-3 py-1.5 bg-white text-black text-xs font-extrabold rounded-xl hover:bg-gray-200 flex items-center space-x-1.5 transition active:scale-95">
+              <i class="fa-solid fa-plus text-[11px]"></i>
+              <span>Agendar Cliente</span>
+            </button>
+            <select id="gestor-filtro-status" onchange="renderizarAgendamentosGestor()" class="bg-black border border-pegas-border rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none">
+              <option value="Ativos">Ativos (Pend. e Conf.)</option>
+              <option value="Todos">Todos os Status</option>
+              <option value="Pendente">Apenas Pendentes</option>
+              <option value="Confirmado">Apenas Confirmados</option>
+              <option value="Concluído">Apenas Concluídos</option>
+              <option value="Cancelado">Apenas Cancelados</option>
+            </select>
+          </div>
         </div>
       </section>
 
@@ -323,6 +329,107 @@
         <span id="badge-vencimento" class="text-gray-400 text-[10px] sm:text-[11px]">Vencimento: ---</span>
       </div>
     </footer>
+  </div>
+
+  <!-- POP-UP MODAL: AGENDAMENTO MANUAL PELO GESTOR (CLIENTE PRESENCIAL / SEM CELULAR) -->
+  <div id="modal-agendamento-manual" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-[65] hidden items-center justify-center p-3 sm:p-4 fade-in">
+    <div class="bg-pegas-card border border-pegas-border w-full max-w-md rounded-2xl p-4 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between border-b border-pegas-border pb-3">
+        <div>
+          <h3 class="font-extrabold text-white text-sm sm:text-base uppercase tracking-wider">Agendar Cliente (Balcão)</h3>
+          <p class="text-[10px] text-gray-400">Reserva direta na sua agenda (já entra como Confirmado)</p>
+        </div>
+        <button type="button" onclick="fecharModalAgendamentoManual()" class="text-gray-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form onsubmit="salvarAgendamentoManualFirebase(event)" class="space-y-3">
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Nome do Cliente *</label>
+          <input type="text" id="manual-cliente-nome" required placeholder="Ex: João Silva (Balcão)" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+        </div>
+
+        <div>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">WhatsApp / Telefone (Opcional)</label>
+          <input type="tel" id="manual-cliente-telefone" placeholder="(84) 99999-9999" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Serviço *</label>
+            <select id="manual-servico-select" required onchange="atualizarHorariosLivresManual()" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Data *</label>
+            <input type="date" id="manual-data-input" required onchange="atualizarHorariosLivresManual()" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-[10px] text-gray-400 font-bold uppercase">Horário Livre *</label>
+            <span id="manual-info-duracao" class="text-[10px] text-gray-400"></span>
+          </div>
+          <select id="manual-hora-select" required class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+            <option value="">Escolha serviço e data...</option>
+          </select>
+          <p id="manual-aviso-indisponivel" class="hidden text-[11px] text-red-400 mt-1.5 font-semibold"></p>
+        </div>
+
+        <div class="flex justify-end space-x-2 pt-3 border-t border-pegas-border">
+          <button type="button" onclick="fecharModalAgendamentoManual()" class="px-4 py-2 bg-black border border-pegas-border text-gray-400 text-xs font-bold rounded-xl hover:text-white">Cancelar</button>
+          <button type="submit" id="btn-salvar-agendamento-manual" class="px-5 py-2 bg-white text-black text-xs font-extrabold uppercase rounded-xl hover:bg-gray-200 transition">
+            Confirmar Horário
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- POP-UP MODAL: ALTERAR EXPEDIENTE DE UM DIA ESPECÍFICO (EX: SÁBADO) -->
+  <div id="modal-expediente-dia" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-[65] hidden items-center justify-center p-3 sm:p-4 fade-in">
+    <div class="bg-pegas-card border border-pegas-border w-full max-w-sm rounded-2xl p-4 sm:p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-pegas-border pb-3">
+        <div>
+          <h3 class="font-extrabold text-white text-sm uppercase tracking-wider">Editar Expediente</h3>
+          <p id="subtitulo-expediente-data" class="text-[10px] text-gray-400">Data: ---</p>
+        </div>
+        <button type="button" onclick="fecharModalExpedienteDia()" class="text-gray-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form onsubmit="salvarExpedienteDiaFirebase(event)" class="space-y-3">
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Abertura (Hora)</label>
+            <input type="number" id="exp-dia-inicio" required min="0" max="23" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+          </div>
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Fechamento (Hora)</label>
+            <input type="number" id="exp-dia-fim" required min="1" max="24" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-white">
+          </div>
+        </div>
+
+        <label class="flex items-start space-x-2 bg-black border border-pegas-border p-2.5 rounded-xl cursor-pointer">
+          <input type="checkbox" id="exp-dia-repetir-mes" class="mt-0.5 accent-white">
+          <span id="exp-dia-repetir-label" class="text-[11px] text-gray-300 leading-snug">Aplicar para todos os dias iguais deste mês</span>
+        </label>
+
+        <div class="flex flex-col space-y-2 pt-2 border-t border-pegas-border">
+          <div class="flex justify-end space-x-2">
+            <button type="button" onclick="fecharModalExpedienteDia()" class="px-3.5 py-2 bg-black border border-pegas-border text-gray-400 text-xs font-bold rounded-xl hover:text-white">Cancelar</button>
+            <button type="submit" class="px-4 py-2 bg-white text-black text-xs font-extrabold uppercase rounded-xl hover:bg-gray-200 transition">Salvar Horário</button>
+          </div>
+          <button type="button" id="btn-restaurar-expediente-padrao" onclick="restaurarExpedientePadraoDia()" class="hidden w-full py-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-bold rounded-xl hover:bg-amber-500/20 transition">
+            Restaurar Expediente Padrão deste Dia
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- MODAL DISCRETO: INSTRUÇÕES DE INSTALAÇÃO PWA NO IPHONE/SAFARI -->
@@ -402,35 +509,52 @@
     </div>
   </div>
 
-  <!-- POP-UP MODAL: AGENDAMENTOS DO DIA SELECIONADO NO CALENDÁRIO + HORA EXTRA + FOLGA -->
+  <!-- POP-UP MODAL: AGENDAMENTOS DO DIA SELECIONADO NO CALENDÁRIO + EXPEDIENTE + HORA EXTRA + FOLGA -->
   <div id="modal-dia-calendario" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3 sm:p-4 fade-in">
     <div class="bg-pegas-card border border-pegas-border w-full max-w-lg rounded-2xl p-4 sm:p-6 space-y-4 max-h-[85vh] flex flex-col">
-      <div class="flex items-center justify-between border-b border-pegas-border pb-3 flex-shrink-0 gap-2">
+      <div class="flex items-start justify-between border-b border-pegas-border pb-3 flex-shrink-0 gap-2">
         <div>
           <h3 id="modal-dia-titulo" class="font-black text-white text-sm sm:text-base">Agendamentos do Dia</h3>
-          <p id="modal-dia-subtitulo" class="text-[10px] text-gray-400">Gerencie os cortes marcados para esta data</p>
+          <p id="modal-dia-subtitulo" class="text-[10px] text-gray-400">Gerencie horários, expediente ou folga desta data</p>
         </div>
-        <div class="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
-          <!-- BOTÕES NORMAIS (QUANDO NÃO É FOLGA) -->
-          <button id="btn-modal-hora-extra" onclick="abrirModalHoraExtraComData()" class="px-2.5 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold rounded-xl hover:bg-emerald-500/20 flex items-center space-x-1 transition">
-            <i class="fa-solid fa-bolt text-xs"></i>
-            <span>+ Hora Extra</span>
-          </button>
-          <button id="btn-modal-folga" onclick="abrirModalConfirmarFolga()" class="px-2.5 py-1.5 bg-red-600 text-white text-xs font-bold rounded-xl hover:bg-red-500 flex items-center space-x-1 transition">
-            <i class="fa-solid fa-calendar-xmark text-xs"></i>
-            <span>Folga</span>
-          </button>
+        <button onclick="fecharModalDia()" class="text-gray-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
 
-          <!-- BOTÃO EXCLUSIVO QUANDO O DIA JÁ ESTÁ REGISTRADO COMO FOLGA -->
-          <button id="btn-modal-cancelar-folga" onclick="cancelarFolgaDia()" class="hidden px-3 py-1.5 bg-red-500/15 border border-red-500/40 text-red-400 text-xs font-bold rounded-xl hover:bg-red-500/25 flex items-center space-x-1.5 transition">
-            <i class="fa-solid fa-rotate-left text-xs"></i>
-            <span>Cancelar Folga</span>
-          </button>
+      <!-- BARRA DE AÇÕES DO DIA -->
+      <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 flex-shrink-0">
+        <button id="btn-modal-agendar-dia" onclick="abrirModalAgendamentoManual(diaAbertoModalStr)" class="px-2.5 py-1.5 bg-white text-black text-xs font-extrabold rounded-xl hover:bg-gray-200 flex items-center space-x-1 transition">
+          <i class="fa-solid fa-plus text-[10px]"></i>
+          <span>Agendar</span>
+        </button>
+        <button id="btn-modal-expediente-dia" onclick="abrirModalExpedienteDia()" class="px-2.5 py-1.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold rounded-xl hover:bg-blue-500/20 flex items-center space-x-1 transition">
+          <i class="fa-solid fa-clock text-[10px]"></i>
+          <span>Expediente</span>
+        </button>
+        <button id="btn-modal-hora-extra" onclick="abrirModalHoraExtraComData()" class="px-2.5 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold rounded-xl hover:bg-emerald-500/20 flex items-center space-x-1 transition">
+          <i class="fa-solid fa-bolt text-[10px]"></i>
+          <span>+ Extra</span>
+        </button>
+        <button id="btn-modal-folga" onclick="abrirModalConfirmarFolga()" class="px-2.5 py-1.5 bg-red-600 text-white text-xs font-bold rounded-xl hover:bg-red-500 flex items-center space-x-1 transition">
+          <i class="fa-solid fa-calendar-xmark text-[10px]"></i>
+          <span>Folga</span>
+        </button>
 
-          <button onclick="fecharModalDia()" class="text-gray-400 hover:text-white p-1">
-            <i class="fa-solid fa-xmark text-lg"></i>
-          </button>
+        <!-- BOTÃO EXCLUSIVO QUANDO O DIA JÁ ESTÁ REGISTRADO COMO FOLGA -->
+        <button id="btn-modal-cancelar-folga" onclick="cancelarFolgaDia()" class="hidden px-3 py-1.5 bg-red-500/15 border border-red-500/40 text-red-400 text-xs font-bold rounded-xl hover:bg-red-500/25 flex items-center space-x-1.5 transition">
+          <i class="fa-solid fa-rotate-left text-xs"></i>
+          <span>Cancelar Folga</span>
+        </button>
+      </div>
+
+      <!-- AVISO DE EXPEDIENTE ESPECIAL NO DIA -->
+      <div id="banner-expediente-especial" class="hidden bg-blue-500/10 border border-blue-500/30 rounded-xl p-2.5 flex items-center justify-between text-xs text-blue-300 flex-shrink-0">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-clock text-blue-400"></i>
+          <span id="texto-banner-expediente-especial">Expediente personalizado ativo</span>
         </div>
+        <button type="button" onclick="abrirModalExpedienteDia()" class="text-[10px] underline font-bold text-white">Alterar</button>
       </div>
 
       <!-- AVISO DE FOLGA ATIVA NO DIA -->
@@ -443,7 +567,7 @@
     </div>
   </div>
 
-  <!-- POP-UP MODAL PRIORITÁRIO (NA FRENTE DO MODAL DO DIA): CONFIRMAÇÃO DE FOLGA -->
+  <!-- POP-UP MODAL PRIORITÁRIO: CONFIRMAÇÃO DE FOLGA -->
   <div id="modal-confirmar-folga" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-[70] hidden items-center justify-center p-4 fade-in">
     <div class="bg-pegas-card border border-red-500/40 w-full max-w-sm rounded-2xl p-5 sm:p-6 space-y-4 text-center shadow-2xl">
       <div class="w-12 h-12 rounded-full bg-red-500/15 border border-red-500/30 text-red-400 flex items-center justify-center mx-auto text-xl">
@@ -544,11 +668,11 @@
           <input type="text" id="edit-barbeiro-nome" disabled class="w-full bg-black/50 border border-pegas-border rounded-xl p-2.5 text-xs text-gray-400 cursor-not-allowed">
         </div>
         <div>
-          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Hora de Início (Ex: 8 para 08:00)</label>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Hora de Início Padrão (Ex: 8 para 08:00)</label>
           <input type="number" id="edit-barbeiro-inicio" required min="0" max="23" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
         </div>
         <div>
-          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Jornada (Horas de Trabalho)</label>
+          <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1">Jornada Padrão (Horas de Trabalho)</label>
           <input type="number" id="edit-barbeiro-jornada" required min="1" max="18" class="w-full bg-black border border-pegas-border rounded-xl p-2.5 text-xs text-white focus:outline-none">
         </div>
         <div>
@@ -664,7 +788,28 @@
     const auth = firebase.auth();
     const database = firebase.database();
 
-    auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+    // Persistência permanente no dispositivo (mantém logado até clicar em "Sair")
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+    const STORAGE_KEY_EMAIL_GESTOR = "barbearia_araujo_ultimo_email_gestor";
+
+    function preencherUltimoEmailGestor() {
+      try {
+        const salvo = localStorage.getItem(STORAGE_KEY_EMAIL_GESTOR);
+        const campo = document.getElementById('gestor-login-email');
+        if (salvo && campo && !campo.value) {
+          campo.value = salvo;
+        }
+      } catch (e) {}
+    }
+
+    function salvarUltimoEmailGestor(email) {
+      try {
+        if (email) localStorage.setItem(STORAGE_KEY_EMAIL_GESTOR, email.trim());
+      } catch (e) {}
+    }
+
+    preencherUltimoEmailGestor();
 
     let gestorLogado = null;
     let barbeirosLista = [];
@@ -672,6 +817,7 @@
     let barbeiroLogado = null;
     let agendamentosLista = [];
     let folgasBarbeiroMapa = {};
+    let expedienteEspecialMapa = {};
     let storiesDoBarbeiroAtual = [];
 
     const LINK_ASAAS_BASE = "https://www.asaas.com/000/c/q7r828t12ir32220";
@@ -775,6 +921,17 @@
       return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
     }
 
+    function extrairNumeroInteiro(valor, padrao) {
+      const num = parseInt(String(valor || '').replace(/[^\d]/g, ''), 10);
+      return (!isNaN(num) && num > 0) ? num : padrao;
+    }
+
+    function calcularSlotsNecessarios(duracaoMinutos, tmc) {
+      const tmcValido = extrairNumeroInteiro(tmc, 30);
+      const duracaoValida = extrairNumeroInteiro(duracaoMinutos, tmcValido);
+      return Math.max(1, Math.ceil(duracaoValida / tmcValido));
+    }
+
     function formatarHorarioAgendamentoGestor(item) {
       if (item.horaFim) {
         return `${item.hora} às ${item.horaFim}`;
@@ -801,9 +958,11 @@
     auth.onAuthStateChanged((user) => {
       if (user) {
         gestorLogado = user;
+        salvarUltimoEmailGestor(user.email);
         escutarAssinaturaGestor(user.uid);
       } else {
         esconderTodasTelas();
+        preencherUltimoEmailGestor();
         document.getElementById('screen-login-gestor').classList.remove('hidden');
       }
     });
@@ -859,6 +1018,283 @@
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
+    }
+
+    // ==========================================
+    // AGENDAMENTO MANUAL PELO GESTOR (BALCÃO)
+    // ==========================================
+    function abrirModalAgendamentoManual(dataPreSelecionada) {
+      if (!barbeiroLogado) return;
+
+      document.getElementById('manual-cliente-nome').value = '';
+      document.getElementById('manual-cliente-telefone').value = '';
+
+      const selectServico = document.getElementById('manual-servico-select');
+      selectServico.innerHTML = '<option value="">Selecione...</option>';
+      servicosLista.forEach(s => {
+        selectServico.innerHTML += `<option value="${s.id}">${s.nome} (R$ ${s.preco},00)</option>`;
+      });
+      if (servicosLista.length > 0) {
+        selectServico.value = servicosLista[0].id;
+      }
+
+      const dataPadrao = dataPreSelecionada || new Date().toISOString().split('T')[0];
+      document.getElementById('manual-data-input').value = dataPadrao;
+
+      document.getElementById('modal-agendamento-manual').classList.remove('hidden');
+      document.getElementById('modal-agendamento-manual').classList.add('flex');
+      atualizarHorariosLivresManual();
+    }
+
+    function fecharModalAgendamentoManual() {
+      document.getElementById('modal-agendamento-manual').classList.add('hidden');
+    }
+
+    function atualizarHorariosLivresManual() {
+      const selectHora = document.getElementById('manual-hora-select');
+      const aviso = document.getElementById('manual-aviso-indisponivel');
+      const infoDuracao = document.getElementById('manual-info-duracao');
+
+      aviso.classList.add('hidden');
+      selectHora.innerHTML = '<option value="">Calculando horários...</option>';
+
+      const servicoId = document.getElementById('manual-servico-select').value;
+      const dataSelecionada = document.getElementById('manual-data-input').value;
+
+      if (!servicoId || !dataSelecionada || !barbeiroLogado) {
+        selectHora.innerHTML = '<option value="">Escolha serviço e data...</option>';
+        infoDuracao.innerText = '';
+        return;
+      }
+
+      const servicoObj = servicosLista.find(s => s.id === servicoId);
+      const tmc = extrairNumeroInteiro(barbeiroLogado.tmc, 30);
+      const duracaoServicoAtual = extrairNumeroInteiro(servicoObj?.duracao, tmc);
+      const slotsNecessariosServico = calcularSlotsNecessarios(duracaoServicoAtual, tmc);
+
+      infoDuracao.innerText = `${duracaoServicoAtual} min`;
+
+      const diaDeFolga = Boolean(folgasBarbeiroMapa[dataSelecionada]);
+      if (diaDeFolga) {
+        selectHora.innerHTML = '<option value="">Dia marcado como Folga</option>';
+        aviso.innerText = 'Este dia está bloqueado como Folga.';
+        aviso.classList.remove('hidden');
+        return;
+      }
+
+      // Slots já ocupados nesta data para este barbeiro
+      const slotsBloqueadosSet = new Set();
+      agendamentosLista.forEach(val => {
+        if (pertenceAoBarbeiroLogado(val) && val.data === dataSelecionada && val.status !== 'Cancelado') {
+          const minutoInicioAg = converterHoraParaMinutos(val.hora);
+          const srvEncontrado = servicosLista.find(s => s.nome && val.serviço && s.nome.trim().toLowerCase() === val.serviço.trim().toLowerCase());
+          const duracaoExistente = extrairNumeroInteiro(val.duracao, srvEncontrado ? extrairNumeroInteiro(srvEncontrado.duracao, tmc) : tmc);
+          const qtdSlotsAg = Math.max(
+            extrairNumeroInteiro(val.slotsOcupados, 1),
+            calcularSlotsNecessarios(duracaoExistente, tmc)
+          );
+          for (let s = 0; s < qtdSlotsAg; s++) {
+            slotsBloqueadosSet.add(formatarMinutosParaHora(minutoInicioAg + (s * tmc)));
+          }
+        }
+      });
+
+      database.ref(`horasExtras/${barbeiroLogado.id}/${dataSelecionada}`).once('value', (snapExtras) => {
+        let extraAntesMinutos = 0;
+        let extraDepoisMinutos = 0;
+
+        if (snapExtras.exists()) {
+          snapExtras.forEach(childExtra => {
+            const ext = childExtra.val();
+            if (ext.posicao === 'antes') extraAntesMinutos += (Number(ext.horas || 0) * 60);
+            if (ext.posicao === 'depois') extraDepoisMinutos += (Number(ext.horas || 0) * 60);
+          });
+        }
+
+        const expEspecial = expedienteEspecialMapa[dataSelecionada];
+        const horaInicioBase = expEspecial ? Number(expEspecial.inicio) : (Number(barbeiroLogado.inicio) || 8);
+        const horaFimBase = expEspecial ? Number(expEspecial.fim) : (horaInicioBase + (Number(barbeiroLogado.jornada) || 10));
+
+        let minutosInicioTotal = (horaInicioBase * 60) - extraAntesMinutos;
+        if (minutosInicioTotal < 0) minutosInicioTotal = 0;
+        const minutosFimTotal = (horaFimBase * 60) + extraDepoisMinutos;
+
+        const horariosLivres = [];
+        for (let mAtual = minutosInicioTotal; mAtual < minutosFimTotal; mAtual += tmc) {
+          let livre = true;
+          for (let s = 0; s < slotsNecessariosServico; s++) {
+            const minVerificar = mAtual + (s * tmc);
+            const horaVerificar = formatarMinutosParaHora(minVerificar);
+            if (minVerificar >= minutosFimTotal || slotsBloqueadosSet.has(horaVerificar)) {
+              livre = false;
+              break;
+            }
+          }
+          if (livre) {
+            horariosLivres.push(formatarMinutosParaHora(mAtual));
+          }
+        }
+
+        selectHora.innerHTML = '';
+        if (horariosLivres.length === 0) {
+          selectHora.innerHTML = '<option value="">Nenhum horário livre</option>';
+          aviso.innerText = 'Não há horários disponíveis para esta data/serviço.';
+          aviso.classList.remove('hidden');
+        } else {
+          horariosLivres.forEach(h => {
+            const fimSlot = formatarMinutosParaHora(converterHoraParaMinutos(h) + (slotsNecessariosServico * tmc));
+            const label = slotsNecessariosServico > 1 ? `${h} às ${fimSlot}` : h;
+            selectHora.innerHTML += `<option value="${h}">${label}</option>`;
+          });
+        }
+      });
+    }
+
+    function salvarAgendamentoManualFirebase(e) {
+      e.preventDefault();
+      if (!barbeiroLogado) return;
+
+      const nomeCliente = document.getElementById('manual-cliente-nome').value.trim();
+      const telefoneCliente = document.getElementById('manual-cliente-telefone').value.trim();
+      const servicoId = document.getElementById('manual-servico-select').value;
+      const dataSelecionada = document.getElementById('manual-data-input').value;
+      const horaSelecionada = document.getElementById('manual-hora-select').value;
+
+      if (!nomeCliente || !servicoId || !dataSelecionada || !horaSelecionada) {
+        alert("Preencha o nome do cliente, serviço, data e um horário livre.");
+        return;
+      }
+
+      const servicoObj = servicosLista.find(s => s.id === servicoId);
+      if (!servicoObj) return;
+
+      const tmc = extrairNumeroInteiro(barbeiroLogado.tmc, 30);
+      const duracaoServico = extrairNumeroInteiro(servicoObj.duracao, tmc);
+      const slotsOcupados = calcularSlotsNecessarios(duracaoServico, tmc);
+      const horaFim = formatarMinutosParaHora(converterHoraParaMinutos(horaSelecionada) + (slotsOcupados * tmc));
+
+      const btn = document.getElementById('btn-salvar-agendamento-manual');
+      btn.disabled = true;
+      btn.innerText = "Salvando...";
+
+      const novoAgendamento = {
+        clienteId: "manual_gestor",
+        origem: "balcao",
+        cliente: nomeCliente,
+        telefone: telefoneCliente,
+        serviço: servicoObj.nome,
+        duracao: duracaoServico,
+        slotsOcupados: slotsOcupados,
+        horaFim: horaFim,
+        valor: servicoObj.preco,
+        barbeiroId: barbeiroLogado.id,
+        barbeiro: barbeiroLogado.nome,
+        data: dataSelecionada,
+        hora: horaSelecionada,
+        status: "Confirmado",
+        criadoEm: new Date().toISOString()
+      };
+
+      database.ref('agendamentos').push(novoAgendamento).then(() => {
+        btn.disabled = false;
+        btn.innerText = "Confirmar Horário";
+        fecharModalAgendamentoManual();
+      }).catch(err => {
+        btn.disabled = false;
+        btn.innerText = "Confirmar Horário";
+        alert("Erro ao agendar cliente: " + err.message);
+      });
+    }
+
+    // ==========================================
+    // EXPEDIENTE ESPECIAL POR DIA (EX: SÁBADO)
+    // ==========================================
+    function abrirModalExpedienteDia() {
+      if (!barbeiroLogado || !diaAbertoModalStr) return;
+
+      const partes = diaAbertoModalStr.split('-');
+      const dataObj = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]));
+      const nomesDiasSemana = ["Domingos", "Segundas", "Terças", "Quartas", "Quintas", "Sextas", "Sábados"];
+      const nomeDiaSemanaPlural = nomesDiasSemana[dataObj.getDay()];
+
+      document.getElementById('subtitulo-expediente-data').innerText = `Data: ${partes[2]}/${partes[1]}/${partes[0]}`;
+      document.getElementById('exp-dia-repetir-label').innerText = `Aplicar este horário para todos os ${nomeDiaSemanaPlural} deste mês`;
+      document.getElementById('exp-dia-repetir-mes').checked = false;
+
+      const expAtual = expedienteEspecialMapa[diaAbertoModalStr];
+      const inicioPadrao = Number(barbeiroLogado.inicio) || 8;
+      const fimPadrao = inicioPadrao + (Number(barbeiroLogado.jornada) || 10);
+
+      document.getElementById('exp-dia-inicio').value = expAtual ? expAtual.inicio : inicioPadrao;
+      document.getElementById('exp-dia-fim').value = expAtual ? expAtual.fim : fimPadrao;
+
+      const btnRestaurar = document.getElementById('btn-restaurar-expediente-padrao');
+      if (expAtual) {
+        btnRestaurar.classList.remove('hidden');
+      } else {
+        btnRestaurar.classList.add('hidden');
+      }
+
+      document.getElementById('modal-expediente-dia').classList.remove('hidden');
+      document.getElementById('modal-expediente-dia').classList.add('flex');
+    }
+
+    function fecharModalExpedienteDia() {
+      document.getElementById('modal-expediente-dia').classList.add('hidden');
+    }
+
+    function salvarExpedienteDiaFirebase(e) {
+      e.preventDefault();
+      if (!barbeiroLogado || !diaAbertoModalStr) return;
+
+      const inicio = Number(document.getElementById('exp-dia-inicio').value);
+      const fim = Number(document.getElementById('exp-dia-fim').value);
+      const repetirMes = document.getElementById('exp-dia-repetir-mes').checked;
+
+      if (fim <= inicio) {
+        alert("A hora de fechamento deve ser maior que a hora de abertura.");
+        return;
+      }
+
+      const payload = {
+        inicio: inicio,
+        fim: fim,
+        barbeiroId: barbeiroLogado.id,
+        atualizadoEm: new Date().toISOString()
+      };
+
+      const updates = {};
+      if (repetirMes) {
+        const partes = diaAbertoModalStr.split('-');
+        const ano = Number(partes[0]);
+        const mesIndex = Number(partes[1]) - 1;
+        const dataRef = new Date(ano, mesIndex, Number(partes[2]));
+        const diaSemanaAlvo = dataRef.getDay();
+        const ultimoDiaMes = new Date(ano, mesIndex + 1, 0).getDate();
+
+        for (let d = 1; d <= ultimoDiaMes; d++) {
+          const dt = new Date(ano, mesIndex, d);
+          if (dt.getDay() === diaSemanaAlvo) {
+            const iso = `${ano}-${String(mesIndex + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            updates[`expedienteEspecial/${barbeiroLogado.id}/${iso}`] = payload;
+          }
+        }
+      } else {
+        updates[`expedienteEspecial/${barbeiroLogado.id}/${diaAbertoModalStr}`] = payload;
+      }
+
+      database.ref().update(updates).then(() => {
+        fecharModalExpedienteDia();
+        atualizarBotoesModalDia(diaAbertoModalStr);
+      });
+    }
+
+    function restaurarExpedientePadraoDia() {
+      if (!barbeiroLogado || !diaAbertoModalStr) return;
+      database.ref(`expedienteEspecial/${barbeiroLogado.id}/${diaAbertoModalStr}`).remove().then(() => {
+        fecharModalExpedienteDia();
+        atualizarBotoesModalDia(diaAbertoModalStr);
+      });
     }
 
     // ==========================================
@@ -1121,7 +1557,7 @@
       event.stopPropagation();
       document.querySelectorAll('[id^="menu-card-"]').forEach(el => el.classList.add('hidden'));
 
-      if (!confirm(`Tem certeza que deseja excluir o perfil de "${nome}" e apagar TODOS os agendamentos, folgas, horas extras e stories vinculados a ele?`)) {
+      if (!confirm(`Tem certeza que deseja excluir o perfil de "${nome}" e apagar TODOS os agendamentos, folgas, horas extras, expedientes e stories vinculados a ele?`)) {
         return;
       }
 
@@ -1129,6 +1565,7 @@
         await database.ref(`barbeiros/${id}`).remove();
         await database.ref(`folgas/${id}`).remove();
         await database.ref(`horasExtras/${id}`).remove();
+        await database.ref(`expedienteEspecial/${id}`).remove();
 
         const snapAg = await database.ref('agendamentos').once('value');
         const promessasLimpeza = [];
@@ -1264,21 +1701,41 @@
 
     function atualizarBotoesModalDia(dataIsoStr) {
       const emFolga = Boolean(folgasBarbeiroMapa[dataIsoStr]);
+      const expEspecial = expedienteEspecialMapa[dataIsoStr];
+
+      const btnAgendar = document.getElementById('btn-modal-agendar-dia');
+      const btnExpediente = document.getElementById('btn-modal-expediente-dia');
       const btnHoraExtra = document.getElementById('btn-modal-hora-extra');
       const btnFolga = document.getElementById('btn-modal-folga');
       const btnCancelarFolga = document.getElementById('btn-modal-cancelar-folga');
       const bannerFolga = document.getElementById('banner-folga-ativa');
+      const bannerExp = document.getElementById('banner-expediente-especial');
+      const textoBannerExp = document.getElementById('texto-banner-expediente-especial');
 
       if (emFolga) {
+        btnAgendar.classList.add('hidden');
+        btnExpediente.classList.add('hidden');
         btnHoraExtra.classList.add('hidden');
         btnFolga.classList.add('hidden');
         btnCancelarFolga.classList.remove('hidden');
         bannerFolga.classList.remove('hidden');
+        bannerExp.classList.add('hidden');
       } else {
+        btnAgendar.classList.remove('hidden');
+        btnExpediente.classList.remove('hidden');
         btnHoraExtra.classList.remove('hidden');
         btnFolga.classList.remove('hidden');
         btnCancelarFolga.classList.add('hidden');
         bannerFolga.classList.add('hidden');
+
+        if (expEspecial) {
+          const ini = String(expEspecial.inicio).padStart(2, '0');
+          const fim = String(expEspecial.fim).padStart(2, '0');
+          textoBannerExp.innerHTML = `Expediente especial: <strong>${ini}:00 às ${fim}:00</strong>`;
+          bannerExp.classList.remove('hidden');
+        } else {
+          bannerExp.classList.add('hidden');
+        }
       }
     }
 
@@ -1301,9 +1758,10 @@
 
     function realizarLoginGestor(e) {
       e.preventDefault();
-      const email = document.getElementById('gestor-login-email').value;
+      const email = document.getElementById('gestor-login-email').value.trim();
       const senha = document.getElementById('gestor-login-senha').value;
-      auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then(() => {
+      salvarUltimoEmailGestor(email);
+      auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
         return auth.signInWithEmailAndPassword(email, senha);
       }).catch(err => alert("Erro ao entrar: " + err.message));
     }
@@ -1313,7 +1771,8 @@
       const nome = document.getElementById('gestor-reg-nome').value.trim();
       const email = document.getElementById('gestor-reg-email').value.trim();
       const senha = document.getElementById('gestor-reg-senha').value;
-      auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then(() => {
+      salvarUltimoEmailGestor(email);
+      auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
         return auth.createUserWithEmailAndPassword(email, senha);
       }).then((cred) => {
         database.ref(`assinaturasGestores/${cred.user.uid}`).set({
@@ -1327,10 +1786,13 @@
     }
 
     function realizarLogoutGestor() {
+      const emailParaManter = gestorLogado?.email || document.getElementById('gestor-login-email').value;
+      salvarUltimoEmailGestor(emailParaManter);
       auth.signOut().then(() => {
         gestorLogado = null;
         barbeiroLogado = null;
         barbeirosLista = [];
+        preencherUltimoEmailGestor();
       });
     }
 
@@ -1444,6 +1906,7 @@
       barbeiroLogado = barbeirosLista.find(b => b.id === id);
       if (!barbeiroLogado) return;
       folgasBarbeiroMapa = {};
+      expedienteEspecialMapa = {};
       storiesDoBarbeiroAtual = [];
       esconderTodasTelas();
       document.getElementById('header-user-foto').src = barbeiroLogado.foto || FOTO_PADRAO_BARBEIRO;
@@ -1453,6 +1916,7 @@
       atualizarVisibilidadeBotoesPwaGestor();
       iniciarEscutasStories();
       iniciarEscutasFolgasBarbeiro(barbeiroLogado.id);
+      iniciarEscutasExpedienteEspecial(barbeiroLogado.id);
       iniciarEscutasAgendamentos();
     }
 
@@ -1460,6 +1924,17 @@
       database.ref('folgas').off();
       database.ref(`folgas/${barbeiroId}`).on('value', (snapshot) => {
         folgasBarbeiroMapa = snapshot.val() || {};
+        renderizarCalendarioGestor();
+        if (diaAbertoModalStr) {
+          atualizarBotoesModalDia(diaAbertoModalStr);
+        }
+      });
+    }
+
+    function iniciarEscutasExpedienteEspecial(barbeiroId) {
+      database.ref('expedienteEspecial').off();
+      database.ref(`expedienteEspecial/${barbeiroId}`).on('value', (snapshot) => {
+        expedienteEspecialMapa = snapshot.val() || {};
         renderizarCalendarioGestor();
         if (diaAbertoModalStr) {
           atualizarBotoesModalDia(diaAbertoModalStr);
@@ -1528,17 +2003,25 @@
         const dataIsoStr = `${ano}-${mesStr}-${diaStr}`;
 
         const emFolga = Boolean(folgasBarbeiroMapa[dataIsoStr]);
+        const temExpEspecial = Boolean(expedienteEspecialMapa[dataIsoStr]);
         const qtdPedidos = agendamentosLista.filter(a => pertenceAoBarbeiroLogado(a) && a.data === dataIsoStr && a.status !== 'Cancelado').length;
 
         let badgeHtml = '';
         if (emFolga) {
           badgeHtml = `<span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 text-[7px] sm:text-[8px] font-black uppercase tracking-wider text-red-400">FOLGA</span>`;
-        } else if (qtdPedidos > 0) {
-          badgeHtml = `<span class="absolute top-1 right-1 bg-emerald-500 text-black text-[9px] font-black w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center shadow">${qtdPedidos}</span>`;
+        } else {
+          if (qtdPedidos > 0) {
+            badgeHtml += `<span class="absolute top-1 right-1 bg-emerald-500 text-black text-[9px] font-black w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center shadow">${qtdPedidos}</span>`;
+          }
+          if (temExpEspecial) {
+            badgeHtml += `<span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 text-[7px] font-extrabold uppercase tracking-wider text-blue-400">${expedienteEspecialMapa[dataIsoStr].inicio}h-${expedienteEspecialMapa[dataIsoStr].fim}h</span>`;
+          }
         }
 
         const classesDia = emFolga
           ? "relative w-full h-10 sm:h-12 rounded-xl border border-red-500/40 bg-red-500/10 hover:border-red-400 text-red-300 text-xs font-bold flex items-center justify-center transition active:scale-95"
+          : temExpEspecial
+          ? "relative w-full h-10 sm:h-12 rounded-xl border border-blue-500/40 bg-blue-500/5 hover:border-blue-400 text-white text-xs font-bold flex items-center justify-center transition active:scale-95"
           : "relative w-full h-10 sm:h-12 rounded-xl border border-pegas-border bg-black hover:border-gray-400 text-white text-xs font-bold flex items-center justify-center transition active:scale-95";
 
         containerDias.innerHTML += `
@@ -1589,7 +2072,9 @@
       const container = document.getElementById('modal-dia-lista');
       container.innerHTML = '';
 
-      const filtrados = agendamentosLista.filter(a => pertenceAoBarbeiroLogado(a) && a.data === dataIsoStr);
+      const filtrados = agendamentosLista
+        .filter(a => pertenceAoBarbeiroLogado(a) && a.data === dataIsoStr)
+        .sort((a, b) => converterHoraParaMinutos(a.hora) - converterHoraParaMinutos(b.hora));
 
       if (filtrados.length === 0) {
         container.innerHTML = `<p class="text-xs text-gray-500 text-center py-8">Nenhum agendamento para esta data.</p>`;
@@ -1604,6 +2089,10 @@
           : item.status === 'Concluído'
           ? `<span class="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold rounded-full">Concluído</span>`
           : `<span class="px-2 py-0.5 bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] font-bold rounded-full">Cancelado</span>`;
+
+        const tagBalcao = item.origem === 'balcao'
+          ? `<span class="px-1.5 py-0.5 bg-white/10 text-gray-300 text-[8px] font-bold uppercase rounded">Balcão</span>`
+          : '';
 
         let botoesAcao = '';
         if (item.status === 'Pendente') {
@@ -1633,10 +2122,11 @@
         container.innerHTML += `
           <div class="bg-black border border-pegas-border p-3.5 rounded-xl flex items-center justify-between">
             <div class="space-y-1">
-              <div class="flex items-center space-x-2">
+              <div class="flex flex-wrap items-center gap-1.5">
                 <h4 class="font-bold text-white text-xs sm:text-sm">${nomeFormatado}</h4>
                 ${btnWhats}
                 ${statusBadge}
+                ${tagBalcao}
               </div>
               <p class="text-[11px] text-gray-400"><strong class="text-white">${horarioExibicao}</strong> • ${item.serviço} • R$ ${item.valor},00</p>
             </div>
@@ -1700,6 +2190,10 @@
           ? `<span class="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold rounded-full">Concluído</span>`
           : `<span class="px-2 py-0.5 bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] font-bold rounded-full">Cancelado</span>`;
 
+        const tagBalcao = item.origem === 'balcao'
+          ? `<span class="px-1.5 py-0.5 bg-white/10 text-gray-300 text-[8px] font-bold uppercase rounded">Balcão</span>`
+          : '';
+
         let botoesAcao = '';
         if (item.status === 'Pendente') {
           botoesAcao = `
@@ -1729,10 +2223,11 @@
         container.innerHTML += `
           <div class="bg-pegas-card border border-pegas-border p-3.5 sm:p-4 rounded-xl flex items-center justify-between">
             <div class="space-y-1">
-              <div class="flex items-center space-x-2">
+              <div class="flex flex-wrap items-center gap-1.5">
                 <h4 class="font-bold text-white text-xs sm:text-sm">${nomeFormatado}</h4>
                 ${btnWhats}
                 ${statusBadge}
+                ${tagBalcao}
               </div>
               <p class="text-xs text-gray-400"><strong class="text-white">${dataFmt} • ${horarioExibicao}</strong> • ${item.serviço} • R$ ${item.valor},00</p>
             </div>
