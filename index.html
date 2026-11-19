@@ -175,7 +175,7 @@
       <!-- ABA 1: INÍCIO (VITRINE, STORIES DIÁRIOS E TOP 5 SERVIÇOS MAIS ESCOLHIDOS) -->
       <div id="tab-content-inicio" class="space-y-6">
         
-        <!-- BARRA DE STORIES ESTILO INSTAGRAM (APENAS ANEL COLORIDO, SEM TAG AO VIVO) -->
+        <!-- BARRA DE STORIES ESTILO INSTAGRAM (APENAS ANEL COLORIDO) -->
         <section class="bg-pegas-card border border-pegas-border rounded-2xl p-4 flex items-center justify-between">
           <div class="flex items-center space-x-3.5">
             <button type="button" onclick="abrirVisualizadorStories()" class="relative group focus:outline-none active:scale-95 transition">
@@ -222,7 +222,7 @@
           </div>
         </section>
 
-        <!-- CARROSSEL TOP 5 SERVIÇOS MAIS ESCOLHIDOS (BASEADO NOS SERVIÇOS CADASTRADOS) -->
+        <!-- CARROSSEL TOP 5 SERVIÇOS MAIS ESCOLHIDOS -->
         <section class="space-y-3">
           <div class="flex items-center justify-between">
             <div>
@@ -685,7 +685,6 @@
         return;
       }
 
-      // Ordena os serviços cadastrados pelo gestor com base na quantidade de pedidos e pega o Top 5
       const top5Servicos = [...servicosLista]
         .map(s => {
           const chave = (s.nome || '').trim().toLowerCase();
@@ -758,7 +757,7 @@
     }
 
     // ==========================================
-    // STORIES DIÁRIOS EM TEMPO REAL
+    // STORIES DIÁRIOS EM TEMPO REAL + REGISTRO DE VISUALIZAÇÃO
     // ==========================================
     function escutarStoriesFirebase() {
       database.ref('stories').on('value', (snapshot) => {
@@ -804,6 +803,19 @@
       }
     }
 
+    function registrarVisualizacaoStory(storyId) {
+      if (!storyId || !clienteAtual || !clienteAtual.uid) return;
+      const nomeCliente = (clienteAtual.nome || '').trim() || clienteAtual.email.split('@')[0];
+      const fotoCliente = clienteAtual.foto || FOTO_PADRAO_CLIENTE;
+
+      database.ref(`stories/${storyId}/visualizacoes/${clienteAtual.uid}`).update({
+        clienteUid: clienteAtual.uid,
+        nome: nomeCliente,
+        foto: fotoCliente,
+        vistoEm: Date.now()
+      });
+    }
+
     function abrirVisualizadorStories() {
       if (storiesAtivosLista.length === 0) {
         alert("Ainda não há stories postados hoje pela barbearia.");
@@ -832,6 +844,9 @@
       }
 
       const story = storiesAtivosLista[storyIndiceAtual];
+
+      // Registra no Firebase que este cliente visualizou este story
+      registrarVisualizacaoStory(story.id);
 
       const barsContainer = document.getElementById('story-progress-bars');
       barsContainer.innerHTML = '';
