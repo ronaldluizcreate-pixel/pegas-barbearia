@@ -172,10 +172,10 @@
 
     <main class="flex-1 max-w-2xl w-full mx-auto p-4 pb-24 space-y-6">
       
-      <!-- ABA 1: INÍCIO (VITRINE, STORIES DIÁRIOS E CARROSSEL DE TENDÊNCIAS) -->
+      <!-- ABA 1: INÍCIO (VITRINE, STORIES DIÁRIOS E TOP 5 SERVIÇOS MAIS ESCOLHIDOS) -->
       <div id="tab-content-inicio" class="space-y-6">
         
-        <!-- BARRA DE STORIES ESTILO INSTAGRAM -->
+        <!-- BARRA DE STORIES ESTILO INSTAGRAM (APENAS ANEL COLORIDO, SEM TAG AO VIVO) -->
         <section class="bg-pegas-card border border-pegas-border rounded-2xl p-4 flex items-center justify-between">
           <div class="flex items-center space-x-3.5">
             <button type="button" onclick="abrirVisualizadorStories()" class="relative group focus:outline-none active:scale-95 transition">
@@ -184,9 +184,6 @@
                   <img src="icon.png" alt="Stories Barbearia Araujo" class="w-full h-full object-contain rounded-full" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
                 </div>
               </div>
-              <span id="client-story-badge" class="hidden absolute -bottom-1 left-1/2 -translate-x-1/2 px-1.5 py-0.2 bg-pink-600 text-white text-[8px] font-black uppercase tracking-wider rounded-full border border-black">
-                AO VIVO
-              </span>
             </button>
             <div>
               <span class="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-400 block">Cortes do Dia</span>
@@ -210,7 +207,7 @@
               Seu visual renovado com quem entende do assunto.
             </h2>
             <p class="text-xs text-gray-400 leading-relaxed max-w-md">
-              Confira as tendências da temporada, veja os trabalhos feitos hoje pelos nossos barbeiros e garanta seu horário sem filas.
+              Confira os serviços mais pedidos da Barbearia Araujo, veja os trabalhos feitos hoje pelos nossos barbeiros e garanta seu horário sem filas.
             </p>
           </div>
 
@@ -225,12 +222,12 @@
           </div>
         </section>
 
-        <!-- CARROSSEL DE CORTES EM TENDÊNCIA (ROLAGEM ANIMADA COM JAVASCRIPT) -->
+        <!-- CARROSSEL TOP 5 SERVIÇOS MAIS ESCOLHIDOS (BASEADO NOS SERVIÇOS CADASTRADOS) -->
         <section class="space-y-3">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-white">Cortes em Tendência</h3>
-              <p class="text-[10px] text-gray-400">Inspirações mais pedidas na Barbearia Araujo</p>
+              <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-white">Top 5 Mais Escolhidos</h3>
+              <p class="text-[10px] text-gray-400">Os serviços favoritos dos nossos clientes</p>
             </div>
             <div class="flex items-center space-x-1.5">
               <button type="button" onclick="moverCarrosselTendencias(-1)" class="w-7 h-7 rounded-lg bg-pegas-card border border-pegas-border hover:border-white text-gray-300 hover:text-white flex items-center justify-center text-xs transition" title="Anterior">
@@ -243,7 +240,7 @@
           </div>
 
           <div id="carrossel-tendencias" onmouseenter="pausarAutoScrollCarrossel()" onmouseleave="iniciarAutoScrollCarrossel()" ontouchstart="pausarAutoScrollCarrossel()" ontouchend="iniciarAutoScrollCarrossel()" class="flex space-x-3 overflow-x-auto scrollbar-none scroll-smooth pb-1">
-            <!-- Cards gerados via JavaScript -->
+            <!-- Cards do Top 5 gerados a partir dos serviços cadastrados -->
           </div>
         </section>
 
@@ -252,7 +249,7 @@
           <div class="flex items-center justify-between">
             <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-white">Nossa Equipe</h3>
             <button type="button" onclick="mudarAbaPortal('agendar')" class="text-[11px] font-bold text-gray-400 hover:text-white transition">
-              Ver serviços <i class="fa-solid fa-arrow-right text-[9px] ml-1"></i>
+              Ver todos os serviços <i class="fa-solid fa-arrow-right text-[9px] ml-1"></i>
             </button>
           </div>
           <div id="container-equipe-inicio" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5"></div>
@@ -547,37 +544,11 @@
 
     const FOTO_PADRAO_CLIENTE = "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200";
 
-    const CORTES_TENDENCIA = [
-      {
-        titulo: "Mid Fade Navalhado",
-        tag: "Mais Pedido",
-        desc: "Degradê limpo nas laterais com acabamento preciso na navalha.",
-        img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=500"
-      },
-      {
-        titulo: "Corte + Barba Terapia",
-        tag: "Combo VIP",
-        desc: "Alinhamento completo com toalha quente e hidratação.",
-        img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=500"
-      },
-      {
-        titulo: "Low Fade Texturizado",
-        tag: "Tendência",
-        desc: "Transição suave na nuca com topo desconectado e natural.",
-        img: "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&q=80&w=500"
-      },
-      {
-        titulo: "Social Clássico",
-        tag: "Executivo",
-        desc: "Corte na tesoura com caimento alinhado e perfil discreto.",
-        img: "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&q=80&w=500"
-      }
-    ];
-
     let clienteAtual = null;
     let servicosLista = [];
     let barbeirosLista = [];
     let meusAgendamentosLista = [];
+    let contagemPedidosPorServico = {};
     let storiesAtivosLista = [];
     let storyIndiceAtual = 0;
     let timerStoryInterval = null;
@@ -668,10 +639,10 @@
         document.getElementById('screen-app').classList.remove('hidden');
         document.getElementById('screen-app').classList.add('flex');
 
-        renderizarCarrosselTendencias();
         iniciarAutoScrollCarrossel();
         escutarStoriesFirebase();
         escutarServicosFirebase();
+        escutarRankingServicosFirebase();
         escutarBarbeirosFirebase();
         carregarMeusAgendamentos(user.uid);
       } else {
@@ -685,29 +656,71 @@
     });
 
     // ==========================================
-    // CARROSSEL DE CORTES EM TENDÊNCIA
+    // CARROSSEL TOP 5 SERVIÇOS MAIS ESCOLHIDOS
     // ==========================================
+    function escutarRankingServicosFirebase() {
+      database.ref('agendamentos').on('value', (snapshot) => {
+        const dados = snapshot.val() || {};
+        contagemPedidosPorServico = {};
+
+        for (const id in dados) {
+          const ag = dados[id];
+          if (ag && ag.serviço && ag.status !== 'Cancelado') {
+            const chaveNome = ag.serviço.trim().toLowerCase();
+            contagemPedidosPorServico[chaveNome] = (contagemPedidosPorServico[chaveNome] || 0) + 1;
+          }
+        }
+
+        renderizarCarrosselTendencias();
+      });
+    }
+
     function renderizarCarrosselTendencias() {
       const container = document.getElementById('carrossel-tendencias');
       if (!container) return;
       container.innerHTML = '';
 
-      CORTES_TENDENCIA.forEach(corte => {
+      if (servicosLista.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-500 py-4">Carregando serviços mais escolhidos...</p>`;
+        return;
+      }
+
+      // Ordena os serviços cadastrados pelo gestor com base na quantidade de pedidos e pega o Top 5
+      const top5Servicos = [...servicosLista]
+        .map(s => {
+          const chave = (s.nome || '').trim().toLowerCase();
+          return {
+            ...s,
+            totalPedidos: contagemPedidosPorServico[chave] || 0
+          };
+        })
+        .sort((a, b) => b.totalPedidos - a.totalPedidos)
+        .slice(0, 5);
+
+      top5Servicos.forEach((servico, index) => {
+        const posicao = index + 1;
+        const seloTexto = posicao === 1
+          ? `#1 Mais Pedido`
+          : `#${posicao} Top Escolhido`;
+
         container.innerHTML += `
-          <div class="min-w-[220px] sm:min-w-[245px] bg-pegas-card border border-pegas-border rounded-2xl overflow-hidden flex-shrink-0 flex flex-col justify-between group">
+          <div class="min-w-[215px] sm:min-w-[240px] bg-pegas-card border border-pegas-border rounded-2xl overflow-hidden flex-shrink-0 flex flex-col justify-between group">
             <div class="relative h-36 overflow-hidden bg-black">
-              <img src="${corte.img}" alt="${corte.titulo}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='${FOTO_PADRAO_CLIENTE}'">
-              <span class="absolute top-2.5 left-2.5 px-2 py-0.5 bg-black/80 backdrop-blur-sm border border-white/15 text-white text-[9px] font-extrabold uppercase tracking-wider rounded-full">
-                ${corte.tag}
+              <img src="${servico.img}" alt="${servico.nome}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='${FOTO_PADRAO_CLIENTE}'">
+              <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 bg-black/85 backdrop-blur-sm border border-white/15 text-white text-[9px] font-extrabold uppercase tracking-wider rounded-full">
+                ${seloTexto}
               </span>
             </div>
-            <div class="p-3.5 space-y-2 flex-1 flex flex-col justify-between">
+            <div class="p-3.5 space-y-2.5 flex-1 flex flex-col justify-between">
               <div>
-                <h4 class="text-xs sm:text-sm font-bold text-white">${corte.titulo}</h4>
-                <p class="text-[11px] text-gray-400 mt-0.5 line-clamp-2">${corte.desc}</p>
+                <h4 class="text-xs sm:text-sm font-bold text-white line-clamp-1">${servico.nome}</h4>
+                <div class="flex items-center justify-between text-[11px] text-gray-400 mt-1">
+                  <span><i class="fa-regular fa-clock mr-1"></i>~${servico.duracao} min</span>
+                  <strong class="text-white font-black text-xs">R$ ${servico.preco},00</strong>
+                </div>
               </div>
-              <button type="button" onclick="mudarAbaPortal('agendar')" class="w-full py-2 bg-white/5 hover:bg-white hover:text-black border border-white/10 text-white text-[11px] font-bold rounded-xl transition">
-                Agendar este estilo
+              <button type="button" onclick="selecionarServico('${servico.id}')" class="w-full py-2 bg-white hover:bg-gray-200 text-black text-[11px] font-black rounded-xl transition">
+                Agendar agora
               </button>
             </div>
           </div>
@@ -767,7 +780,6 @@
 
     function atualizarInterfaceStoriesCliente() {
       const ring = document.getElementById('client-story-ring');
-      const badge = document.getElementById('client-story-badge');
       const statusText = document.getElementById('client-story-status-text');
       const btnVer = document.getElementById('btn-ver-stories-cta');
 
@@ -776,7 +788,6 @@
       if (storiesAtivosLista.length > 0) {
         ring.classList.remove('story-ring-inactive');
         ring.classList.add('story-ring-active');
-        badge.classList.remove('hidden');
         btnVer.classList.remove('hidden');
         statusText.innerText = storiesAtivosLista.length === 1
           ? "1 foto postada hoje • Toque para ver"
@@ -786,7 +797,6 @@
       } else {
         ring.classList.remove('story-ring-active');
         ring.classList.add('story-ring-inactive');
-        badge.classList.add('hidden');
         btnVer.classList.add('hidden');
         statusText.innerText = "Nenhuma atualização postada hoje";
         statusText.classList.remove('text-white');
@@ -823,11 +833,10 @@
 
       const story = storiesAtivosLista[storyIndiceAtual];
 
-      // Barras de progresso superiores
       const barsContainer = document.getElementById('story-progress-bars');
       barsContainer.innerHTML = '';
       storiesAtivosLista.forEach((_, idx) => {
-        const preenchido = idx < storyIndiceAtual ? 'w-full' : (idx === storyIndiceAtual ? 'w-0' : 'w-0');
+        const preenchido = idx < storyIndiceAtual ? 'w-full' : 'w-0';
         barsContainer.innerHTML += `
           <div class="flex-1 h-1 bg-white/25 rounded-full overflow-hidden">
             <div id="story-bar-fill-${idx}" class="h-full bg-white rounded-full transition-all duration-100 ${preenchido}"></div>
@@ -868,7 +877,7 @@
           clearInterval(timerStoryInterval);
           proximoStory();
         }
-      }, 100); // 5 segundos por story
+      }, 100);
     }
 
     function proximoStory() {
@@ -1043,6 +1052,7 @@
         servicosLista = [];
         for (let id in dados) { servicosLista.push({ id: id, ...dados[id] }); }
         renderizarServicos();
+        renderizarCarrosselTendencias();
       });
     }
 
@@ -1097,6 +1107,7 @@
 
     function selecionarServico(id) {
       servicoSelecionado = servicosLista.find(s => s.id === id);
+      if (!servicoSelecionado) return;
       abrirModalProfissionais();
     }
 
