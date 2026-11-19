@@ -4,6 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BARBEARIA ARAUJO - Portal do Cliente</title>
+
+  <!-- PWA / TELA CHEIA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#050505">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Barbearia Araujo">
+  <link rel="apple-touch-icon" href="/icon.png">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -164,9 +174,17 @@
           </div>
         </button>
 
-        <button onclick="abrirPainelPerfil()" class="text-xs text-gray-400 hover:text-white p-2 rounded-xl hover:bg-white/5 transition" title="Meu Perfil">
-          <i class="fa-solid fa-bars text-base"></i>
-        </button>
+        <div class="flex items-center space-x-1">
+          <!-- BOTÃO DISCRETO PWA NO TOPO -->
+          <button type="button" id="btn-pwa-header-client" onclick="instalarPwaCliente()" class="hidden text-[11px] font-bold text-gray-300 hover:text-white bg-black/70 border border-pegas-border hover:border-white/40 px-2.5 py-1.5 rounded-xl items-center space-x-1.5 transition" title="Adicionar à Tela de Início">
+            <i class="fa-solid fa-mobile-screen-button text-xs"></i>
+            <span class="hidden sm:inline">Instalar App</span>
+          </button>
+
+          <button onclick="abrirPainelPerfil()" class="text-xs text-gray-400 hover:text-white p-2 rounded-xl hover:bg-white/5 transition" title="Meu Perfil">
+            <i class="fa-solid fa-bars text-base"></i>
+          </button>
+        </div>
       </div>
     </header>
 
@@ -435,14 +453,41 @@
         </form>
       </div>
 
-      <!-- BOTÃO SAIR DA CONTA NO RODAPÉ DO PAINEL -->
-      <div class="pt-5 mt-5 border-t border-pegas-border">
+      <!-- BOTÕES INFERIORES DO PAINEL (PWA + SAIR DA CONTA) -->
+      <div class="pt-5 mt-5 border-t border-pegas-border space-y-2.5">
+        <button type="button" id="btn-pwa-drawer-client" onclick="instalarPwaCliente()" class="hidden w-full py-2.5 bg-white/5 border border-white/15 text-gray-200 hover:text-white hover:bg-white/10 font-bold text-xs rounded-xl items-center justify-center space-x-2 transition">
+          <i class="fa-solid fa-mobile-screen-button text-xs"></i>
+          <span>Adicionar à Tela de Início</span>
+        </button>
+
         <button type="button" onclick="realizarLogout()" class="w-full py-2.5 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 font-bold text-xs rounded-xl flex items-center justify-center space-x-2 transition">
           <i class="fa-solid fa-right-from-bracket"></i>
           <span>Sair da Conta</span>
         </button>
       </div>
     </aside>
+  </div>
+
+  <!-- MODAL DISCRETO: INSTRUÇÕES DE INSTALAÇÃO PWA NO IPHONE/SAFARI -->
+  <div id="modal-instrucoes-pwa-client" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-[70] hidden items-center justify-center p-4 fade-in">
+    <div class="bg-pegas-card border border-pegas-border w-full max-w-sm rounded-2xl p-5 space-y-4 text-center shadow-2xl">
+      <div class="w-12 h-12 rounded-2xl bg-white/10 border border-white/15 text-white flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-mobile-screen-button"></i>
+      </div>
+      <div class="space-y-1.5">
+        <h3 class="text-base font-black text-white">Instalar na Tela de Início</h3>
+        <p class="text-xs text-gray-400 leading-relaxed">
+          Para usar o portal da <strong class="text-white">Barbearia Araujo</strong> como aplicativo sem bordas:
+        </p>
+      </div>
+      <div class="bg-black border border-pegas-border rounded-xl p-3.5 text-left text-xs text-gray-300 space-y-2">
+        <p><strong class="text-white">1.</strong> Toque no ícone <strong class="text-white">Compartilhar</strong> <i class="fa-solid fa-arrow-up-from-bracket text-blue-400 mx-0.5"></i> na barra do navegador.</p>
+        <p><strong class="text-white">2.</strong> Role para baixo e toque em <strong class="text-white">"Adicionar à Tela de Início"</strong> <i class="fa-regular fa-square-plus text-gray-400 mx-0.5"></i>.</p>
+      </div>
+      <button type="button" onclick="fecharModalInstrucoesPwaCliente()" class="w-full py-2.5 bg-white text-black font-extrabold text-xs uppercase rounded-xl hover:bg-gray-200 transition">
+        Entendi
+      </button>
+    </div>
   </div>
 
   <!-- MODAL: SELEÇÃO DE PROFISSIONAL -->
@@ -558,6 +603,65 @@
     let barbeiroSelecionado = null;
     let horaSelecionada = null;
 
+    // ==========================================
+    // CONTROLE DE INSTALAÇÃO PWA (TELA CHEIA)
+    // ==========================================
+    let eventoInstalacaoPwaClient = null;
+
+    function isModoStandalone() {
+      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+
+    function atualizarVisibilidadeBotoesPwaClient() {
+      const btnHeader = document.getElementById('btn-pwa-header-client');
+      const btnDrawer = document.getElementById('btn-pwa-drawer-client');
+      if (!btnHeader || !btnDrawer) return;
+
+      if (isModoStandalone()) {
+        btnHeader.classList.add('hidden');
+        btnHeader.classList.remove('flex');
+        btnDrawer.classList.add('hidden');
+        btnDrawer.classList.remove('flex');
+      } else {
+        btnHeader.classList.remove('hidden');
+        btnHeader.classList.add('flex');
+        btnDrawer.classList.remove('hidden');
+        btnDrawer.classList.add('flex');
+      }
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      eventoInstalacaoPwaClient = e;
+      atualizarVisibilidadeBotoesPwaClient();
+    });
+
+    window.addEventListener('appinstalled', () => {
+      eventoInstalacaoPwaClient = null;
+      atualizarVisibilidadeBotoesPwaClient();
+    });
+
+    async function instalarPwaCliente() {
+      if (eventoInstalacaoPwaClient) {
+        eventoInstalacaoPwaClient.prompt();
+        const { outcome } = await eventoInstalacaoPwaClient.userChoice;
+        if (outcome === 'accepted') {
+          eventoInstalacaoPwaClient = null;
+          atualizarVisibilidadeBotoesPwaClient();
+        }
+      } else {
+        fecharPainelPerfil();
+        document.getElementById('modal-instrucoes-pwa-client').classList.remove('hidden');
+        document.getElementById('modal-instrucoes-pwa-client').classList.add('flex');
+      }
+    }
+
+    function fecharModalInstrucoesPwaCliente() {
+      document.getElementById('modal-instrucoes-pwa-client').classList.add('hidden');
+    }
+
+    atualizarVisibilidadeBotoesPwaClient();
+
     document.getElementById('input-data-agendamento').value = new Date().toISOString().split('T')[0];
 
     function toggleVisibilidadeSenha(inputId, iconId) {
@@ -639,6 +743,7 @@
         document.getElementById('screen-app').classList.remove('hidden');
         document.getElementById('screen-app').classList.add('flex');
 
+        atualizarVisibilidadeBotoesPwaClient();
         iniciarAutoScrollCarrossel();
         escutarStoriesFirebase();
         escutarServicosFirebase();
@@ -845,7 +950,6 @@
 
       const story = storiesAtivosLista[storyIndiceAtual];
 
-      // Registra no Firebase que este cliente visualizou este story
       registrarVisualizacaoStory(story.id);
 
       const barsContainer = document.getElementById('story-progress-bars');
@@ -910,6 +1014,7 @@
     // PAINEL LATERAL DO PERFIL DO CLIENTE
     function abrirPainelPerfil() {
       atualizarInterfaceCliente();
+      atualizarVisibilidadeBotoesPwaClient();
       document.getElementById('perfil-edit-senha-atual').value = '';
       document.getElementById('perfil-edit-nova-senha').value = '';
       document.getElementById('drawer-perfil-overlay').classList.remove('hidden');
@@ -1387,6 +1492,14 @@
           conteudo.classList.add('hidden');
           nav.className = "flex flex-col items-center text-gray-500 hover:text-white space-y-1";
         }
+      });
+    }
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
       });
     }
   </script>
