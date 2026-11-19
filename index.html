@@ -587,6 +587,28 @@
     const auth = firebase.auth();
     const database = firebase.database();
 
+    // Persistência permanente no aparelho (desloga apenas ao clicar em "Sair")
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+const STORAGE_KEY_EMAIL_CLIENTE = "barbearia_araujo_ultimo_email_cliente";
+
+function preencherUltimoEmailCliente() {
+  try {
+    const salvo = localStorage.getItem(STORAGE_KEY_EMAIL_CLIENTE);
+    const campo = document.getElementById('login-email');
+    if (salvo && campo && !campo.value) {
+      campo.value = salvo;
+    }
+  } catch (e) {}
+}
+
+function salvarUltimoEmailCliente(email) {
+  try {
+    if (email) localStorage.setItem(STORAGE_KEY_EMAIL_CLIENTE, email.trim());
+  } catch (e) {}
+}
+
+preencherUltimoEmailCliente();
     const FOTO_PADRAO_CLIENTE = "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200";
 
     let clienteAtual = null;
@@ -1137,35 +1159,46 @@
       }
     }
 
-    function realizarLogin(e) {
-      e.preventDefault();
-      const email = document.getElementById('login-email').value;
-      const senha = document.getElementById('login-senha').value;
-      auth.signInWithEmailAndPassword(email, senha).catch(err => alert("Erro ao entrar: " + err.message));
-    }
+function realizarLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  salvarUltimoEmailCliente(email);
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
+    return auth.signInWithEmailAndPassword(email, senha);
+  }).catch(err => alert("Erro ao entrar: " + err.message));
+}
 
-    function realizarCadastro(e) {
-      e.preventDefault();
-      const nome = document.getElementById('reg-nome').value.trim();
-      const telefone = document.getElementById('reg-telefone').value.trim();
-      const nascimento = document.getElementById('reg-nascimento').value;
-      const email = document.getElementById('reg-email').value.trim();
-      const senha = document.getElementById('reg-senha').value;
+function realizarCadastro(e) {
+  e.preventDefault();
+  const nome = document.getElementById('reg-nome').value.trim();
+  const telefone = document.getElementById('reg-telefone').value.trim();
+  const nascimento = document.getElementById('reg-nascimento').value;
+  const email = document.getElementById('reg-email').value.trim();
+  const senha = document.getElementById('reg-senha').value;
+  salvarUltimoEmailCliente(email);
 
-      auth.createUserWithEmailAndPassword(email, senha).then((cred) => {
-        database.ref(`clientes/${cred.user.uid}`).set({
-          nome,
-          telefone,
-          nascimento,
-          email,
-          pontos: 0,
-          criadoEm: new Date().toISOString()
-        });
-      }).catch(err => alert("Erro ao cadastrar: " + err.message));
-    }
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
+    return auth.createUserWithEmailAndPassword(email, senha);
+  }).then((cred) => {
+    database.ref(`clientes/${cred.user.uid}`).set({
+      nome,
+      telefone,
+      nascimento,
+      email,
+      pontos: 0,
+      criadoEm: new Date().toISOString()
+    });
+  }).catch(err => alert("Erro ao cadastrar: " + err.message));
+}
 
-    function realizarLogout() { auth.signOut(); }
-
+function realizarLogout() {
+  const emailAtual = clienteAtual?.email || document.getElementById('login-email').value;
+  salvarUltimoEmailCliente(emailAtual);
+  auth.signOut().then(() => {
+    preencherUltimoEmailCliente();
+  });
+}
     function escutarServicosFirebase() {
       database.ref('servicos').on('value', (snapshot) => {
         const dados = snapshot.val();
@@ -1319,54 +1352,59 @@
             }
           });
 
-          database.ref(`horasExtras/${barbeiroSelecionado.id}/${dataSelecionada}`).once('value', (snapExtras) => {
-            let extraAntesMinutos = 0;
-            let extraDepoisMinutos = 0;
+         database.ref(`expedienteEspecial/${barbeiroSelecionado.id}/${dataSelecionada}`).once('value', (snapExp) => {
+            const expEspecial = snapExp.exists() ? snapExp.val() : null;
 
-            if (snapExtras.exists()) {
-              snapExtras.forEach(childExtra => {
-                const ext = childExtra.val();
-                if (ext.posicao === 'antes') extraAntesMinutos += (Number(ext.horas || 0) * 60);
-                if (ext.posicao === 'depois') extraDepoisMinutos += (Number(ext.horas || 0) * 60);
-              });
-            }
+            database.ref(`horasExtras/${barbeiroSelecionado.id}/${dataSelecionada}`).once('value', (snapExtras) => {
+              let extraAntesMinutos = 0;
+              let extraDepoisMinutos = 0;
 
-            container.innerHTML = '';
+              if (snapExtras.exists()) {
+                snapExtras.forEach(childExtra => {
+                  const ext = childExtra.val();
+                  if (ext.posicao === 'antes') extraAntesMinutos += (Number(ext.horas || 0) * 60);
+                  if (ext.posicao === 'depois') extraDepoisMinutos += (Number(ext.horas || 0) * 60);
+                });
+              }
 
-            if (diaDeFolga) {
-              avisoFolga.classList.remove('hidden');
-            }
+              container.innerHTML = '';
 
-            const horaInicioBase = Number(barbeiroSelecionado.inicio) || 8;
-            let minutosInicioTotal = (horaInicioBase * 60) - extraAntesMinutos;
-            if (minutosInicioTotal < 0) minutosInicioTotal = 0;
+              if (diaDeFolga) {
+                avisoFolga.classList.remove('hidden');
+              }
 
-            const jornadaBaseMinutos = (Number(barbeiroSelecionado.jornada) || 10) * 60;
-            const minutosFimTotal = (horaInicioBase * 60) + jornadaBaseMinutos + extraDepoisMinutos;
+              const horaInicioBase = expEspecial ? Number(expEspecial.inicio) : (Number(barbeiroSelecionado.inicio) || 8);
+              const horaFimBase = expEspecial ? Number(expEspecial.fim) : (horaInicioBase + (Number(barbeiroSelecionado.jornada) || 10));
 
-            for (let mAtual = minutosInicioTotal; mAtual < minutosFimTotal; mAtual += tmc) {
-              const strHora = formatarMinutosParaHora(mAtual);
+              let minutosInicioTotal = (horaInicioBase * 60) - extraAntesMinutos;
+              if (minutosInicioTotal < 0) minutosInicioTotal = 0;
 
-              let indisponivel = diaDeFolga;
+              const minutosFimTotal = (horaFimBase * 60) + extraDepoisMinutos;
 
-              if (!indisponivel) {
-                for (let s = 0; s < slotsNecessariosServico; s++) {
-                  const minVerificar = mAtual + (s * tmc);
-                  const horaVerificar = formatarMinutosParaHora(minVerificar);
+              for (let mAtual = minutosInicioTotal; mAtual < minutosFimTotal; mAtual += tmc) {
+                const strHora = formatarMinutosParaHora(mAtual);
 
-                  if (minVerificar >= minutosFimTotal || slotsBloqueadosSet.has(horaVerificar)) {
-                    indisponivel = true;
-                    break;
+                let indisponivel = diaDeFolga;
+
+                if (!indisponivel) {
+                  for (let s = 0; s < slotsNecessariosServico; s++) {
+                    const minVerificar = mAtual + (s * tmc);
+                    const horaVerificar = formatarMinutosParaHora(minVerificar);
+
+                    if (minVerificar >= minutosFimTotal || slotsBloqueadosSet.has(horaVerificar)) {
+                      indisponivel = true;
+                      break;
+                    }
                   }
                 }
-              }
 
-              if (indisponivel) {
-                container.innerHTML += `<button disabled class="bg-pegas-card border border-pegas-border text-gray-600 opacity-40 text-xs py-2 rounded-xl font-bold cursor-not-allowed">${strHora}</button>`;
-              } else {
-                container.innerHTML += `<button onclick="confirmarHorario('${strHora}')" class="bg-pegas-card border border-pegas-border hover:border-white text-white text-xs py-2 rounded-xl font-bold transition">${strHora}</button>`;
+                if (indisponivel) {
+                  container.innerHTML += `<button disabled class="bg-pegas-card border border-pegas-border text-gray-600 opacity-40 text-xs py-2 rounded-xl font-bold cursor-not-allowed">${strHora}</button>`;
+                } else {
+                  container.innerHTML += `<button onclick="confirmarHorario('${strHora}')" class="bg-pegas-card border border-pegas-border hover:border-white text-white text-xs py-2 rounded-xl font-bold transition">${strHora}</button>`;
+                }
               }
-            }
+            });
           });
         });
       });
