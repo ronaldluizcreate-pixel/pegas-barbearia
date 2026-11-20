@@ -221,6 +221,13 @@
               <i class="fa-solid fa-user-pen w-4 text-gray-400"></i>
               <span>Editar Perfil</span>
             </button>
+            <button onclick="abrirModalAssinaturas(); toggleMenuPerfil();" class="w-full text-left px-3 py-2 text-xs font-semibold text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 rounded-xl flex items-center justify-between transition">
+              <span class="flex items-center space-x-2">
+                <i class="fa-solid fa-crown w-4 text-amber-400"></i>
+                <span>Assinaturas</span>
+              </span>
+              <span id="badge-qtd-assinantes-menu" class="text-[10px] font-black bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full">0</span>
+            </button>
             <button onclick="abrirModalServicos(); toggleMenuPerfil();" class="w-full text-left px-3 py-2 text-xs font-semibold text-gray-200 hover:text-white hover:bg-white/5 rounded-xl flex items-center space-x-2 transition">
               <i class="fa-solid fa-scissors w-4 text-gray-400"></i>
               <span>Gerenciar Serviços</span>
@@ -296,7 +303,11 @@
             <h3 class="text-xs font-extrabold text-white uppercase tracking-wider">Agendamentos Gerais</h3>
             <p class="text-[10px] text-gray-400">Lista geral ou marcação presencial no balcão</p>
           </div>
-          <div class="flex items-center space-x-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" onclick="abrirModalAssinaturas()" class="px-3 py-1.5 bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-extrabold rounded-xl hover:bg-amber-500/25 flex items-center space-x-1.5 transition active:scale-95">
+              <i class="fa-solid fa-crown text-[11px]"></i>
+              <span>Assinaturas</span>
+            </button>
             <button type="button" onclick="abrirModalAgendamentoManual()" class="px-3 py-1.5 bg-white text-black text-xs font-extrabold rounded-xl hover:bg-gray-200 flex items-center space-x-1.5 transition active:scale-95">
               <i class="fa-solid fa-plus text-[11px]"></i>
               <span>Agendar Cliente</span>
@@ -329,6 +340,93 @@
         <span id="badge-vencimento" class="text-gray-400 text-[10px] sm:text-[11px]">Vencimento: ---</span>
       </div>
     </footer>
+  </div>
+
+  <!-- POP-UP MODAL: CLUBE DE ASSINATURAS MENSAIS (VINCULADO AOS CLIENTES CADASTRADOS) -->
+  <div id="modal-assinaturas" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-[65] hidden items-center justify-center p-3 sm:p-4 fade-in">
+    <div class="bg-pegas-card border border-pegas-border w-full max-w-2xl rounded-2xl p-4 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between border-b border-pegas-border pb-3">
+        <div>
+          <h3 class="font-extrabold text-white text-sm sm:text-base uppercase tracking-wider flex items-center space-x-2">
+            <i class="fa-solid fa-crown text-amber-400"></i>
+            <span>Clube de Assinaturas</span>
+          </h3>
+          <p class="text-[10px] text-gray-400">Vincule clientes cadastrados ao plano mensal (pagamento renovado todo mês)</p>
+        </div>
+        <button type="button" onclick="fecharModalAssinaturas()" class="text-gray-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- PESQUISA DE CLIENTE CADASTRADO + ESCOLHA DO PLANO -->
+      <div class="bg-black/60 border border-pegas-border p-4 rounded-2xl space-y-3">
+        <div class="flex items-center justify-between">
+          <label class="text-[10px] text-gray-400 font-bold uppercase">1. Buscar Cliente Cadastrado no App</label>
+          <span id="contador-clientes-base" class="text-[10px] text-gray-500">0 cadastrados</span>
+        </div>
+
+        <div class="relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+          <input type="text" id="busca-cliente-assinatura" oninput="filtrarClientesParaAssinatura()" placeholder="Digite o nome ou telefone do cliente..." class="w-full bg-pegas-card border border-pegas-border rounded-xl py-2.5 pl-9 pr-3 text-xs text-white focus:outline-none focus:border-white">
+        </div>
+
+        <!-- LISTA DE RESULTADOS DA PESQUISA -->
+        <div id="lista-resultados-clientes-assinatura" class="max-h-36 overflow-y-auto custom-scrollbar space-y-1.5"></div>
+
+        <!-- CLIENTE SELECIONADO PARA ASSINAR / EDITAR -->
+        <div id="box-form-vincular-assinatura" class="hidden pt-3 border-t border-pegas-border space-y-3 fade-in">
+          <div class="flex items-center justify-between bg-pegas-card border border-amber-500/30 p-2.5 rounded-xl">
+            <div class="flex items-center space-x-2.5 min-w-0">
+              <img id="assinatura-sel-foto" src="" class="w-8 h-8 rounded-full object-cover border border-white/20" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=200'">
+              <div class="min-w-0">
+                <p id="assinatura-sel-nome" class="text-xs font-bold text-white truncate">---</p>
+                <p id="assinatura-sel-telefone" class="text-[10px] text-gray-400 truncate">---</p>
+              </div>
+            </div>
+            <button type="button" onclick="limparSelecaoClienteAssinatura()" class="text-[10px] text-gray-400 hover:text-white px-2 py-1">Trocar</button>
+          </div>
+
+          <input type="hidden" id="assinatura-sel-uid">
+
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase block mb-1.5">2. Escolha o Plano Mensal</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <label class="cursor-pointer bg-pegas-card border border-pegas-border hover:border-amber-400/60 p-3 rounded-xl flex items-start space-x-2.5 transition">
+                <input type="radio" name="plano-assinatura-radio" value="85" checked class="mt-0.5 accent-amber-400">
+                <div>
+                  <span class="text-xs font-black text-white block">Plano Completo • R$ 85,00/mês</span>
+                  <span class="text-[10px] text-gray-400">Cabelo + Barba + Sobrancelha</span>
+                </div>
+              </label>
+
+              <label class="cursor-pointer bg-pegas-card border border-pegas-border hover:border-amber-400/60 p-3 rounded-xl flex items-start space-x-2.5 transition">
+                <input type="radio" name="plano-assinatura-radio" value="80" class="mt-0.5 accent-amber-400">
+                <div>
+                  <span class="text-xs font-black text-white block">Plano Essencial • R$ 80,00/mês</span>
+                  <span class="text-[10px] text-gray-400">Cabelo + Barba</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="flex justify-end space-x-2">
+            <button type="button" onclick="limparSelecaoClienteAssinatura()" class="px-3.5 py-2 bg-black border border-pegas-border text-gray-400 text-xs font-bold rounded-xl hover:text-white">Cancelar</button>
+            <button type="button" onclick="salvarAssinaturaClienteFirebase()" class="px-4 py-2 bg-amber-400 text-black text-xs font-black uppercase rounded-xl hover:bg-amber-300 transition">
+              Salvar Assinatura
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- LISTA DE ASSINANTES ATIVOS DO BARBEIRO -->
+      <div class="space-y-2.5 pt-1">
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs font-bold text-white uppercase tracking-wider">Assinantes Ativos (<span id="rotulo-mes-assinaturas">---</span>)</h4>
+          <span class="text-[10px] text-gray-400">Reseta automaticamente todo dia 1º</span>
+        </div>
+        <div id="lista-assinantes-ativos" class="space-y-2.5"></div>
+      </div>
+    </div>
   </div>
 
   <!-- POP-UP MODAL: AGENDAMENTO MANUAL PELO GESTOR (CLIENTE PRESENCIAL / SEM CELULAR) -->
@@ -788,7 +886,6 @@
     const auth = firebase.auth();
     const database = firebase.database();
 
-    // Persistência permanente no dispositivo (mantém logado até clicar em "Sair")
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
     const STORAGE_KEY_EMAIL_GESTOR = "barbearia_araujo_ultimo_email_gestor";
@@ -814,6 +911,8 @@
     let gestorLogado = null;
     let barbeirosLista = [];
     let servicosLista = [];
+    let clientesCadastradosLista = [];
+    let assinantesBarbeiroMapa = {};
     let barbeiroLogado = null;
     let agendamentosLista = [];
     let folgasBarbeiroMapa = {};
@@ -955,6 +1054,25 @@
       return Boolean(registro.barbeiro && registro.barbeiro.trim().toLowerCase() === barbeiroLogado.nome.trim().toLowerCase());
     }
 
+    function verificarClienteAssinanteAtivo(agendamento) {
+      if (!agendamento) return null;
+      if (agendamento.clienteId && assinantesBarbeiroMapa[agendamento.clienteId]) {
+        const ass = assinantesBarbeiroMapa[agendamento.clienteId];
+        if (ass.ativa !== false) return ass;
+      }
+      const telAg = (agendamento.telefone || '').replace(/\D/g, '');
+      if (telAg.length >= 8) {
+        for (const uid in assinantesBarbeiroMapa) {
+          const ass = assinantesBarbeiroMapa[uid];
+          const telAss = (ass.telefone || '').replace(/\D/g, '');
+          if (ass.ativa !== false && telAss && telAss === telAg) {
+            return ass;
+          }
+        }
+      }
+      return null;
+    }
+
     auth.onAuthStateChanged((user) => {
       if (user) {
         gestorLogado = user;
@@ -1021,6 +1139,260 @@
     }
 
     // ==========================================
+    // CLUBE DE ASSINATURAS MENSAIS (VINCULADO AOS CLIENTES)
+    // ==========================================
+    function iniciarEscutasClientesCadastrados() {
+      database.ref('clientes').off();
+      database.ref('clientes').on('value', (snapshot) => {
+        const dados = snapshot.val() || {};
+        clientesCadastradosLista = Object.entries(dados).map(([uid, val]) => ({
+          uid,
+          nome: val.nome || (val.email ? val.email.split('@')[0] : 'Cliente'),
+          telefone: val.telefone || '',
+          email: val.email || '',
+          foto: val.foto || FOTO_PADRAO_BARBEIRO
+        }));
+        clientesCadastradosLista.sort((a, b) => a.nome.localeCompare(b.nome));
+        document.getElementById('contador-clientes-base').innerText = `${clientesCadastradosLista.length} cadastrados`;
+        filtrarClientesParaAssinatura();
+      });
+    }
+
+    function iniciarEscutasAssinantesBarbeiro(barbeiroId) {
+      database.ref('assinantesBarbearia').off();
+      database.ref(`assinantesBarbearia/${barbeiroId}`).on('value', (snapshot) => {
+        assinantesBarbeiroMapa = snapshot.val() || {};
+        const qtdAtivos = Object.values(assinantesBarbeiroMapa).filter(a => a && a.ativa !== false).length;
+        const badgeMenu = document.getElementById('badge-qtd-assinantes-menu');
+        if (badgeMenu) badgeMenu.innerText = qtdAtivos;
+
+        renderizarAssinantesAtivos();
+        renderizarAgendamentosGestor();
+        if (diaAbertoModalStr) {
+          renderizarListaModalDia(diaAbertoModalStr);
+        }
+      });
+    }
+
+    function obterChaveMesAtual() {
+      const hoje = new Date();
+      return `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    function obterRotuloMesAtualExtenso() {
+      const hoje = new Date();
+      return `${nomesMesesAbrev[hoje.getMonth()]}/${hoje.getFullYear()}`;
+    }
+
+    function abrirModalAssinaturas() {
+      if (!barbeiroLogado) return;
+      document.getElementById('busca-cliente-assinatura').value = '';
+      document.getElementById('rotulo-mes-assinaturas').innerText = obterRotuloMesAtualExtenso();
+      limparSelecaoClienteAssinatura();
+      filtrarClientesParaAssinatura();
+      renderizarAssinantesAtivos();
+
+      document.getElementById('modal-assinaturas').classList.remove('hidden');
+      document.getElementById('modal-assinaturas').classList.add('flex');
+    }
+
+    function fecharModalAssinaturas() {
+      document.getElementById('modal-assinaturas').classList.add('hidden');
+    }
+
+    function filtrarClientesParaAssinatura() {
+      const container = document.getElementById('lista-resultados-clientes-assinatura');
+      if (!container) return;
+
+      const termo = (document.getElementById('busca-cliente-assinatura').value || '').trim().toLowerCase();
+      container.innerHTML = '';
+
+      if (clientesCadastradosLista.length === 0) {
+        container.innerHTML = `<p class="text-[11px] text-gray-500 text-center py-3">Nenhum cliente cadastrado no portal ainda.</p>`;
+        return;
+      }
+
+      const filtrados = clientesCadastradosLista.filter(c => {
+        if (!termo) return true;
+        return c.nome.toLowerCase().includes(termo) ||
+               c.telefone.toLowerCase().includes(termo) ||
+               c.email.toLowerCase().includes(termo);
+      }).slice(0, 15);
+
+      if (filtrados.length === 0) {
+        container.innerHTML = `<p class="text-[11px] text-gray-500 text-center py-3">Nenhum cliente encontrado com "${termo}".</p>`;
+        return;
+      }
+
+      filtrados.forEach(cli => {
+        const jaAssinante = Boolean(assinantesBarbeiroMapa[cli.uid] && assinantesBarbeiroMapa[cli.uid].ativa !== false);
+        const seloJaAssina = jaAssinante
+          ? `<span class="px-2 py-0.5 bg-amber-500/20 text-amber-300 text-[9px] font-bold rounded-full">Assinante (R$ ${assinantesBarbeiroMapa[cli.uid].valor})</span>`
+          : `<span class="text-[10px] text-gray-400 font-semibold">Selecionar <i class="fa-solid fa-chevron-right text-[8px] ml-0.5"></i></span>`;
+
+        container.innerHTML += `
+          <button type="button" onclick="selecionarClienteParaAssinatura('${cli.uid}')" class="w-full bg-pegas-card border border-pegas-border hover:border-white/50 p-2.5 rounded-xl flex items-center justify-between text-left transition">
+            <div class="flex items-center space-x-2.5 min-w-0">
+              <img src="${cli.foto}" alt="${cli.nome}" class="w-7 h-7 rounded-full object-cover border border-white/15 flex-shrink-0" onerror="this.src='${FOTO_PADRAO_BARBEIRO}'">
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-white truncate">${cli.nome}</p>
+                <p class="text-[10px] text-gray-400 truncate">${cli.telefone || cli.email}</p>
+              </div>
+            </div>
+            <div class="flex-shrink-0 ml-2">${seloJaAssina}</div>
+          </button>
+        `;
+      });
+    }
+
+    function selecionarClienteParaAssinatura(uid) {
+      const cli = clientesCadastradosLista.find(c => c.uid === uid);
+      if (!cli) return;
+
+      document.getElementById('assinatura-sel-uid').value = cli.uid;
+      document.getElementById('assinatura-sel-nome').innerText = cli.nome;
+      document.getElementById('assinatura-sel-telefone').innerText = cli.telefone || cli.email;
+      document.getElementById('assinatura-sel-foto').src = cli.foto || FOTO_PADRAO_BARBEIRO;
+
+      const existente = assinantesBarbeiroMapa[cli.uid];
+      const valorRadio = existente && Number(existente.valor) === 80 ? '80' : '85';
+      document.querySelectorAll('input[name="plano-assinatura-radio"]').forEach(r => {
+        r.checked = (r.value === valorRadio);
+      });
+
+      document.getElementById('box-form-vincular-assinatura').classList.remove('hidden');
+    }
+
+    function limparSelecaoClienteAssinatura() {
+      document.getElementById('assinatura-sel-uid').value = '';
+      document.getElementById('box-form-vincular-assinatura').classList.add('hidden');
+    }
+
+    function salvarAssinaturaClienteFirebase() {
+      if (!barbeiroLogado) return;
+      const uid = document.getElementById('assinatura-sel-uid').value;
+      const cli = clientesCadastradosLista.find(c => c.uid === uid);
+      if (!cli) return;
+
+      const radioSelecionado = document.querySelector('input[name="plano-assinatura-radio"]:checked');
+      const valorPlano = radioSelecionado ? Number(radioSelecionado.value) : 85;
+      const nomePlano = valorPlano === 85
+        ? "Cabelo + Barba + Sobrancelha"
+        : "Cabelo + Barba";
+
+      const registroAtual = assinantesBarbeiroMapa[uid] || {};
+
+      database.ref(`assinantesBarbearia/${barbeiroLogado.id}/${uid}`).update({
+        clienteUid: cli.uid,
+        nome: cli.nome,
+        telefone: cli.telefone,
+        email: cli.email,
+        foto: cli.foto || FOTO_PADRAO_BARBEIRO,
+        planoNome: nomePlano,
+        valor: valorPlano,
+        ativa: true,
+        barbeiroId: barbeiroLogado.id,
+        barbeiroNome: barbeiroLogado.nome,
+        criadoEm: registroAtual.criadoEm || new Date().toISOString(),
+        atualizadoEm: new Date().toISOString()
+      }).then(() => {
+        limparSelecaoClienteAssinatura();
+        filtrarClientesParaAssinatura();
+      });
+    }
+
+    function alternarPagamentoAssinaturaMes(clienteUid) {
+      if (!barbeiroLogado) return;
+      const ass = assinantesBarbeiroMapa[clienteUid];
+      if (!ass) return;
+
+      const chaveMes = obterChaveMesAtual();
+      const jaPagoNoMes = Boolean(ass.pagamentosMes && ass.pagamentosMes[chaveMes] && ass.pagamentosMes[chaveMes].pago);
+
+      if (jaPagoNoMes) {
+        if (confirm(`Deseja desfazer a confirmação de pagamento de ${ass.nome} neste mês (${obterRotuloMesAtualExtenso()})?`)) {
+          database.ref(`assinantesBarbearia/${barbeiroLogado.id}/${clienteUid}/pagamentosMes/${chaveMes}`).remove();
+        }
+      } else {
+        database.ref(`assinantesBarbearia/${barbeiroLogado.id}/${clienteUid}/pagamentosMes/${chaveMes}`).set({
+          pago: true,
+          valor: Number(ass.valor || 85),
+          planoNome: ass.planoNome || '',
+          pagoEm: new Date().toISOString()
+        });
+      }
+    }
+
+    function cancelarAssinaturaCliente(clienteUid, nomeCliente) {
+      if (!barbeiroLogado) return;
+      if (confirm(`Deseja cancelar a assinatura mensal de "${nomeCliente}"?`)) {
+        database.ref(`assinantesBarbearia/${barbeiroLogado.id}/${clienteUid}`).update({
+          ativa: false,
+          canceladaEm: new Date().toISOString()
+        }).then(() => {
+          filtrarClientesParaAssinatura();
+        });
+      }
+    }
+
+    function renderizarAssinantesAtivos() {
+      const container = document.getElementById('lista-assinantes-ativos');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const chaveMes = obterChaveMesAtual();
+      const ativos = Object.values(assinantesBarbeiroMapa).filter(a => a && a.ativa !== false);
+
+      if (ativos.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-500 text-center py-6 bg-black/40 border border-pegas-border rounded-xl">Nenhum cliente assinante ativo ainda.</p>`;
+        return;
+      }
+
+      ativos.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+
+      ativos.forEach(ass => {
+        const pagoMes = Boolean(ass.pagamentosMes && ass.pagamentosMes[chaveMes] && ass.pagamentosMes[chaveMes].pago);
+        const btnWhats = gerarBotaoWhatsapp(ass.telefone);
+        const nomeEscapado = (ass.nome || '').replace(/'/g, "\\'");
+
+        const botaoPagamentoHtml = pagoMes
+          ? `<button type="button" onclick="alternarPagamentoAssinaturaMes('${ass.clienteUid}')" class="px-2.5 py-1.5 bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[11px] font-extrabold rounded-xl flex items-center space-x-1 transition">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Pago (${obterRotuloMesAtualExtenso()})</span>
+            </button>`
+          : `<button type="button" onclick="alternarPagamentoAssinaturaMes('${ass.clienteUid}')" class="px-2.5 py-1.5 bg-white text-black hover:bg-gray-200 text-[11px] font-black rounded-xl flex items-center space-x-1 transition">
+              <i class="fa-solid fa-dollar-sign"></i>
+              <span>Assinatura Paga</span>
+            </button>`;
+
+        container.innerHTML += `
+          <div class="bg-black border border-pegas-border p-3.5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center space-x-2.5 min-w-0">
+              <img src="${ass.foto || FOTO_PADRAO_BARBEIRO}" alt="${ass.nome}" class="w-9 h-9 rounded-full object-cover border border-amber-400/40 flex-shrink-0" onerror="this.src='${FOTO_PADRAO_BARBEIRO}'">
+              <div class="min-w-0">
+                <div class="flex items-center space-x-1.5">
+                  <h5 class="text-xs sm:text-sm font-bold text-white truncate">${ass.nome}</h5>
+                  ${btnWhats}
+                </div>
+                <p class="text-[11px] text-amber-300 font-semibold">${ass.planoNome} • <strong>R$ ${ass.valor},00/mês</strong></p>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end space-x-1.5 flex-shrink-0">
+              ${botaoPagamentoHtml}
+              <button type="button" onclick="selecionarClienteParaAssinatura('${ass.clienteUid}')" title="Editar Plano" class="w-8 h-8 bg-pegas-card border border-pegas-border text-gray-300 hover:text-white rounded-xl flex items-center justify-center text-xs transition">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+              <button type="button" onclick="cancelarAssinaturaCliente('${ass.clienteUid}', '${nomeEscapado}')" title="Cancelar Assinatura" class="w-8 h-8 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 rounded-xl flex items-center justify-center text-xs transition">
+                <i class="fa-solid fa-ban"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // ==========================================
     // AGENDAMENTO MANUAL PELO GESTOR (BALCÃO)
     // ==========================================
     function abrirModalAgendamentoManual(dataPreSelecionada) {
@@ -1082,7 +1454,6 @@
         return;
       }
 
-      // Slots já ocupados nesta data para este barbeiro
       const slotsBloqueadosSet = new Set();
       agendamentosLista.forEach(val => {
         if (pertenceAoBarbeiroLogado(val) && val.data === dataSelecionada && val.status !== 'Cancelado') {
@@ -1557,7 +1928,7 @@
       event.stopPropagation();
       document.querySelectorAll('[id^="menu-card-"]').forEach(el => el.classList.add('hidden'));
 
-      if (!confirm(`Tem certeza que deseja excluir o perfil de "${nome}" e apagar TODOS os agendamentos, folgas, horas extras, expedientes e stories vinculados a ele?`)) {
+      if (!confirm(`Tem certeza que deseja excluir o perfil de "${nome}" e apagar TODOS os agendamentos, folgas, horas extras, expedientes, assinantes e stories vinculados a ele?`)) {
         return;
       }
 
@@ -1566,6 +1937,7 @@
         await database.ref(`folgas/${id}`).remove();
         await database.ref(`horasExtras/${id}`).remove();
         await database.ref(`expedienteEspecial/${id}`).remove();
+        await database.ref(`assinantesBarbearia/${id}`).remove();
 
         const snapAg = await database.ref('agendamentos').once('value');
         const promessasLimpeza = [];
@@ -1907,6 +2279,7 @@
       if (!barbeiroLogado) return;
       folgasBarbeiroMapa = {};
       expedienteEspecialMapa = {};
+      assinantesBarbeiroMapa = {};
       storiesDoBarbeiroAtual = [];
       esconderTodasTelas();
       document.getElementById('header-user-foto').src = barbeiroLogado.foto || FOTO_PADRAO_BARBEIRO;
@@ -1915,6 +2288,8 @@
       document.getElementById('screen-dashboard').classList.add('flex');
       atualizarVisibilidadeBotoesPwaGestor();
       iniciarEscutasStories();
+      iniciarEscutasClientesCadastrados();
+      iniciarEscutasAssinantesBarbeiro(barbeiroLogado.id);
       iniciarEscutasFolgasBarbeiro(barbeiroLogado.id);
       iniciarEscutasExpedienteEspecial(barbeiroLogado.id);
       iniciarEscutasAgendamentos();
@@ -2082,6 +2457,8 @@
       }
 
       filtrados.forEach(item => {
+        const assinanteObj = verificarClienteAssinanteAtivo(item);
+
         let statusBadge = item.status === 'Confirmado' 
           ? `<span class="px-2 py-0.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[9px] font-bold rounded-full">Confirmado</span>`
           : item.status === 'Pendente'
@@ -2089,6 +2466,10 @@
           : item.status === 'Concluído'
           ? `<span class="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold rounded-full">Concluído</span>`
           : `<span class="px-2 py-0.5 bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] font-bold rounded-full">Cancelado</span>`;
+
+        const tagAssinante = assinanteObj
+          ? `<span class="px-1.5 py-0.5 bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[8px] font-black uppercase rounded">Assinante</span>`
+          : '';
 
         const tagBalcao = item.origem === 'balcao'
           ? `<span class="px-1.5 py-0.5 bg-white/10 text-gray-300 text-[8px] font-bold uppercase rounded">Balcão</span>`
@@ -2118,6 +2499,7 @@
         const nomeFormatado = formatarPrimeiroUltimoNome(item.cliente);
         const btnWhats = gerarBotaoWhatsapp(item.telefone);
         const horarioExibicao = formatarHorarioAgendamentoGestor(item);
+        const valorExibicao = assinanteObj ? `R$ 0,00 (Plano)` : `R$ ${item.valor},00`;
 
         container.innerHTML += `
           <div class="bg-black border border-pegas-border p-3.5 rounded-xl flex items-center justify-between">
@@ -2126,9 +2508,10 @@
                 <h4 class="font-bold text-white text-xs sm:text-sm">${nomeFormatado}</h4>
                 ${btnWhats}
                 ${statusBadge}
+                ${tagAssinante}
                 ${tagBalcao}
               </div>
-              <p class="text-[11px] text-gray-400"><strong class="text-white">${horarioExibicao}</strong> • ${item.serviço} • R$ ${item.valor},00</p>
+              <p class="text-[11px] text-gray-400"><strong class="text-white">${horarioExibicao}</strong> • ${item.serviço} • ${valorExibicao}</p>
             </div>
             <div class="flex items-center space-x-1.5">
               ${botoesAcao}
@@ -2157,13 +2540,26 @@
       const prefixoMesAnoCal = `${anoCal}-${mesCal}`;
 
       let faturamentoMesCalculado = 0;
+
+      // 1. Soma cortes avulsos concluídos (ignorando clientes assinantes para não duplicar)
       agendamentosLista.forEach(a => {
         if (pertenceAoBarbeiroLogado(a) && a.status === 'Concluído' && a.data) {
           if (a.data.startsWith(prefixoMesAnoCal)) {
-            faturamentoMesCalculado += Number(a.valor || 0);
+            const ehAssinante = Boolean(verificarClienteAssinanteAtivo(a));
+            if (!ehAssinante) {
+              faturamentoMesCalculado += Number(a.valor || 0);
+            }
           }
         }
       });
+
+      // 2. Soma mensalidades de assinaturas marcadas como pagas no mês do calendário
+      Object.values(assinantesBarbeiroMapa).forEach(ass => {
+        if (ass && ass.pagamentosMes && ass.pagamentosMes[prefixoMesAnoCal] && ass.pagamentosMes[prefixoMesAnoCal].pago) {
+          faturamentoMesCalculado += Number(ass.pagamentosMes[prefixoMesAnoCal].valor || ass.valor || 0);
+        }
+      });
+
       document.getElementById('stat-faturamento').innerText = `R$ ${faturamentoMesCalculado.toFixed(2)}`;
 
       let listagem = agendamentosLista.filter(a => pertenceAoBarbeiroLogado(a));
@@ -2182,6 +2578,8 @@
       }
 
       listagem.forEach(item => {
+        const assinanteObj = verificarClienteAssinanteAtivo(item);
+
         let statusBadge = item.status === 'Confirmado' 
           ? `<span class="px-2 py-0.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[9px] font-bold rounded-full">Confirmado</span>`
           : item.status === 'Pendente'
@@ -2189,6 +2587,10 @@
           : item.status === 'Concluído'
           ? `<span class="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold rounded-full">Concluído</span>`
           : `<span class="px-2 py-0.5 bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] font-bold rounded-full">Cancelado</span>`;
+
+        const tagAssinante = assinanteObj
+          ? `<span class="px-1.5 py-0.5 bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[8px] font-black uppercase rounded">Assinante</span>`
+          : '';
 
         const tagBalcao = item.origem === 'balcao'
           ? `<span class="px-1.5 py-0.5 bg-white/10 text-gray-300 text-[8px] font-bold uppercase rounded">Balcão</span>`
@@ -2219,6 +2621,7 @@
         const nomeFormatado = formatarPrimeiroUltimoNome(item.cliente);
         const btnWhats = gerarBotaoWhatsapp(item.telefone);
         const horarioExibicao = formatarHorarioAgendamentoGestor(item);
+        const valorExibicao = assinanteObj ? `R$ 0,00 (Plano)` : `R$ ${item.valor},00`;
 
         container.innerHTML += `
           <div class="bg-pegas-card border border-pegas-border p-3.5 sm:p-4 rounded-xl flex items-center justify-between">
@@ -2227,9 +2630,10 @@
                 <h4 class="font-bold text-white text-xs sm:text-sm">${nomeFormatado}</h4>
                 ${btnWhats}
                 ${statusBadge}
+                ${tagAssinante}
                 ${tagBalcao}
               </div>
-              <p class="text-xs text-gray-400"><strong class="text-white">${dataFmt} • ${horarioExibicao}</strong> • ${item.serviço} • R$ ${item.valor},00</p>
+              <p class="text-xs text-gray-400"><strong class="text-white">${dataFmt} • ${horarioExibicao}</strong> • ${item.serviço} • ${valorExibicao}</p>
             </div>
             <div class="flex items-center space-x-1.5">
               ${botoesAcao}
