@@ -168,6 +168,7 @@
           <div>
             <div class="flex items-center space-x-1.5">
               <h1 id="user-display-name" class="text-xs sm:text-sm font-bold text-white leading-tight">---</h1>
+              <span id="header-badge-assinante" class="hidden px-1.5 py-0.5 bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[8px] font-black uppercase rounded">Assinante</span>
               <i class="fa-solid fa-chevron-right text-[9px] text-gray-500 group-hover:text-white transition"></i>
             </div>
             <p class="text-[9px] text-gray-400 uppercase tracking-widest font-semibold mt-0.5">BARBEARIA ARAUJO</p>
@@ -404,7 +405,22 @@
           </div>
           <span class="px-2 py-0.5 bg-white/5 border border-white/10 text-gray-400 text-[9px] font-bold uppercase rounded-full">Em breve</span>
         </div>
-
+        
+      <!-- CARTÃO DE ASSINATURA ATIVA DO CLIENTE -->
+        <div id="perfil-card-assinatura" class="hidden bg-amber-500/10 border border-amber-500/35 rounded-2xl p-3.5 items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 flex items-center justify-center">
+              <i class="fa-solid fa-crown text-sm"></i>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-amber-300">Clube de Assinatura</p>
+              <p id="perfil-assinatura-plano" class="text-xs font-black text-white">Assinante Ativo</p>
+              <p id="perfil-assinatura-barbeiro" class="text-[10px] text-gray-300 mt-0.5">Barbeiro: ---</p>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 bg-amber-400 text-black text-[9px] font-black uppercase rounded-full">Ativo</span>
+        </div>
+        
         <!-- FORMULÁRIO DE EDIÇÃO DE DADOS DO CLIENTE -->
         <form id="form-editar-perfil-cliente" onsubmit="salvarPerfilCliente(event)" class="space-y-3">
           <div>
@@ -615,6 +631,7 @@ preencherUltimoEmailCliente();
     let servicosLista = [];
     let barbeirosLista = [];
     let meusAgendamentosLista = [];
+    let minhasAssinaturasPorBarbeiro = {};
     let contagemPedidosPorServico = {};
     let storiesAtivosLista = [];
     let storyIndiceAtual = 0;
@@ -772,6 +789,7 @@ preencherUltimoEmailCliente();
         escutarRankingServicosFirebase();
         escutarBarbeirosFirebase();
         carregarMeusAgendamentos(user.uid);
+        escutarMinhasAssinaturas(user.uid);
       } else {
         clienteAtual = null;
         fecharPainelPerfil();
@@ -782,6 +800,48 @@ preencherUltimoEmailCliente();
       }
     });
 
+    function escutarMinhasAssinaturas(uid) {
+      database.ref('assinantesBarbearia').on('value', (snapshot) => {
+        const dados = snapshot.val() || {};
+        minhasAssinaturasPorBarbeiro = {};
+
+        for (const barbeiroId in dados) {
+          const registroCliente = dados[barbeiroId] ? dados[barbeiroId][uid] : null;
+          if (registroCliente && registroCliente.ativa !== false) {
+            minhasAssinaturasPorBarbeiro[barbeiroId] = {
+              barbeiroId,
+              ...registroCliente
+            };
+          }
+        }
+        atualizarCardAssinaturaPerfil();
+        renderizarMeusAgendamentos();
+      });
+    }
+
+    function atualizarCardAssinaturaPerfil() {
+      const card = document.getElementById('perfil-card-assinatura');
+      const badgeHeader = document.getElementById('header-badge-assinante');
+      if (!card) return;
+
+      const listaAtivas = Object.values(minhasAssinaturasPorBarbeiro);
+      if (listaAtivas.length === 0) {
+        card.classList.add('hidden');
+        card.classList.remove('flex');
+        if (badgeHeader) badgeHeader.classList.add('hidden');
+        return;
+      }
+
+      const primeira = listaAtivas[0];
+      document.getElementById('perfil-assinatura-plano').innerText = `${primeira.planoNome} (R$ ${primeira.valor}/mês)`;
+      document.getElementById('perfil-assinatura-barbeiro').innerText = listaAtivas.length > 1
+        ? `${listaAtivas.length} assinaturas ativas`
+        : `Profissional: ${primeira.barbeiroNome || 'Barbearia Araujo'}`;
+
+      card.classList.remove('hidden');
+      card.classList.add('flex');
+      if (badgeHeader) badgeHeader.classList.remove('hidden');
+    }
     // ==========================================
     // CARROSSEL TOP 5 SERVIÇOS MAIS ESCOLHIDOS
     // ==========================================
@@ -1417,17 +1477,22 @@ function realizarLogout() {
       const duracaoServico = extrairNumeroInteiro(servicoSelecionado.duracao, tmc);
       const slotsOcupados = calcularSlotsNecessarios(duracaoServico, tmc);
       const horaFimPrevista = formatarMinutosParaHora(converterHoraParaMinutos(horaSelecionada) + (slotsOcupados * tmc));
+      const assinaturaAtiva = minhasAssinaturasPorBarbeiro[barbeiroSelecionado.id];
 
       document.getElementById('resumo-servico').innerText = `${servicoSelecionado.nome} (${duracaoServico} min)`;
       document.getElementById('resumo-barbeiro').innerText = barbeiroSelecionado.nome;
       document.getElementById('resumo-horario').innerText = `${formatarDataPorExtenso(dataSelecionada, horaSelecionada)} até ${horaFimPrevista}`;
-      document.getElementById('resumo-valor').innerText = `R$ ${servicoSelecionado.preco},00`;
+      document.getElementById('resumo-valor').innerText = assinaturaAtiva
+        ? `R$ 0,00 (Incluso no Plano)`
+        : `R$ ${servicoSelecionado.preco},00`;
 
       document.getElementById('modal-confirmacao').classList.remove('hidden');
       document.getElementById('modal-confirmacao').classList.add('flex');
     }
-
-    function fecharModalConfirmacao() { document.getElementById('modal-confirmacao').classList.add('hidden'); }
+    
+    function fecharModalConfirmacao() {
+      document.getElementById('modal-confirmacao').classList.add('hidden');
+    }
 
     function salvarAgendamentoNoFirebase() {
       const dataSelecionada = document.getElementById('input-data-agendamento').value;
@@ -1435,6 +1500,7 @@ function realizarLogout() {
       const duracaoServico = extrairNumeroInteiro(servicoSelecionado.duracao, tmc);
       const slotsOcupados = calcularSlotsNecessarios(duracaoServico, tmc);
       const horaFim = formatarMinutosParaHora(converterHoraParaMinutos(horaSelecionada) + (slotsOcupados * tmc));
+      const assinaturaAtiva = minhasAssinaturasPorBarbeiro[barbeiroSelecionado.id];
 
       const novoAgendamento = {
         clienteId: clienteAtual.uid,
@@ -1444,7 +1510,8 @@ function realizarLogout() {
         duracao: duracaoServico,
         slotsOcupados: slotsOcupados,
         horaFim: horaFim,
-        valor: servicoSelecionado.preco,
+        valor: assinaturaAtiva ? 0 : servicoSelecionado.preco,
+        assinantePlano: assinaturaAtiva ? assinaturaAtiva.planoNome : null,
         barbeiroId: barbeiroSelecionado.id,
         barbeiro: barbeiroSelecionado.nome,
         data: dataSelecionada,
@@ -1471,7 +1538,7 @@ function realizarLogout() {
       });
     }
 
-    function renderizarMeusAgendamentos() {
+   function renderizarMeusAgendamentos() {
       const container = document.getElementById('container-meus-agendamentos');
       container.innerHTML = '';
 
@@ -1481,6 +1548,9 @@ function realizarLogout() {
       }
 
       meusAgendamentosLista.forEach(item => {
+        const isCorteAssinante = Number(item.valor) === 0 || Boolean(item.assinantePlano) || Boolean(item.barbeiroId && minhasAssinaturasPorBarbeiro[item.barbeiroId]);
+        const valorFormatadoItem = isCorteAssinante ? 'R$ 0,00 (Plano)' : `R$ ${item.valor},00`;
+
         let statusBadge = item.status === 'Confirmado' 
           ? `<span class="px-2 py-0.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[9px] font-bold rounded-full">Confirmado</span>`
           : item.status === 'Pendente'
@@ -1499,7 +1569,7 @@ function realizarLogout() {
                 ${statusBadge}
               </div>
               <p class="text-xs text-gray-400">Barbeiro: <strong class="text-white">${item.barbeiro}</strong></p>
-              <p class="text-[11px] text-gray-500"><i class="fa-solid fa-calendar-day mr-1"></i>${formatarDataPorExtenso(item.data, textoHorario)} • R$ ${item.valor},00</p>
+              <p class="text-[11px] text-gray-500"><i class="fa-solid fa-calendar-day mr-1"></i>${formatarDataPorExtenso(item.data, textoHorario)} • ${valorFormatadoItem}</p>
             </div>
 
             ${item.status !== 'Cancelado' && item.status !== 'Concluído' ? `
